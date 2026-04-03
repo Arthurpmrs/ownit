@@ -3,10 +3,13 @@ from uuid import uuid4
 from sqlalchemy import delete, func, insert, select, update
 from sqlalchemy.engine import Connection
 
+from src.core.logger import get_logger
 from src.features.auth.tables import students
 
 from .schemas import GoalCreate, GoalResponse, GoalUpdate
 from .tables import goals
+
+logger = get_logger(__name__)
 
 
 def _row_to_schema(row) -> GoalResponse:
@@ -21,9 +24,12 @@ def student_exists_by_id(conn: Connection, student_id: int) -> bool:
 
 
 def create_goal(conn: Connection, payload: GoalCreate) -> GoalResponse:
+    logger.info(f'Creating goal for student_id={payload.student_id}')
+
     goal_id = str(uuid4())
 
     if not student_exists_by_id(conn, payload.student_id):
+        logger.warning(f'Student not found: {payload.student_id}')
         raise Exception('student does not exist!')
 
     stmt = (
@@ -40,6 +46,9 @@ def create_goal(conn: Connection, payload: GoalCreate) -> GoalResponse:
     )
 
     result = conn.execute(stmt).fetchone()
+
+    logger.info(f'Goal created with id={goal_id}')
+
     return _row_to_schema(result)
 
 
