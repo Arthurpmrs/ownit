@@ -11,6 +11,11 @@ dependencies = [
     "sqlalchemy>=2.0.48",
 ]
 
+[dependency-groups]
+dev = [
+    "ruff>=0.15.9",
+]
+
 [tool.ruff]
 line-length = 90
 extend-exclude = ["migrations"]
@@ -23,3 +28,4 @@ unfixable = ["F401"]
 [tool.ruff.format]
 preview = true
 quote-style = "single"
+

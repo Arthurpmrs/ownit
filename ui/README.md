@@ -6,7 +6,7 @@ Código fonte do frontend.
 
 1. Instale a versão 24 do [NodeJS](https://nodejs.org/en/download).
 
-2. Instale as dependências localmente
+2. Instale as dependências localmente.
 
 ```bash
 npm install
@@ -14,12 +14,12 @@ npm install
 
 3. Configure seu editor.
 
-Para o VSCode sugerimos as extensões:
+Para o VSCode sugerimos as seguintes extensões.
 
 - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 - [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 
-Configuração para formatar ao salvar. Adicione o código abaixo ao seu `settings.json`
+Para habilitar a formatação automática ao salvar, adicione o código abaixo ao seu `settings.json`.
 
 ```json
 "editor.codeActionsOnSave": {
@@ -28,10 +28,14 @@ Configuração para formatar ao salvar. Adicione o código abaixo ao seu `settin
 },
 ```
 
+4. Inicialize a aplicação.
+```bash
+npm run dev
+```
+
 ## Comandos
 
-- Para executar localmente: `npm run dev`
-- Para executar o lint: `npm run lint`
+- Para executar o linter: `npm run lint`
 - Para verificar arquivos que violam a formatação: `npm run format:check`
 - Para formatar arquivos: `npm run format`
 
@@ -42,5 +46,5 @@ O roteamento é feito usando a biblioteca [TanStack Router](https://tanstack.com
 Outras bibliotecas utilizadas:
 
 - [Mantine](https://mantine.dev/core/package/)
-- [TanStack Router](https://tanstack.com/query/v5/docs/framework/react/quick-start)
+- [TanStack Query](https://tanstack.com/query/v5/docs/framework/react/quick-start)
 - [D&D Kit](https://dndkit.com/react/quickstart)
