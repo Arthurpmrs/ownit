@@ -43,6 +43,15 @@ npm run dev
 
 O roteamento é feito usando a biblioteca [TanStack Router](https://tanstack.com/router/latest/docs/routing/routing-concepts). A estrutura das rotas é definida pela pastas e arquivos dentro de `src/routes`. Quando o código é executado com `npm run dev`, a biblioteca gera/modifica o arquivo `routeTree.gen.ts`, responsável por tornar as rotas typesafe. Quando criar uma nova rota, rode o sistema para atualizar o `routeTree.gen.ts`.
 
+> [!WARNING]
+> Se optar por usar o Docker para desenvolvimento no ambiente local, mesmo que o sistema esteja rodando no container, é necessário executar `npm run dev` no host (no terminal) para que a atualização do arquivo `routeTree.gen.ts` funcione corretamente.
+> 
+> Nesse caso:
+> 1. Crie os arquivos das rotas
+> 2. Derrube os containers
+> 3. Execute `npm run dev` no terminal
+> 4. Suba novamente os containers
+
 Outras bibliotecas utilizadas:
 
 - [Mantine](https://mantine.dev/core/package/)
