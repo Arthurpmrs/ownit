@@ -1,0 +1,21 @@
+services:
+  pgsql:
+    image: postgres:18-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    networks:
+      - ownit-network
+
+volumes:
+  pgdata:
+networks:
+  ownit-network:

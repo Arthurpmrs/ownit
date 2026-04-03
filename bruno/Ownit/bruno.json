@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Ownit",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
