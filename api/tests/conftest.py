@@ -1,0 +1,49 @@
+from typing import Generator
+
+import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import Connection, create_engine, insert
+from testcontainers.postgres import PostgresContainer
+
+# importa as definições de tabela para registro no metadata
+import src.features.auth.tables  # noqa: F401
+import src.features.goal.tables  # noqa: F401
+from src.core.db import get_connection, metadata
+from src.features.auth.tables import students
+from src.main import app
+
+
+@pytest.fixture(scope='session')
+def engine() -> Generator:
+    with PostgresContainer('postgres:18-alpine', driver='psycopg') as postgres:
+        _engine = create_engine(postgres.get_connection_url(), future=True)
+
+        try:
+            with _engine.begin() as conn:
+                yield conn
+        finally:
+            _engine.dispose()
+
+
+@pytest.fixture
+def conn(engine: Connection) -> Generator:
+    metadata.create_all(engine)
+    yield engine
+    metadata.drop_all(engine)
+
+
+@pytest.fixture
+def client(conn: Connection) -> Generator[TestClient, None, None]:
+    def override_connection():
+        return conn
+
+    app.dependency_overrides[get_connection] = override_connection
+    yield TestClient(app)
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def student(conn: Connection) -> dict:
+    student_data = {'id': 1, 'name': 'Aluno de Teste', 'email': 'teste@example.com'}
+    conn.execute(insert(students).values(student_data))
+    return student_data
