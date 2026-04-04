@@ -14,5 +14,4 @@ export type CreateGoalData = {
   title: string;
   description?: string;
   goal_type: string;
-  rating: number;
 };

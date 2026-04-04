@@ -10,6 +10,7 @@ import {
   Textarea,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { showNotification } from '@mantine/notifications';
 import { useState } from 'react';
 import { useCreateGoal } from '../hooks';
 import type { CreateGoalData } from '../models';
@@ -31,27 +32,37 @@ export default function CreateGoalModal({
       title: '',
       description: '',
       goal_type: '',
-      rating: 5,
     },
     validate: {
       title: (value: string) =>
         value.length < 3 ? 'Título deve ter pelo menos 3 caracteres' : null,
       goal_type: (value: string) =>
         !value ? 'Selecione um tipo de meta' : null,
-      rating: (value: number) =>
-        value < 1 || value > 10 ? 'Avaliação deve ser entre 1 e 10' : null,
     },
   });
 
   const createGoalMutation = useCreateGoal(studentId);
 
-  const handleSubmit = (values: CreateGoalData) => {
+  function handleSubmit(values: CreateGoalData) {
     createGoalMutation.mutate(values, {
       onSuccess: () => {
+        setIsModalOpen(false);
         form.reset();
+        showNotification({
+          title: 'Meta criada',
+          message: 'Sua meta foi criada com sucesso.',
+          color: 'green',
+        });
+      },
+      onError: (error) => {
+        showNotification({
+          title: 'Erro ao criar meta',
+          message: error instanceof Error ? error.message : 'Erro desconhecido',
+          color: 'red',
+        });
       },
     });
-  };
+  }
 
   return (
     <>
