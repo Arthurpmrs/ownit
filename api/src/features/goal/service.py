@@ -62,7 +62,7 @@ def get_goal(conn: Connection, goal_id: str) -> GoalResponse | None:
     return _row_to_schema(result)
 
 
-def list_goals(conn: Connection, student_id: str) -> list[GoalResponse]:
+def list_goals(conn: Connection, student_id: int) -> list[GoalResponse]:
     stmt = select(goals).where(goals.c.student_id == student_id)
     results = conn.execute(stmt).fetchall()
 

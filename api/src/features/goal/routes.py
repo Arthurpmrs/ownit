@@ -33,7 +33,7 @@ def get_goal(goal_id: str, conn: Connection = Depends(get_connection)):
 
 
 @router.get('/student/{student_id}', response_model=list[GoalResponse])
-def list_goals(student_id: str, conn: Connection = Depends(get_connection)):
+def list_goals(student_id: int, conn: Connection = Depends(get_connection)):
     return service.list_goals(conn, student_id)
 
 
