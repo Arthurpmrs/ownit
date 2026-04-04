@@ -1,0 +1,60 @@
+import { queryOptions } from '@tanstack/react-query';
+import type { GoalDTO } from './dto';
+import { goalMapper } from './mappers';
+import type { CreateGoalData, Goal } from './models';
+
+export function getStudentGoalsOptions(studentId: number) {
+  return queryOptions({
+    queryKey: ['goals', studentId],
+    queryFn: () => fetchGoalsByStudent(studentId),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * Fetch goals do backend por student_id
+ *
+ * @param studentId - ID do estudante
+ * @returns Promise com lista de Goals transformados
+ * @throws Error se a requisição falhar
+ */
+export async function fetchGoalsByStudent(studentId: number): Promise<Goal[]> {
+  const url = `${import.meta.env.VITE_API_URL}/goals/student/${studentId}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(
+      `Falha ao buscar goals: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const dtos: GoalDTO[] = await response.json();
+  return goalMapper.fromDTOList(dtos);
+}
+
+/**
+ * Cria uma nova goal no backend
+ *
+ * @param data - Dados da nova goal
+ * @returns Promise com a Goal criada
+ * @throws Error se a criação falhar
+ */
+export async function createGoal(data: CreateGoalData): Promise<Goal> {
+  const url = `${import.meta.env.VITE_API_URL}/goals`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Falha ao criar goal: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const dto: GoalDTO = await response.json();
+  return goalMapper.fromDTO(dto);
+}
