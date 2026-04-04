@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+
+env:
+  NODE_VERSION: "24"
+  PYTHON_VERSION: "3.14"
+  UV_VERSION: "0.11.3"
+
+jobs:
+  frontend:
+    name: Frontend (ESLint + Prettier + Typescript)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ui
+
+    steps:
+      
+      - name: Checkout code
+        uses: actions/checkout@v5
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: ui/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run ESLint
+        run: npm run lint
+      
+      - name: Check Prettier formatting
+        run: npm run format:check
+      
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+
+  backend:
+    name: Backend (Ruff)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: api
+
+    steps:
+      
+      - name: Checkout code
+        uses: actions/checkout@v5
+      
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+      
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+      
+      - name: Run Ruff
+        run: uv run ruff check ./src
