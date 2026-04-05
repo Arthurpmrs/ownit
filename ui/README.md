@@ -24,7 +24,7 @@ Para habilitar a formatação automática ao salvar, adicione o código abaixo a
 ```json
 "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "never"
+    "source.organizeImports": "explicit"
 },
 ```
 

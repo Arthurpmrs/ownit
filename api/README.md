@@ -90,4 +90,16 @@ uv run ruff check ./src --fix && uv run ruff format ./src
 
 ## Testes
 
-TO-DO
+Os testes foram configurados para usar Testcontainers, ou seja, é necessário que o Docker esteja ativo para rodar os testes. O comando para executar os testes é apresentado abaixo.
+
+```bash
+uv run pytest tests
+```
+
+> [!NOTE]
+> Para usuários de algumas distros linux, pode ser que o Testcontainers exija [privilégios liberados do socket do Docker](https://docs.docker.com/engine/install/linux-postinstall/). Caso não queira liberar uso do docker para usuário que não seja root, uma alternativa é usar o Podman. Antes de executar os testes, configure as seguintes variáveis de ambiente:
+>
+> - `export TESTCONTAINERS_RYUK_DISABLED=true`
+> - `export DOCKER_HOST=unix:///run/user/1000/podman/podman.sock`
+> 
+> Isso fará com que o Testcontainers use o socket do Podman.
