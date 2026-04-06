@@ -74,10 +74,40 @@ def authenticate_student(
         return None
 
     student_id, name, email_db, password_hash = result
-    if not verify_password(password, password_hash):
+    if not verify_password(password, password_hash.encode()):
         return None
 
     return student_id, name, email_db
+
+
+def create_student(
+    conn: Connection, email: str, password: str, name: str
+) -> tuple[int, str, str]:
+    """
+    Create a new student account.
+
+    Returns:
+        Tuple of (student_id, name, email)
+    """
+    password_hash = hash_password(password)
+
+    conn.execute(
+        students.insert().values(
+            email=email,
+            password=password_hash.decode(),
+            name=name,
+        ),
+    )
+
+    result = conn.execute(
+        select(students.c.id).where(students.c.email == email),
+    ).first()
+
+    if not result:
+        raise RuntimeError('Failed to create student')
+
+    student_id = result[0]
+    return student_id, name, email
 
 
 def validate_session_token(conn: Connection, token: str) -> int | None:
