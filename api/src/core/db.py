@@ -6,6 +6,7 @@ from sqlalchemy.engine import Connection
 
 from src.core.config import get_settings
 
+
 @lru_cache()
 def get_engine():
     return create_engine(get_settings().DATABASE_URL, echo=True, future=True)
