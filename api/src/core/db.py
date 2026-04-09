@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import Any, Generator
 
 from sqlalchemy import Column, DateTime, MetaData, create_engine, func
@@ -5,13 +6,10 @@ from sqlalchemy.engine import Connection
 
 from src.core.config import get_settings
 
-_engine = None
-
+@lru_cache()
 def get_engine():
-    global _engine
-    if _engine is None:
-        _engine = create_engine(get_settings().DATABASE_URL, echo=True, future=True)
-    return _engine
+    return create_engine(get_settings().DATABASE_URL, echo=True, future=True)
+
 
 metadata = MetaData()
 
