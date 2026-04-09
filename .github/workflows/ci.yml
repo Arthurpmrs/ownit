@@ -45,7 +45,7 @@ jobs:
         run: npx tsc --noEmit
 
   backend:
-    name: Backend (Ruff)
+    name: Backend (Ruff + Pytest)
     runs-on: ubuntu-latest
 
     defaults:
@@ -73,3 +73,6 @@ jobs:
       
       - name: Run Ruff
         run: uv run ruff check ./src
+      
+      - name: Run Pytest
+        run: uv run pytest tests
