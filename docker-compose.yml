@@ -1,0 +1,56 @@
+services:
+  pgsql:
+    image: postgres:18-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    networks:
+      - ownit-network
+  
+  api:
+    build:
+      context: ./api
+      dockerfile: ./Dockerfile
+      target: dev
+    entrypoint: [ "/bin/sh", "./entrypoint.sh" ]
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api/src:/app/src:Z
+      - ./api/migrations:/app/migrations:Z
+      - ./api/scripts:/app/scripts:Z
+      - ./api/tests:/app/tests:Z
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    env_file:
+      - .env
+    networks:
+      - ownit-network
+
+  ui:
+    build:
+      context: ./ui
+      dockerfile: ./Dockerfile
+      target: dev
+    env_file:
+      - .env
+    volumes:
+      - ./ui/src:/app/src:Z
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+volumes:
+  pgdata:
+networks:
+  ownit-network:
