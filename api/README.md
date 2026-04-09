@@ -46,7 +46,13 @@ docker compose up
 uv run alembic upgrade head
 ```
 
-6. Inicialize a aplicação.
+6. Popule o banco de dados.
+
+```bash
+uv run python -m scripts.populate
+```
+
+7. Inicialize a aplicação.
 
 ```bash
 uv run fastapi dev --reload src/main.py
