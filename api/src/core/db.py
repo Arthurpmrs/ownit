@@ -5,12 +5,19 @@ from sqlalchemy.engine import Connection
 
 from src.core.config import get_settings
 
-engine = create_engine(get_settings().DATABASE_URL, echo=True, future=True)
+_engine = None
+
+def get_engine():
+    global _engine
+    if _engine is None:
+        _engine = create_engine(get_settings().DATABASE_URL, echo=True, future=True)
+    return _engine
+
 metadata = MetaData()
 
 
 def get_connection() -> Generator[Connection, Any, Any]:
-    with engine.begin() as conn:
+    with get_engine().begin() as conn:
         yield conn
 
 
