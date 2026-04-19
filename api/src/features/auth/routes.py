@@ -2,12 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.engine import Connection
 
+from src.core.auth import get_current_student_id
 from src.core.db import get_connection
 from src.features.auth.schemas import LoginRequest, SignupRequest, StudentResponse
 from src.features.auth.service import (
     authenticate_student,
     create_session,
     create_student,
+    get_student,
 )
 from src.features.auth.tables import students
 
@@ -64,3 +66,11 @@ def login(
     )
 
     return {'message': 'ok'}
+
+
+@router.get('/me')
+def me(
+    conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
+):
+    return get_student(conn, student_id)

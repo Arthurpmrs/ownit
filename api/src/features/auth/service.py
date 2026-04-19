@@ -6,6 +6,7 @@ import bcrypt
 from sqlalchemy import and_, select
 from sqlalchemy.engine import Connection
 
+from src.features.auth.schemas import StudentResponse
 from src.features.auth.tables import sessions, students
 
 
@@ -139,3 +140,16 @@ def validate_session_token(conn: Connection, token: str) -> int | None:
         return None
 
     return result[2]  # student_id is at index 2
+
+
+def get_student(conn: Connection, student_id: int) -> StudentResponse:
+    result = conn.execute(
+        select(students.c.id, students.c.name, students.c.email).where(
+            students.c.id == student_id
+        )
+    ).first()
+
+    if not result:
+        raise Exception('User not found.')
+
+    return StudentResponse(id=result[0], name=result[1], email=result[2])
