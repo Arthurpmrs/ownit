@@ -1,4 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
+
 import type { GoalDTO } from './dto';
 import { goalMapper } from './mappers';
 import type { CreateGoalData, Goal } from './models';
