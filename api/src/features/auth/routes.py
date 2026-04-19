@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy import select
 from sqlalchemy.engine import Connection
 
@@ -9,6 +9,7 @@ from src.features.auth.service import (
     authenticate_student,
     create_session,
     create_student,
+    delete_session,
     get_student,
 )
 from src.features.auth.tables import students
@@ -66,6 +67,30 @@ def login(
     )
 
     return {'message': 'ok'}
+
+
+@router.post('/logout')
+def logout(
+    request: Request,
+    response: Response,
+    conn: Connection = Depends(get_connection),
+):
+    token = request.cookies.get('session_token')
+
+    if not token:
+        raise HTTPException(status_code=401)
+
+    delete_session(conn, token)
+
+    # remove cookie no browser
+    response.delete_cookie(
+        key='session_token',
+        httponly=True,
+        secure=True,
+        samesite='lax',
+    )
+
+    return {'message': 'logged out'}
 
 
 @router.get('/me')

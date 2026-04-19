@@ -3,7 +3,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
-from sqlalchemy import and_, select
+from sqlalchemy import and_, delete, select
 from sqlalchemy.engine import Connection
 
 from src.features.auth.schemas import StudentResponse
@@ -51,6 +51,12 @@ def create_session(conn: Connection, student_id: int, expires_in: int = 24) -> s
     )
 
     return token
+
+
+def delete_session(conn: Connection, token: str) -> None:
+    token_hash = hash_token(token)
+
+    conn.execute(delete(sessions).where(sessions.c.token == token_hash))
 
 
 def authenticate_student(
