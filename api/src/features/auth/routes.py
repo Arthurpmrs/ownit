@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.engine import Connection
 
 from src.core.auth import get_current_student_id
-from src.core.config import get_settings
+from src.core.config import Settings, get_settings
 from src.core.db import get_connection
 from src.features.auth.schemas import LoginRequest, SignupRequest, StudentResponse
 from src.features.auth.service import (
@@ -45,6 +45,7 @@ def login(
     request: LoginRequest,
     response: Response,
     conn: Connection = Depends(get_connection),
+    settings: Settings = Depends(get_settings),
 ):
     """Login endpoint that creates a session and returns a session token as a cookie."""
     # Authenticate student
@@ -62,7 +63,7 @@ def login(
         key='session_token',
         value=token,
         httponly=True,
-        secure=get_settings().ENV == 'prod',
+        secure=settings.ENV == 'prod',
         samesite='lax',
         max_age=86400,  # 24 hours
     )
