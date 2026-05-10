@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.engine import Connection
 
 from src.core.auth import get_current_student_id
+from src.core.config import get_settings
 from src.core.db import get_connection
 from src.features.auth.schemas import LoginRequest, SignupRequest, StudentResponse
 from src.features.auth.service import (
@@ -61,7 +62,7 @@ def login(
         key='session_token',
         value=token,
         httponly=True,
-        secure=True,
+        secure=get_settings().ENV == 'prod',
         samesite='lax',
         max_age=86400,  # 24 hours
     )
