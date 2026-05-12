@@ -39,7 +39,7 @@ def login(
         value=token,
         httponly=True,
         secure=settings.ENV == 'prod',
-        samesite='lax',
+        samesite='strict',
         max_age=86400,  # 24 hours
     )
 
@@ -64,7 +64,7 @@ def logout(
         key='session_token',
         httponly=True,
         secure=True,
-        samesite='lax',
+        samesite='strict',
     )
 
     return {'message': 'logged out'}
