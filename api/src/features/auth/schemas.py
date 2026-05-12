@@ -6,12 +6,6 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class SignupRequest(BaseModel):
-    email: str
-    password: str
-    name: str
-
-
 class StudentResponse(BaseModel):
     id: int
     name: str

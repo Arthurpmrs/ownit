@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { LoginRequest, SignupRequest, Student } from './models';
+import type { LoginRequest, Student } from './models';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -45,20 +45,4 @@ export async function logout(): Promise<void> {
     method: 'POST',
     credentials: 'include',
   }).catch(() => {});
-}
-
-export async function signup(data: SignupRequest): Promise<void> {
-  const response = await fetch(`${API_URL}/auth/signup`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.detail || `Falha no cadastro: ${response.status}`);
-  }
 }

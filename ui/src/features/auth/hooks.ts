@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getMeQueryOptions, login, logout, signup } from './api';
-import type { LoginRequest, SignupRequest } from './models';
+import { getMeQueryOptions, login, logout } from './api';
+import type { LoginRequest } from './models';
 
 export function useMe() {
   const { data, isLoading, error, isSuccess } = useQuery(getMeQueryOptions());
@@ -33,19 +33,6 @@ export function useLogout() {
     mutationFn: logout,
     onSuccess: () => {
       queryClient.removeQueries({
-        queryKey: getMeQueryOptions().queryKey,
-      });
-    },
-  });
-}
-
-export function useSignup() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (credentials: SignupRequest) => signup(credentials),
-    onSuccess: async () => {
-      await queryClient.refetchQueries({
         queryKey: getMeQueryOptions().queryKey,
       });
     },

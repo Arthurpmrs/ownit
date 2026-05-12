@@ -9,12 +9,6 @@ export type LoginRequest = {
   password: string;
 };
 
-export type SignupRequest = {
-  email: string;
-  name: string;
-  password: string;
-};
-
 export interface ErrorResponse {
   detail?: string;
   message?: string;

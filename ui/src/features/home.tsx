@@ -94,11 +94,6 @@ function AnonymousHome() {
                 Fazer Login
               </Button>
             </Link>
-            <Link to="/signup">
-              <Button variant="light" size="md" fullWidth>
-                Criar Conta
-              </Button>
-            </Link>
           </Group>
         </Stack>
       </Card>

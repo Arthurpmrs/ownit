@@ -1,43 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from sqlalchemy import select
 from sqlalchemy.engine import Connection
 
 from src.core.auth import get_current_student_id
 from src.core.config import Settings, get_settings
 from src.core.db import get_connection
-from src.features.auth.schemas import LoginRequest, SignupRequest, StudentResponse
+from src.features.auth.schemas import LoginRequest, StudentResponse
 from src.features.auth.service import (
     authenticate_student,
     create_session,
-    create_student,
     delete_session,
     get_student,
 )
-from src.features.auth.tables import students
 
 router = APIRouter(prefix='/auth', tags=['auth'])
-
-
-@router.post('/signup', response_model=StudentResponse)
-def signup(
-    request: SignupRequest,
-    conn: Connection = Depends(get_connection),
-):
-    """Signup endpoint to create a new student account."""
-    # Check if email already exists
-    result = conn.execute(
-        select(students).where(students.c.email == request.email),
-    ).first()
-
-    if result:
-        raise HTTPException(status_code=400, detail='Email already registered')
-
-    # Create new student
-    student_id, name, email = create_student(
-        conn, request.email, request.password, request.name
-    )
-
-    return StudentResponse(id=student_id, name=name, email=email)
 
 
 @router.post('/login')
@@ -95,7 +70,7 @@ def logout(
     return {'message': 'logged out'}
 
 
-@router.get('/me')
+@router.get('/me', response_model=StudentResponse)
 def me(
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
