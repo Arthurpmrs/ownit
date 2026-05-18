@@ -1,5 +1,6 @@
 import Header from '@/features/appshell/header';
 import {
+  ActionIcon,
   Alert,
   Badge,
   Button,
@@ -33,17 +34,30 @@ export default function Goals() {
         description="Visualize e organize seus planos de estudo"
         icon={<TargetIcon weight="bold" color="white" size={32} />}
       >
-        <Button
-          variant="light"
-          radius="sm"
-          leftSection={<FunnelIcon weight="bold" size={14} />}
-        >
-          Filtro
-        </Button>
-        <CreateGoalModal
-          studentId={STUDENT_ID}
-          disabled={isLoading || error !== null}
-        />
+        <Group gap="sm">
+          <Button
+            variant="light"
+            radius="sm"
+            leftSection={<FunnelIcon weight="bold" size={14} />}
+            visibleFrom="sm"
+          >
+            Filtro
+          </Button>
+          <ActionIcon
+            variant="light"
+            radius="sm"
+            size="input-sm"
+            hiddenFrom="sm"
+            aria-label="Filtro"
+          >
+            <FunnelIcon size={18} />
+          </ActionIcon>
+
+          <CreateGoalModal
+            studentId={STUDENT_ID}
+            disabled={isLoading || error !== null}
+          />
+        </Group>
       </Header>
 
       <Container py="xl">

@@ -6,7 +6,9 @@ export default function Navbar() {
 
   return (
     <Group
-      px="4rem"
+      component="nav"
+      aria-label="Navegação Principal"
+      px={{ base: 'md', md: '4rem' }}
       py="xs"
       style={{ borderBottom: '1px solid var(--mantine-color-borderLight-0)' }}
     >

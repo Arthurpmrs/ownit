@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Alert,
   Button,
   Group,
@@ -26,6 +27,7 @@ export default function CreateGoalModal({
   disabled = false,
 }: CreateGoalModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
 
   const form = useForm<CreateGoalData>({
     initialValues: {
@@ -71,10 +73,22 @@ export default function CreateGoalModal({
         radius="sm"
         leftSection={<PlusIcon weight="bold" size={14} />}
         disabled={disabled}
-        onClick={() => setIsModalOpen(true)}
+        onClick={openModal}
+        visibleFrom="sm"
       >
         Novo Plano
       </Button>
+      <ActionIcon
+        radius="sm"
+        size="input-sm"
+        disabled={disabled}
+        onClick={openModal}
+        hiddenFrom="sm"
+        aria-label="Novo Plano"
+      >
+        <PlusIcon weight="bold" size={18} />
+      </ActionIcon>
+
       <Modal
         opened={isModalOpen}
         onClose={() => setIsModalOpen(false)}
