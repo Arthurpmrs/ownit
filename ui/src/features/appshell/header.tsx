@@ -24,7 +24,7 @@ export default function Header({
     >
       <Group>
         <Center
-          bg="brand.5"
+          bg="orange.6"
           style={{ borderRadius: 'var(--mantine-radius-lg)' }}
           p="xs"
         >
