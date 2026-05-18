@@ -1,6 +1,8 @@
+import Header from '@/features/appshell/header';
 import {
   Alert,
   Badge,
+  Button,
   Card,
   Center,
   Container,
@@ -9,6 +11,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
+import { FunnelIcon, TargetIcon } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
 import { getStudentGoalsOptions } from '../api';
 import type { Goal } from '../models';
@@ -24,19 +27,29 @@ export default function Goals() {
   } = useQuery(getStudentGoalsOptions(STUDENT_ID));
 
   return (
-    <Container py="xl">
-      <Group justify="space-between" mb="lg">
-        <Text size="xl" fw={700}>
-          Minhas Metas
-        </Text>
+    <>
+      <Header
+        title="Meus Planos"
+        description="Visualize e organize seus planos de estudo"
+        icon={<TargetIcon weight="bold" color="white" size={32} />}
+      >
+        <Button
+          variant="light"
+          radius="sm"
+          leftSection={<FunnelIcon weight="bold" size={14} />}
+        >
+          Filtro
+        </Button>
         <CreateGoalModal
           studentId={STUDENT_ID}
           disabled={isLoading || error !== null}
         />
-      </Group>
+      </Header>
 
-      <GoalsList goals={goals} isLoading={isLoading} error={error} />
-    </Container>
+      <Container py="xl">
+        <GoalsList goals={goals} isLoading={isLoading} error={error} />
+      </Container>
+    </>
   );
 }
 
@@ -57,7 +70,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
 
   if (error) {
     return (
-      <Alert title="Erro ao carregar metas" color="red" mb="lg">
+      <Alert title="Erro ao carregar planos" color="red" mb="lg">
         {error instanceof Error ? error.message : 'Erro desconhecido'}
       </Alert>
     );
@@ -98,7 +111,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
         ))
       ) : (
         <Center py="lg">
-          <Text c="dimmed">Nenhuma meta criada ainda</Text>
+          <Text c="dimmed">Nenhum plano criado ainda</Text>
         </Center>
       )}
     </Stack>

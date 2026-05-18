@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
+import { PlusIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useCreateGoal } from '../hooks';
 import type { CreateGoalData } from '../models';
@@ -66,8 +67,13 @@ export default function CreateGoalModal({
 
   return (
     <>
-      <Button disabled={disabled} onClick={() => setIsModalOpen(true)}>
-        + Nova Meta
+      <Button
+        radius="sm"
+        leftSection={<PlusIcon weight="bold" size={14} />}
+        disabled={disabled}
+        onClick={() => setIsModalOpen(true)}
+      >
+        Novo Plano
       </Button>
       <Modal
         opened={isModalOpen}

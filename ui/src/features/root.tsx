@@ -1,8 +1,9 @@
+import { Box, Flex } from '@mantine/core';
 import { Link, Outlet } from '@tanstack/react-router';
 
 export default function RootLayout() {
   return (
-    <>
+    <Flex direction="column" mih="100vh">
       <div className="p-2 flex gap-2">
         <Link to="/" className="[&.active]:font-bold">
           Home
@@ -11,8 +12,10 @@ export default function RootLayout() {
           Goals
         </Link>{' '}
       </div>
-      <hr />
-      <Outlet />
-    </>
+
+      <Box bg="bgLight.0" flex={1}>
+        <Outlet />
+      </Box>
+    </Flex>
   );
 }
