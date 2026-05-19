@@ -13,5 +13,6 @@ export type CreateGoalData = {
   student_id: number;
   title: string;
   description?: string;
-  goal_type: string;
+  goal_tags?: string[];
+  date_range: [Date | null, Date | null];
 };

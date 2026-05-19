@@ -3,14 +3,16 @@ import {
   Button,
   Group,
   Modal,
-  NumberInput,
-  Select,
   Stack,
+  TagsInput,
+  Text,
   TextInput,
   Textarea,
 } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
+import { CalendarBlankIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useCreateGoal } from '../hooks';
 import type { CreateGoalData } from '../models';
@@ -31,13 +33,16 @@ export default function CreateGoalModal({
       student_id: studentId,
       title: '',
       description: '',
-      goal_type: '',
+      goal_tags: [],
+      date_range: [null, null],
     },
     validate: {
       title: (value: string) =>
         value.length < 3 ? 'Título deve ter pelo menos 3 caracteres' : null,
-      goal_type: (value: string) =>
-        !value ? 'Selecione um tipo de meta' : null,
+      date_range: (value) =>
+        !value[0] || !value[1]
+          ? 'Selecione um intervalo de datas válido'
+          : null,
     },
   });
 
@@ -69,78 +74,91 @@ export default function CreateGoalModal({
       <Button disabled={disabled} onClick={() => setIsModalOpen(true)}>
         + Nova Meta
       </Button>
-      <Modal
+      <Modal.Root
         opened={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Criar Nova Meta"
-        size="md"
+        size="500px"
       >
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack>
-            <TextInput
-              label="Título"
-              placeholder="Digite o título da meta"
-              required
-              {...form.getInputProps('title')}
-            />
+        <Modal.Overlay />
+        <Modal.Content>
+          <Modal.Header>
+            <Stack gap={1} w="100%">
+              <Group justify="space-between">
+                <Modal.Title>Criar Novo Plano</Modal.Title>
+                <Modal.CloseButton />
+              </Group>
+              <Text c="dimmed" size="sm">
+                Utilize os campos abaixo para inciar a criação de um plano de
+                estudos.
+              </Text>
+            </Stack>
+          </Modal.Header>
+          <Modal.Body>
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+              <Stack>
+                <TextInput
+                  label="Título"
+                  placeholder="Digite o título da meta"
+                  radius="sm"
+                  required
+                  {...form.getInputProps('title')}
+                />
 
-            <Textarea
-              label="Descrição"
-              placeholder="Descreva sua meta (opcional)"
-              minRows={3}
-              {...form.getInputProps('description')}
-            />
+                <Textarea
+                  label="Descrição"
+                  placeholder="Descreva sua meta (opcional)"
+                  radius="sm"
+                  minRows={3}
+                  {...form.getInputProps('description')}
+                />
 
-            <Select
-              label="Tipo de Meta"
-              placeholder="Selecione o tipo"
-              required
-              data={[
-                { value: 'academic', label: 'Acadêmica' },
-                { value: 'personal', label: 'Pessoal' },
-                { value: 'professional', label: 'Profissional' },
-                { value: 'health', label: 'Saúde' },
-                { value: 'financial', label: 'Financeira' },
-              ]}
-              {...form.getInputProps('goal_type')}
-            />
+                <TagsInput
+                  label="Tags"
+                  placeholder="Insira as tags"
+                  radius="sm"
+                  {...form.getInputProps('goal_tags')}
+                />
 
-            <NumberInput
-              label="Avaliação Inicial"
-              description="De 1 a 10, como você avalia esta meta?"
-              min={1}
-              max={10}
-              required
-              {...form.getInputProps('rating')}
-            />
+                <DatePickerInput
+                  leftSection={<CalendarBlankIcon size={18} />}
+                  type="range"
+                  label="Período"
+                  placeholder="Insira o período em que deve ser conculuído"
+                  required
+                  {...form.getInputProps('date_range')}
+                />
 
-            {createGoalMutation.isError && (
-              <Alert color="red" title="Erro ao criar meta">
-                {createGoalMutation.error instanceof Error
-                  ? createGoalMutation.error.message
-                  : 'Erro desconhecido'}
-              </Alert>
-            )}
+                {createGoalMutation.isError && (
+                  <Alert color="red" title="Erro ao criar meta">
+                    {createGoalMutation.error instanceof Error
+                      ? createGoalMutation.error.message
+                      : 'Erro desconhecido'}
+                  </Alert>
+                )}
 
-            <Group justify="flex-end" mt="md">
-              <Button
-                variant="default"
-                onClick={() => setIsModalOpen(false)}
-                disabled={createGoalMutation.isPending}
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                loading={createGoalMutation.isPending}
-                disabled={!form.isValid()}
-              >
-                Criar Meta
-              </Button>
-            </Group>
-          </Stack>
-        </form>
-      </Modal>
+                <Group justify="flex-end" mt="md">
+                  <Button
+                    variant="light"
+                    radius="sm"
+                    onClick={() => form.reset()}
+                    disabled={createGoalMutation.isPending}
+                  >
+                    Limpar
+                  </Button>
+                  <Button
+                    type="submit"
+                    radius="sm"
+                    loading={createGoalMutation.isPending}
+                    disabled={!form.isValid()}
+                  >
+                    Criar Meta
+                  </Button>
+                </Group>
+              </Stack>
+            </form>
+          </Modal.Body>
+        </Modal.Content>
+      </Modal.Root>
     </>
   );
 }
