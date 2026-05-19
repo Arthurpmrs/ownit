@@ -56,14 +56,14 @@ export default function CreateGoalModal({
         setIsModalOpen(false);
         form.reset();
         showNotification({
-          title: 'Meta criada',
-          message: 'Sua meta foi criada com sucesso.',
+          title: 'Plano criado',
+          message: 'Seu Plano foi criado com sucesso.',
           color: 'green',
         });
       },
       onError: (error) => {
         showNotification({
-          title: 'Erro ao criar meta',
+          title: 'Erro ao criar Plano',
           message: error instanceof Error ? error.message : 'Erro desconhecido',
           color: 'red',
         });
@@ -117,7 +117,7 @@ export default function CreateGoalModal({
               <Stack>
                 <TextInput
                   label="Título"
-                  placeholder="Digite o título da meta"
+                  placeholder="Digite o título do plano"
                   radius="sm"
                   required
                   {...form.getInputProps('title')}
@@ -125,7 +125,7 @@ export default function CreateGoalModal({
 
                 <Textarea
                   label="Descrição"
-                  placeholder="Descreva sua meta (opcional)"
+                  placeholder="Descreva seu plano (opcional)"
                   radius="sm"
                   minRows={3}
                   {...form.getInputProps('description')}
@@ -143,12 +143,13 @@ export default function CreateGoalModal({
                   type="range"
                   label="Período"
                   placeholder="Insira o período em que deve ser conculuído"
+                  minDate={new Date()}
                   required
                   {...form.getInputProps('date_range')}
                 />
 
                 {createGoalMutation.isError && (
-                  <Alert color="red" title="Erro ao criar meta">
+                  <Alert color="red" title="Erro ao criar plano">
                     {createGoalMutation.error instanceof Error
                       ? createGoalMutation.error.message
                       : 'Erro desconhecido'}
@@ -170,7 +171,7 @@ export default function CreateGoalModal({
                     loading={createGoalMutation.isPending}
                     disabled={!form.isValid()}
                   >
-                    Criar Meta
+                    Criar Plano
                   </Button>
                 </Group>
               </Stack>
