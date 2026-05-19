@@ -13,8 +13,8 @@ def test_create_and_get_goal(authenticated_client, student, conn):
         'title': 'Aprender pytest',
         'description': 'Testando endpoint de criação',
         'goal_tags': ['study'],
-        'start_date': '2026-05-01T00:00:00Z',
-        'end_date': '2026-05-31T00:00:00Z',
+        'start_date': '2026-05-01T00:00:00',
+        'end_date': '2026-05-31T00:00:00',
     }
     response = authenticated_client.post('/goals/', json=payload)
 
@@ -41,15 +41,15 @@ def test_list_goals_by_student(authenticated_client, student):
         'title': 'Meta 1',
         'description': 'Primeira meta',
         'goal_tags': ['study'],
-        'start_date': '2026-05-01T00:00:00Z',
-        'end_date': '2026-05-31T00:00:00Z',
+        'start_date': '2026-05-01T00:00:00',
+        'end_date': '2026-05-31T00:00:00',
     }
     payload2 = {
         'title': 'Meta 2',
         'description': 'Segunda meta',
         'goal_tags': ['exercise'],
-        'start_date': '2026-05-01T00:00:00Z',
-        'end_date': '2026-05-31T00:00:00Z',
+        'start_date': '2026-05-01T00:00:00',
+        'end_date': '2026-05-31T00:00:00',
     }
 
     response1 = authenticated_client.post('/goals/', json=payload1)
@@ -74,8 +74,8 @@ def test_update_goal(authenticated_client, student):
         'title': 'Meta Original',
         'description': 'Descrição original',
         'goal_tags': ['study'],
-        'start_date': '2026-05-01T00:00:00Z',
-        'end_date': '2026-05-31T00:00:00Z',
+        'start_date': '2026-05-01T00:00:00',
+        'end_date': '2026-05-31T00:00:00',
     }
     response = authenticated_client.post('/goals/', json=payload)
     goal_id = response.json()['id']
@@ -85,8 +85,8 @@ def test_update_goal(authenticated_client, student):
         'title': 'Meta Atualizada',
         'description': 'Descrição original',
         'goal_tags': ['study'],
-        'start_date': '2026-06-01T00:00:00Z',
-        'end_date': '2026-06-30T00:00:00Z',
+        'start_date': '2026-06-01T00:00:00',
+        'end_date': '2026-06-30T00:00:00',
     }
     response = authenticated_client.put(f'/goals/{goal_id}', json=update_payload)
 
@@ -108,8 +108,8 @@ def test_delete_goal(authenticated_client, student):
         'title': 'Meta para Deletar',
         'description': 'Esta meta será deletada',
         'goal_tags': ['study'],
-        'start_date': '2026-05-01T00:00:00Z',
-        'end_date': '2026-05-31T00:00:00Z',
+        'start_date': '2026-05-01T00:00:00',
+        'end_date': '2026-05-31T00:00:00',
     }
     response = authenticated_client.post('/goals/', json=payload)
     goal_id = response.json()['id']
@@ -142,8 +142,8 @@ def test_create_goal_student_not_found(client):
         'title': 'Meta sem estudante',
         'description': 'Isso deve falhar',
         'goal_tags': ['study'],
-        'start_date': '2026-05-01T00:00:00Z',
-        'end_date': '2026-05-31T00:00:00Z',
+        'start_date': '2026-05-01T00:00:00',
+        'end_date': '2026-05-31T00:00:00',
     }
     response = client.post('/goals/', json=payload)
 
@@ -157,8 +157,8 @@ def test_update_goal_not_found(authenticated_client):
         'title': 'Meta sem estudante',
         'description': 'Isso deve falhar',
         'goal_tags': ['study'],
-        'start_date': '2026-05-01T00:00:00Z',
-        'end_date': '2026-05-31T00:00:00Z',
+        'start_date': '2026-05-01T00:00:00',
+        'end_date': '2026-05-31T00:00:00',
     }
     response = authenticated_client.put('/goals/99999', json=payload)
 
