@@ -12,8 +12,9 @@ def test_create_and_get_goal(authenticated_client, student, conn):
     payload = {
         'title': 'Aprender pytest',
         'description': 'Testando endpoint de criação',
-        'goal_type': 'study',
-        'rating': 5,
+        'goal_tags': ['study'],
+        'start_date': '2026-05-01T00:00:00Z',
+        'end_date': '2026-05-31T00:00:00Z',
     }
     response = authenticated_client.post('/goals/', json=payload)
 
@@ -23,8 +24,9 @@ def test_create_and_get_goal(authenticated_client, student, conn):
     assert data['student_id'] == student['id']
     assert data['title'] == payload['title']
     assert data['description'] == payload['description']
-    assert data['goal_type'] == payload['goal_type']
-    assert data['rating'] == payload['rating']
+    assert data['goal_tags'] == payload['goal_tags']
+    assert data['start_date'] == payload['start_date']
+    assert data['end_date'] == payload['end_date']
 
     # Verifica se consegue recuperar a meta criada
     goal_id = data['id']
@@ -38,14 +40,16 @@ def test_list_goals_by_student(authenticated_client, student):
     payload1 = {
         'title': 'Meta 1',
         'description': 'Primeira meta',
-        'goal_type': 'study',
-        'rating': 3,
+        'goal_tags': ['study'],
+        'start_date': '2026-05-01T00:00:00Z',
+        'end_date': '2026-05-31T00:00:00Z',
     }
     payload2 = {
         'title': 'Meta 2',
         'description': 'Segunda meta',
-        'goal_type': 'exercise',
-        'rating': 4,
+        'goal_tags': ['exercise'],
+        'start_date': '2026-05-01T00:00:00Z',
+        'end_date': '2026-05-31T00:00:00Z',
     }
 
     response1 = authenticated_client.post('/goals/', json=payload1)
@@ -69,8 +73,9 @@ def test_update_goal(authenticated_client, student):
     payload = {
         'title': 'Meta Original',
         'description': 'Descrição original',
-        'goal_type': 'study',
-        'rating': 2,
+        'goal_tags': ['study'],
+        'start_date': '2026-05-01T00:00:00Z',
+        'end_date': '2026-05-31T00:00:00Z',
     }
     response = authenticated_client.post('/goals/', json=payload)
     goal_id = response.json()['id']
@@ -79,8 +84,9 @@ def test_update_goal(authenticated_client, student):
     update_payload = {
         'title': 'Meta Atualizada',
         'description': 'Descrição original',
-        'goal_type': 'study',
-        'rating': 5,
+        'goal_tags': ['study'],
+        'start_date': '2026-06-01T00:00:00Z',
+        'end_date': '2026-06-30T00:00:00Z',
     }
     response = authenticated_client.put(f'/goals/{goal_id}', json=update_payload)
 
@@ -89,7 +95,8 @@ def test_update_goal(authenticated_client, student):
     data = response.json()
     assert data['id'] == goal_id
     assert data['title'] == 'Meta Atualizada'
-    assert data['rating'] == update_payload['rating']
+    assert data['start_date'] == update_payload['start_date']
+    assert data['end_date'] == update_payload['end_date']
     # verifica que outros campos não foram alterados
     assert data['description'] == 'Descrição original'
     assert data['student_id'] == student['id']
@@ -100,8 +107,9 @@ def test_delete_goal(authenticated_client, student):
     payload = {
         'title': 'Meta para Deletar',
         'description': 'Esta meta será deletada',
-        'goal_type': 'study',
-        'rating': 1,
+        'goal_tags': ['study'],
+        'start_date': '2026-05-01T00:00:00Z',
+        'end_date': '2026-05-31T00:00:00Z',
     }
     response = authenticated_client.post('/goals/', json=payload)
     goal_id = response.json()['id']
@@ -125,13 +133,32 @@ def test_get_goal_not_found(authenticated_client):
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-def test_update_goal_not_found(authenticated_client, student):
+def test_create_goal_student_not_found(client):
+    # Given - estudante que não existe
+
+    # When
+    payload = {
+        'student_id': 999,  # ID que não existe
+        'title': 'Meta sem estudante',
+        'description': 'Isso deve falhar',
+        'goal_tags': ['study'],
+        'start_date': '2026-05-01T00:00:00Z',
+        'end_date': '2026-05-31T00:00:00Z',
+    }
+    response = client.post('/goals/', json=payload)
+
+    # Then
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+def test_update_goal_not_found(authenticated_client):
     # When - tenta atualizar uma meta que não existe
     payload = {
         'title': 'Meta sem estudante',
         'description': 'Isso deve falhar',
-        'goal_type': 'study',
-        'rating': 0,
+        'goal_tags': ['study'],
+        'start_date': '2026-05-01T00:00:00Z',
+        'end_date': '2026-05-31T00:00:00Z',
     }
     response = authenticated_client.put('/goals/99999', json=payload)
 
