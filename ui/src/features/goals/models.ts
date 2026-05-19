@@ -3,10 +3,11 @@ export type Goal = {
   studentId: number;
   title: string;
   description: string;
-  goalType: string;
-  rating: number;
+  goal_tags: string[];
   created_at: Date;
   updated_at: Date;
+  start_date: Date | null;
+  end_date: Date | null;
 };
 
 export type CreateGoalData = {
@@ -14,5 +15,6 @@ export type CreateGoalData = {
   title: string;
   description?: string;
   goal_tags?: string[];
-  date_range: [Date | null, Date | null];
+  start_date: Date | null;
+  end_date: Date | null;
 };

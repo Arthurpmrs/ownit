@@ -7,15 +7,17 @@ class GoalCreate(BaseModel):
     student_id: int
     title: str
     description: str | None = None
-    goal_type: str
-    rating: int | None = 0
+    goal_tags: list[str] | None = None
+    start_date: datetime
+    end_date: datetime
 
 
 class GoalUpdate(BaseModel):
     title: str | None
     description: str | None
-    goal_type: str | None
-    rating: int | None
+    goal_tags: list[str] | None = None
+    start_date: datetime
+    end_date: datetime
 
 
 class GoalResponse(BaseModel):
@@ -23,7 +25,8 @@ class GoalResponse(BaseModel):
     student_id: int
     title: str
     description: str | None
-    goal_type: str
-    rating: int
+    goal_tags: list[str] | None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
     created_at: datetime
     updated_at: datetime

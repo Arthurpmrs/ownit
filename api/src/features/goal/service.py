@@ -39,8 +39,9 @@ def create_goal(conn: Connection, payload: GoalCreate) -> GoalResponse:
             student_id=payload.student_id,
             title=payload.title,
             description=payload.description,
-            goal_type=payload.goal_type,
-            rating=payload.rating or 0,
+            goal_tags=payload.goal_tags,
+            start_date=payload.start_date,
+            end_date=payload.end_date,
         )
         .returning(goals)
     )

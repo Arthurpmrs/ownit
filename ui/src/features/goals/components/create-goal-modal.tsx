@@ -22,13 +22,21 @@ interface CreateGoalModalProps {
   disabled?: boolean;
 }
 
+interface GoalFormValues {
+  student_id: number;
+  title: string;
+  description: string;
+  goal_tags: string[];
+  date_range: [Date | null, Date | null];
+}
+
 export default function CreateGoalModal({
   studentId,
   disabled = false,
 }: CreateGoalModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const form = useForm<CreateGoalData>({
+  const form = useForm<GoalFormValues>({
     initialValues: {
       student_id: studentId,
       title: '',
@@ -48,8 +56,19 @@ export default function CreateGoalModal({
 
   const createGoalMutation = useCreateGoal(studentId);
 
-  function handleSubmit(values: CreateGoalData) {
-    createGoalMutation.mutate(values, {
+  function handleSubmit(values: GoalFormValues) {
+    if (!values.date_range[0] || !values.date_range[1]) {
+      return;
+    }
+
+    const payload: CreateGoalData = {
+      ...values,
+      goal_tags: values.goal_tags || [],
+      start_date: values.date_range[0],
+      end_date: values.date_range[1],
+    };
+
+    createGoalMutation.mutate(payload, {
       onSuccess: () => {
         setIsModalOpen(false);
         form.reset();
