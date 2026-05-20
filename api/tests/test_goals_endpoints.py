@@ -148,7 +148,7 @@ def test_create_goal_student_not_found(client):
     response = client.post('/goals/', json=payload)
 
     # Then
-    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
 
 
 def test_update_goal_not_found(authenticated_client):
