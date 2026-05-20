@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -9,6 +10,7 @@ class Settings(BaseSettings):
     )
 
     DATABASE_URL: str
+    ENV: Literal['dev', 'test', 'prod']
 
 
 @lru_cache()

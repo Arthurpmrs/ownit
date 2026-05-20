@@ -1,0 +1,78 @@
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from sqlalchemy.engine import Connection
+
+from src.core.auth import get_current_student_id
+from src.core.config import Settings, get_settings
+from src.core.db import get_connection
+from src.features.auth.schemas import LoginRequest, StudentResponse
+from src.features.auth.service import (
+    authenticate_student,
+    create_session,
+    delete_session,
+    get_student,
+)
+
+router = APIRouter(prefix='/auth', tags=['auth'])
+
+
+@router.post('/login')
+def login(
+    request: LoginRequest,
+    response: Response,
+    conn: Connection = Depends(get_connection),
+    settings: Settings = Depends(get_settings),
+):
+    """Login endpoint that creates a session and returns a session token as a cookie."""
+    # Authenticate student
+    auth_result = authenticate_student(conn, request.email, request.password)
+
+    if not auth_result:
+        raise HTTPException(status_code=401, detail='Invalid email or password')
+
+    student_id, name, email = auth_result
+
+    # Create session token
+    token = create_session(conn, student_id)
+
+    response.set_cookie(
+        key='session_token',
+        value=token,
+        httponly=True,
+        secure=settings.ENV == 'prod',
+        samesite='strict',
+        max_age=86400,  # 24 hours
+    )
+
+    return {'message': 'ok'}
+
+
+@router.post('/logout')
+def logout(
+    request: Request,
+    response: Response,
+    conn: Connection = Depends(get_connection),
+):
+    token = request.cookies.get('session_token')
+
+    if not token:
+        raise HTTPException(status_code=401)
+
+    delete_session(conn, token)
+
+    # remove cookie no browser
+    response.delete_cookie(
+        key='session_token',
+        httponly=True,
+        secure=True,
+        samesite='strict',
+    )
+
+    return {'message': 'logged out'}
+
+
+@router.get('/me', response_model=StudentResponse)
+def me(
+    conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
+):
+    return get_student(conn, student_id)

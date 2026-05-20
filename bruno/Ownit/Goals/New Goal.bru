@@ -1,0 +1,23 @@
+meta {
+  name: New Goal
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8000/goals/
+  body: json
+  auth: inherit
+}
+
+headers {
+  Cookie: session_token=1dBWeb4KeD7naufuj4Q-sp6KhqyDAjAv-Tdb3aMVB4s
+}
+
+body:json {
+  {
+    "title": "Estudar Álgebra Linear 2",
+    "description": "Revisar matrizes, determinantes e sistemas lineares 2",
+    "goal_type": "exercícios 2"
+  }
+}

@@ -1,8 +1,9 @@
+from http import HTTPStatus
 from typing import Generator
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import Connection, create_engine, insert
+from sqlalchemy import Connection, create_engine
 from testcontainers.postgres import PostgresContainer
 
 # importa as definições de tabela para registro no metadata
@@ -10,12 +11,15 @@ import src.features.auth.tables  # noqa: F401
 import src.features.goal.tables  # noqa: F401
 from src.core.config import Settings, get_settings
 from src.core.db import get_connection, metadata
-from src.features.auth.tables import students
+from src.features.auth.service import create_student
 from src.main import app
 
 
 def get_test_settings() -> Settings:
-    return Settings(DATABASE_URL='postgresql+psycopg://postgres:postgres@localhost:5432/postgres')
+    return Settings(
+        DATABASE_URL='postgresql+psycopg://postgres:postgres@localhost:5432/postgres',
+        ENV='test',
+    )
 
 
 @pytest.fixture(scope='session')
@@ -50,6 +54,26 @@ def client(conn: Connection) -> Generator[TestClient, None, None]:
 
 @pytest.fixture
 def student(conn: Connection) -> dict:
-    student_data = {'id': 1, 'name': 'Aluno de Teste', 'email': 'teste@example.com'}
-    conn.execute(insert(students).values(student_data))
+    student_data: dict[str, str | int] = {
+        'name': 'Aluno de Teste',
+        'email': 'teste@example.com',
+        'password': 'abc123',
+    }
+    student_id, _, _ = create_student(conn, **student_data)
+    student_data.update({'id': student_id})
     return student_data
+
+
+@pytest.fixture
+def authenticated_client(client: TestClient, student: dict) -> TestClient:
+    response = client.post(
+        '/auth/login',
+        json={
+            'email': student['email'],
+            'password': student['password'],
+        },
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    return client

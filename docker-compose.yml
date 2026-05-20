@@ -2,7 +2,7 @@ services:
   pgsql:
     image: postgres:18-alpine
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
     env_file:
       - .env
     healthcheck:

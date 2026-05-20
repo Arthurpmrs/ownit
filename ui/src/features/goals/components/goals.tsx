@@ -14,18 +14,20 @@ import {
 } from '@mantine/core';
 import { FunnelIcon, TargetIcon } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
+import { useRouteContext } from '@tanstack/react-router';
+
 import { getStudentGoalsOptions } from '../api';
 import type { Goal } from '../models';
 import CreateGoalModal from './create-goal-modal';
 
-const STUDENT_ID = 1;
-
 export default function Goals() {
+  const { student } = useRouteContext({ from: '/goals/' });
+
   const {
     data: goals,
     isLoading,
     error,
-  } = useQuery(getStudentGoalsOptions(STUDENT_ID));
+  } = useQuery(getStudentGoalsOptions(student.id));
 
   return (
     <>
