@@ -1,21 +1,18 @@
 from sqlalchemy import func, select
-from sqlalchemy.dialects.postgresql import insert
 
-from src.core.db import engine
+from src.core.db import get_engine
+from src.features.auth.service import create_student
 from src.features.auth.tables import students
 
 
 def populate():
-    stmt = insert(students).values(name='admin', email='admin@admin.com')
-    do_nothing_stmt = stmt.on_conflict_do_nothing(index_elements=['id'])
-
-    with engine.begin() as conn:
+    with get_engine().begin() as conn:
         count = conn.execute(select(func.count()).select_from(students)).scalar()
 
         if count is not None and count > 0:
             return
 
-        conn.execute(do_nothing_stmt).fetchone()
+        create_student(conn, 'student@ownit.com', 'Student123', name='Student')
 
 
 if __name__ == '__main__':
