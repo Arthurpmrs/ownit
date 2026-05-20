@@ -10,18 +10,20 @@ import {
   Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import { useRouteContext } from '@tanstack/react-router';
+
 import { getStudentGoalsOptions } from '../api';
 import type { Goal } from '../models';
 import CreateGoalModal from './create-goal-modal';
 
-const STUDENT_ID = 1;
-
 export default function Goals() {
+  const { student } = useRouteContext({ from: '/goals/' });
+
   const {
     data: goals,
     isLoading,
     error,
-  } = useQuery(getStudentGoalsOptions(STUDENT_ID));
+  } = useQuery(getStudentGoalsOptions(student.id));
 
   return (
     <Container py="xl">
@@ -30,7 +32,7 @@ export default function Goals() {
           Minhas Metas
         </Text>
         <CreateGoalModal
-          studentId={STUDENT_ID}
+          studentId={student.id}
           disabled={isLoading || error !== null}
         />
       </Group>

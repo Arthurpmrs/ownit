@@ -23,20 +23,20 @@ def student_exists_by_id(conn: Connection, student_id: int) -> bool:
     return False if result is None else True
 
 
-def create_goal(conn: Connection, payload: GoalCreate) -> GoalResponse:
-    logger.info(f'Creating goal for student_id={payload.student_id}')
+def create_goal(conn: Connection, student_id: int, payload: GoalCreate) -> GoalResponse:
+    logger.info(f'Creating goal for student_id={student_id}')
 
     goal_id = str(uuid4())
 
-    if not student_exists_by_id(conn, payload.student_id):
-        logger.warning(f'Student not found: {payload.student_id}')
+    if not student_exists_by_id(conn, student_id):
+        logger.warning(f'Student not found: {student_id}')
         raise Exception('student does not exist!')
 
     stmt = (
         insert(goals)
         .values(
             id=goal_id,
-            student_id=payload.student_id,
+            student_id=student_id,
             title=payload.title,
             description=payload.description,
             goal_tags=payload.goal_tags,
@@ -53,8 +53,8 @@ def create_goal(conn: Connection, payload: GoalCreate) -> GoalResponse:
     return _row_to_schema(result)
 
 
-def get_goal(conn: Connection, goal_id: str) -> GoalResponse | None:
-    stmt = select(goals).where(goals.c.id == goal_id)
+def get_goal(conn: Connection, student_id: int, goal_id: str) -> GoalResponse | None:
+    stmt = select(goals).where(goals.c.id == goal_id, goals.c.student_id == student_id)
     result = conn.execute(stmt).fetchone()
 
     if not result:
@@ -72,6 +72,7 @@ def list_goals(conn: Connection, student_id: int) -> list[GoalResponse]:
 
 def update_goal(
     conn: Connection,
+    student_id: int,
     goal_id: str,
     payload: GoalUpdate,
 ) -> GoalResponse | None:
@@ -79,11 +80,11 @@ def update_goal(
     update_data = payload.model_dump(exclude_unset=True)
 
     if not update_data:
-        return get_goal(conn, goal_id)
+        return get_goal(conn, student_id, goal_id)
 
     stmt = (
         update(goals)
-        .where(goals.c.id == goal_id)
+        .where(goals.c.id == goal_id, goals.c.student_id == student_id)
         .values(
             **update_data,
             updated_at=func.now(),
@@ -99,8 +100,8 @@ def update_goal(
     return _row_to_schema(result)
 
 
-def delete_goal(conn: Connection, goal_id: str) -> bool:
-    stmt = delete(goals).where(goals.c.id == goal_id)
+def delete_goal(conn: Connection, student_id: int, goal_id: str) -> bool:
+    stmt = delete(goals).where(goals.c.id == goal_id, goals.c.student_id == student_id)
     result = conn.execute(stmt)
 
     return result.rowcount > 0

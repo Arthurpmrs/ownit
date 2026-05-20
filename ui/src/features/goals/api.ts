@@ -1,4 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
+
 import type { GoalDTO } from './dto';
 import { goalMapper } from './mappers';
 import type { CreateGoalData, Goal } from './models';
@@ -20,7 +21,9 @@ export function getStudentGoalsOptions(studentId: number) {
  */
 export async function fetchGoalsByStudent(studentId: number): Promise<Goal[]> {
   const url = `${import.meta.env.VITE_API_URL}/goals/student/${studentId}`;
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    credentials: 'include',
+  });
 
   if (!response.ok) {
     throw new Error(
@@ -46,6 +49,7 @@ export async function createGoal(data: CreateGoalData): Promise<Goal> {
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
     body: JSON.stringify(data),
   });
 

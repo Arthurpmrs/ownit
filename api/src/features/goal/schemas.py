@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 
 class GoalCreate(BaseModel):
-    student_id: int
     title: str
     description: str | None = None
     goal_tags: list[str] | None = None

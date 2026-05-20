@@ -1,0 +1,20 @@
+meta {
+  name: Update Goal
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:8000/goals/91f4688a-f152-41ec-a2a2-1f7c7d3e67b0
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "Estudar Álgebra Linear 10",
+    "description": "Revisar matrizes, determinantes e sistemas lineares 10",
+    "goal_type": "exercícios",
+    "rating": 0
+  }
+}
