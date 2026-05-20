@@ -56,7 +56,7 @@ export default function Goals() {
           </ActionIcon>
 
           <CreateGoalModal
-            studentId={STUDENT_ID}
+            studentId={student.id}
             disabled={isLoading || error !== null}
           />
         </Group>

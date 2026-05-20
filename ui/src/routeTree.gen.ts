@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StatisticsIndexRouteImport } from './routes/statistics/index'
 import { Route as GoalsIndexRouteImport } from './routes/goals/index'
 
 const LoginRoute = LoginRouteImport.update({
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StatisticsIndexRoute = StatisticsIndexRouteImport.update({
+  id: '/statistics/',
+  path: '/statistics/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GoalsIndexRoute = GoalsIndexRouteImport.update({
   id: '/goals/',
   path: '/goals/',
@@ -33,30 +39,34 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/goals/': typeof GoalsIndexRoute
+  '/statistics/': typeof StatisticsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/goals': typeof GoalsIndexRoute
+  '/statistics': typeof StatisticsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/goals/': typeof GoalsIndexRoute
+  '/statistics/': typeof StatisticsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/goals/'
+  fullPaths: '/' | '/login' | '/goals/' | '/statistics/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/goals'
-  id: '__root__' | '/' | '/login' | '/goals/'
+  to: '/' | '/login' | '/goals' | '/statistics'
+  id: '__root__' | '/' | '/login' | '/goals/' | '/statistics/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   GoalsIndexRoute: typeof GoalsIndexRoute
+  StatisticsIndexRoute: typeof StatisticsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/statistics/': {
+      id: '/statistics/'
+      path: '/statistics'
+      fullPath: '/statistics/'
+      preLoaderRoute: typeof StatisticsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/goals/': {
       id: '/goals/'
       path: '/goals'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   GoalsIndexRoute: GoalsIndexRoute,
+  StatisticsIndexRoute: StatisticsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

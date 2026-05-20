@@ -1,11 +1,14 @@
 import { Button, Center, Group, Image } from '@mantine/core';
 import { Link, useMatchRoute } from '@tanstack/react-router';
+import AvatarMenu from './avatar-menu';
 
 export default function Navbar() {
   const matchRoute = useMatchRoute();
 
   return (
     <Group
+      justify="space-between"
+      align="center"
       component="nav"
       aria-label="Navegação Principal"
       px={{ base: 'md', md: '4rem' }}
@@ -32,6 +35,9 @@ export default function Navbar() {
           Estatísticas
         </Button>
       </Group>
+      <Center>
+        <AvatarMenu />
+      </Center>
     </Group>
   );
 }
