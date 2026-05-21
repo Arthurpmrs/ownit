@@ -1,5 +1,5 @@
 import type { GoalDTO } from './dto';
-import type { Goal } from './models';
+import type { Goal, Status } from './models';
 
 /**
  * Mapper para transformar GoalDTO (dados do backend) em Goal (modelo de domínio)
@@ -26,3 +26,16 @@ export const goalMapper = {
     return dtos.map((dto) => this.fromDTO(dto));
   },
 };
+
+export function statusMapper(status: Status): string {
+  switch (status) {
+    case 'to_do':
+      return 'Pendente';
+    case 'doing':
+      return 'Em andamento';
+    case 'done':
+      return 'Concluído';
+    case 'canceled':
+      return 'Cancelado';
+  }
+}

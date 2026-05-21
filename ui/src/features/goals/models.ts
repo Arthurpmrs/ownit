@@ -15,3 +15,5 @@ export type CreateGoalData = {
   description?: string;
   goal_type: string;
 };
+
+export type Status = 'to_do' | 'doing' | 'done' | 'canceled';

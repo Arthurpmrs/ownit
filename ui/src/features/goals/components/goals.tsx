@@ -15,6 +15,7 @@ import { useRouteContext } from '@tanstack/react-router';
 import { getStudentGoalsOptions } from '../api';
 import type { Goal } from '../models';
 import CreateGoalModal from './create-goal-modal';
+import FilterGoalsModal from './filter-goals-modal';
 
 export default function Goals() {
   const { student } = useRouteContext({ from: '/goals/' });
@@ -31,10 +32,13 @@ export default function Goals() {
         <Text size="xl" fw={700}>
           Minhas Metas
         </Text>
-        <CreateGoalModal
-          studentId={student.id}
-          disabled={isLoading || error !== null}
-        />
+        <Group>
+          <FilterGoalsModal />
+          <CreateGoalModal
+            studentId={student.id}
+            disabled={isLoading || error !== null}
+          />
+        </Group>
       </Group>
 
       <GoalsList goals={goals} isLoading={isLoading} error={error} />
