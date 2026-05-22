@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Alert,
   Button,
   Group,
@@ -11,6 +12,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
+import { PlusIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useCreateGoal } from '../hooks';
 import type { CreateGoalData } from '../models';
@@ -25,6 +27,7 @@ export default function CreateGoalModal({
   disabled = false,
 }: CreateGoalModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
 
   const form = useForm<CreateGoalData>({
     initialValues: {
@@ -66,9 +69,26 @@ export default function CreateGoalModal({
 
   return (
     <>
-      <Button disabled={disabled} onClick={() => setIsModalOpen(true)}>
-        + Nova Meta
+      <Button
+        radius="sm"
+        leftSection={<PlusIcon weight="bold" size={14} />}
+        disabled={disabled}
+        onClick={openModal}
+        visibleFrom="sm"
+      >
+        Novo Plano
       </Button>
+      <ActionIcon
+        radius="sm"
+        size="input-sm"
+        disabled={disabled}
+        onClick={openModal}
+        hiddenFrom="sm"
+        aria-label="Novo Plano"
+      >
+        <PlusIcon weight="bold" size={18} />
+      </ActionIcon>
+
       <Modal
         opened={isModalOpen}
         onClose={() => setIsModalOpen(false)}
