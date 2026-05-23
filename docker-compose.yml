@@ -45,6 +45,7 @@ services:
       - .env
     volumes:
       - ./ui/src:/app/src:Z
+      - ./ui/public:/app/public:Z
     ports:
       - "3000:3000"
     environment:
