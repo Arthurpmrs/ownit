@@ -1,9 +1,7 @@
 import Header from '@/features/appshell/header';
 import {
-  ActionIcon,
   Alert,
   Badge,
-  Button,
   Card,
   Center,
   Container,
@@ -12,7 +10,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
-import { FunnelIcon, TargetIcon } from '@phosphor-icons/react';
+import { TargetIcon } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 
@@ -38,32 +36,12 @@ export default function Goals() {
         icon={<TargetIcon weight="bold" color="white" size={32} />}
       >
         <Group gap="sm">
-          <Button
-            variant="light"
-            radius="sm"
-            leftSection={<FunnelIcon weight="bold" size={14} />}
-            visibleFrom="sm"
-          >
-            Filtro
-          </Button>
-          <ActionIcon
-            variant="light"
-            radius="sm"
-            size="input-sm"
-            hiddenFrom="sm"
-            aria-label="Filtro"
-          >
-            <FunnelIcon size={18} />
-          </ActionIcon>
-
-          <Group>
           <FilterGoalsModal />
           <CreateGoalModal
-              studentId={student.id}
-              disabled={isLoading || error !== null}
-            />
-          </Group>
-      </Group>
+            studentId={student.id}
+            disabled={isLoading || error !== null}
+          />
+        </Group>
       </Header>
 
       <Container py="xl">
