@@ -1,6 +1,9 @@
+import Header from '@/features/appshell/header';
 import {
+  ActionIcon,
   Alert,
   Badge,
+  Button,
   Card,
   Center,
   Container,
@@ -9,6 +12,7 @@ import {
   Stack,
   Text,
 } from '@mantine/core';
+import { FunnelIcon, TargetIcon } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 
@@ -27,22 +31,45 @@ export default function Goals() {
   } = useQuery(getStudentGoalsOptions(student.id));
 
   return (
-    <Container py="xl">
-      <Group justify="space-between" mb="lg">
-        <Text size="xl" fw={700}>
-          Minhas Metas
-        </Text>
-        <Group>
+    <>
+      <Header
+        title="Meus Planos"
+        description="Visualize e organize seus planos de estudo"
+        icon={<TargetIcon weight="bold" color="white" size={32} />}
+      >
+        <Group gap="sm">
+          <Button
+            variant="light"
+            radius="sm"
+            leftSection={<FunnelIcon weight="bold" size={14} />}
+            visibleFrom="sm"
+          >
+            Filtro
+          </Button>
+          <ActionIcon
+            variant="light"
+            radius="sm"
+            size="input-sm"
+            hiddenFrom="sm"
+            aria-label="Filtro"
+          >
+            <FunnelIcon size={18} />
+          </ActionIcon>
+
+          <Group>
           <FilterGoalsModal />
           <CreateGoalModal
-            studentId={student.id}
-            disabled={isLoading || error !== null}
-          />
-        </Group>
+              studentId={student.id}
+              disabled={isLoading || error !== null}
+            />
+          </Group>
       </Group>
+      </Header>
 
-      <GoalsList goals={goals} isLoading={isLoading} error={error} />
-    </Container>
+      <Container py="xl">
+        <GoalsList goals={goals} isLoading={isLoading} error={error} />
+      </Container>
+    </>
   );
 }
 
@@ -63,7 +90,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
 
   if (error) {
     return (
-      <Alert title="Erro ao carregar metas" color="red" mb="lg">
+      <Alert title="Erro ao carregar planos" color="red" mb="lg">
         {error instanceof Error ? error.message : 'Erro desconhecido'}
       </Alert>
     );
@@ -104,7 +131,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
         ))
       ) : (
         <Center py="lg">
-          <Text c="dimmed">Nenhuma meta criada ainda</Text>
+          <Text c="dimmed">Nenhum plano criado ainda</Text>
         </Center>
       )}
     </Stack>

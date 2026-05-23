@@ -1,10 +1,11 @@
 import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { MantineProvider } from '@mantine/core';
+import { colorsTuple, createTheme, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
@@ -20,9 +21,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+const theme = createTheme({
+  colors: {
+    bgLight: colorsTuple('#FFF6E9'),
+    borderLight: colorsTuple('#E8DFD6'),
+  },
+  primaryColor: 'orange',
+});
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <MantineProvider>
+    <MantineProvider theme={theme}>
       <Notifications />
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
