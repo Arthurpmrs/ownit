@@ -19,9 +19,24 @@ export function getStudentGoalsOptions(studentId: number) {
  * @returns Promise com lista de Goals transformados
  * @throws Error se a requisição falhar
  */
-export async function fetchGoalsByStudent(studentId: number): Promise<Goal[]> {
-  const url = `${import.meta.env.VITE_API_URL}/goals/student/${studentId}`;
-  const response = await fetch(url, {
+export async function fetchGoalsByStudent(
+  studentId: number,
+  status: string = '',
+  tags: string[] = [],
+): Promise<Goal[]> {
+  const url = new URL(
+    `${import.meta.env.VITE_API_URL}/goals/student/${studentId}`,
+  );
+
+  if (status) {
+    url.searchParams.append('status', status);
+  }
+
+  tags.forEach((tag) => {
+    url.searchParams.append('tags', tag);
+  });
+
+  const response = await fetch(url.toString(), {
     credentials: 'include',
   });
 
