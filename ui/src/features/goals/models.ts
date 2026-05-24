@@ -3,6 +3,7 @@ export type Goal = {
   studentId: number;
   title: string;
   description: string;
+  status: Status;
   goal_tags: string[];
   created_at: Date;
   updated_at: Date;

@@ -16,24 +16,43 @@ import { useState } from 'react';
 import { statusMapper } from '../mappers';
 import type { Status } from '../models';
 
-interface FilterGoalValues {
+export interface FilterGoalsValues {
   status: Status | null;
   goal_tags: string[];
 }
 
-export default function FilterGoalsModal() {
+interface FilterGoalsModalProps {
+  onFilter: (values: FilterGoalsValues) => void;
+  onClear: () => void;
+  isLoading: boolean;
+}
+
+export default function FilterGoalsModal({
+  onFilter,
+  onClear,
+  isLoading,
+}: FilterGoalsModalProps) {
   const [opened, setOpened] = useState<boolean>(false);
 
-  const form = useForm<FilterGoalValues>({
+  const form = useForm<FilterGoalsValues>({
     initialValues: {
       status: null,
       goal_tags: [],
     },
   });
 
-  function handleSubmit(values: FilterGoalValues) {
-    console.log(values);
+  function handleSubmit(values: FilterGoalsValues) {
+    onFilter(values);
+    setOpened(false);
   }
+
+  function handleClear() {
+    form.reset();
+    onClear();
+  }
+
+  const hasFiltersSelected =
+    form.values.status !== null || form.values.goal_tags.length > 0;
 
   return (
     <>
@@ -112,16 +131,15 @@ export default function FilterGoalsModal() {
                     type="button"
                     variant="light"
                     radius="sm"
-                    onClick={() => form.reset()}
-                    //   disabled={createGoalMutation.isPending}
+                    onClick={handleClear}
                   >
                     Limpar
                   </Button>
                   <Button
                     type="submit"
                     radius="sm"
-                    //   loading={createGoalMutation.isPending}
-                    disabled={!form.isValid()}
+                    loading={isLoading}
+                    disabled={!hasFiltersSelected}
                   >
                     Filtrar
                   </Button>

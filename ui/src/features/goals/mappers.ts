@@ -16,8 +16,10 @@ export const goalMapper = {
       studentId: dto.student_id,
       title: dto.title,
       description: dto.description ?? '',
-      goalType: dto.goal_type,
-      rating: dto.rating,
+      goal_tags: dto.goal_tags,
+      status: dto.status,
+      start_date: new Date(dto.start_date),
+      end_date: new Date(dto.end_date),
       created_at: new Date(dto.created_at),
       updated_at: new Date(dto.updated_at),
     };

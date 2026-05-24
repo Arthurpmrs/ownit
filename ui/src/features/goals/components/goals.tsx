@@ -13,20 +13,28 @@ import {
 import { TargetIcon } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
+import { useState } from 'react';
 
 import { getStudentGoalsOptions } from '../api';
 import type { Goal } from '../models';
 import CreateGoalModal from './create-goal-modal';
-import FilterGoalsModal from './filter-goals-modal';
+import FilterGoalsModal, { type FilterGoalsValues } from './filter-goals-modal';
 
 export default function Goals() {
   const { student } = useRouteContext({ from: '/goals/' });
+  const [filters, setFilters] = useState<FilterGoalsValues | null>(null);
 
   const {
     data: goals,
     isLoading,
     error,
-  } = useQuery(getStudentGoalsOptions(student.id));
+  } = useQuery(
+    getStudentGoalsOptions(
+      student.id,
+      filters?.status ?? '',
+      filters?.goal_tags ?? [],
+    ),
+  );
 
   return (
     <>
@@ -36,7 +44,11 @@ export default function Goals() {
         icon={<TargetIcon weight="bold" color="white" size={32} />}
       >
         <Group gap="sm">
-          <FilterGoalsModal />
+          <FilterGoalsModal
+            onFilter={setFilters}
+            onClear={() => setFilters(null)}
+            isLoading={isLoading}
+          />
           <CreateGoalModal
             studentId={student.id}
             disabled={isLoading || error !== null}
@@ -85,7 +97,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
                   {goal.title}
                 </Text>
                 <Badge color="blue" variant="light">
-                  {goal.goalType}
+                  {goal.status}
                 </Badge>
               </Group>
             </Card.Section>
@@ -98,7 +110,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
               )}
               <Group justify="space-between">
                 <Text size="sm">
-                  <strong>Avaliação:</strong> {goal.rating}/10
+                  <strong>Tags:</strong> {goal.goal_tags.join(", ")}
                 </Text>
                 <Text size="xs" c="dimmed">
                   Atualizado: {goal.updated_at.toLocaleDateString('pt-BR')}

@@ -4,10 +4,14 @@ import type { GoalDTO } from './dto';
 import { goalMapper } from './mappers';
 import type { CreateGoalData, Goal } from './models';
 
-export function getStudentGoalsOptions(studentId: number) {
+export function getStudentGoalsOptions(
+  studentId: number,
+  status: string = '',
+  tags: string[] = [],
+) {
   return queryOptions({
-    queryKey: ['goals', studentId],
-    queryFn: () => fetchGoalsByStudent(studentId),
+    queryKey: ['goals', studentId, status, tags],
+    queryFn: () => fetchGoalsByStudent(studentId, status, tags),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -16,6 +20,8 @@ export function getStudentGoalsOptions(studentId: number) {
  * Fetch goals do backend por student_id
  *
  * @param studentId - ID do estudante
+ * @param status - Status do plano
+ * @param tags - Tags associada ao plano
  * @returns Promise com lista de Goals transformados
  * @throws Error se a requisição falhar
  */
