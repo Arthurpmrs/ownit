@@ -110,7 +110,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
               )}
               <Group justify="space-between">
                 <Text size="sm">
-                  <strong>Tags:</strong> {goal.goal_tags.join(", ")}
+                  <strong>Tags:</strong> {goal.goal_tags.join(', ')}
                 </Text>
                 <Text size="xs" c="dimmed">
                   Atualizado: {goal.updated_at.toLocaleDateString('pt-BR')}
