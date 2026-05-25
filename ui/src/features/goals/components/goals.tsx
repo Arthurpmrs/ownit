@@ -79,6 +79,7 @@ interface GoalListProps {
 
 function GoalsList({ goals, isLoading, error }: GoalListProps) {
   const navigate = useNavigate();
+  const [hoveredGoalId, setHoveredGoalId] = useState<string | null>(null);
 
   function handleClick(id: string) {
     void navigate({ to: '/goals/$goal_id', params: { goal_id: id } });
@@ -101,7 +102,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
   }
 
   return (
-    <Grid gap="md">
+    <Grid gap="md" align="stretch">
       {goals && goals.length > 0 ? (
         goals.map((goal) => {
           // TODO: Calcular o progresso quando tivermos as sessões
@@ -127,14 +128,29 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
             <Grid.Col span={{ base: 12, md: 4 }} key={goal.id}>
               <Card
                 key={goal.id}
+                withBorder
                 padding="lg"
                 radius="md"
-                shadow="md"
+                h="100%"
+                w="100%"
+                shadow={hoveredGoalId === goal.id ? 'lg' : 'md'}
                 onClick={() => handleClick(goal.id)}
-                style={{ cursor: 'pointer' }}
+                onMouseEnter={() => setHoveredGoalId(goal.id)}
+                onMouseLeave={() => setHoveredGoalId(null)}
+                style={{
+                  cursor: 'pointer',
+                  transition:
+                    'transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease',
+                  transform:
+                    hoveredGoalId === goal.id ? 'translateY(-4px)' : 'none',
+                  borderColor:
+                    hoveredGoalId === goal.id
+                      ? 'var(--mantine-color-orange-4)'
+                      : undefined,
+                }}
               >
-                <Card.Section inheritPadding py="md">
-                  <Stack gap="md">
+                <Card.Section inheritPadding py="md" flex={1} h="100%">
+                  <Stack gap="md" justify="space-between" h="100%">
                     <Stack gap="sm">
                       <Group justify="space-between">
                         <BookOpenIcon size={32} color="orange" weight="bold" />
