@@ -5,14 +5,22 @@ import {
   Card,
   Center,
   Container,
+  Divider,
+  Grid,
   Group,
   Loader,
+  Progress,
   Stack,
   Text,
+  Title,
 } from '@mantine/core';
-import { TargetIcon } from '@phosphor-icons/react';
+import {
+  BookOpenIcon,
+  CaretRightIcon,
+  TargetIcon,
+} from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
-import { useRouteContext } from '@tanstack/react-router';
+import { useNavigate, useRouteContext } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import { getStudentGoalsOptions } from '../api';
@@ -56,7 +64,7 @@ export default function Goals() {
         </Group>
       </Header>
 
-      <Container py="xl">
+      <Container py="xl" w="100%" fluid>
         <GoalsList goals={goals} isLoading={isLoading} error={error} />
       </Container>
     </>
@@ -70,6 +78,12 @@ interface GoalListProps {
 }
 
 function GoalsList({ goals, isLoading, error }: GoalListProps) {
+  const navigate = useNavigate();
+
+  function handleClick(id: string) {
+    void navigate({ to: '/goals/$goal_id', params: { goal_id: id } });
+  }
+
   if (goals === undefined && isLoading) {
     return (
       <Center>
@@ -87,43 +101,88 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
   }
 
   return (
-    <Stack gap="md">
+    <Grid gap="md">
       {goals && goals.length > 0 ? (
-        goals.map((goal) => (
-          <Card key={goal.id} padding="lg" radius="md" withBorder>
-            <Card.Section withBorder inheritPadding py="md">
-              <Group justify="space-between">
-                <Text fw={600} size="lg">
-                  {goal.title}
-                </Text>
-                <Badge color="blue" variant="light">
-                  {goal.status}
-                </Badge>
-              </Group>
-            </Card.Section>
+        goals.map((goal) => {
+          // TODO: Calcular o progresso quando tivermos as sessões
+          const mockProgressValue = 0;
 
-            <Card.Section inheritPadding py="md">
-              {goal.description && (
-                <Text size="sm" c="dimmed" mb="md">
-                  {goal.description}
-                </Text>
-              )}
-              <Group justify="space-between">
-                <Text size="sm">
-                  <strong>Tags:</strong> {goal.goal_tags.join(', ')}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  Atualizado: {goal.updated_at.toLocaleDateString('pt-BR')}
-                </Text>
-              </Group>
-            </Card.Section>
-          </Card>
-        ))
+          let leftDays = 0;
+          if (goal.start_date && goal.end_date) {
+            const utcA = Date.UTC(
+              goal.start_date.getFullYear(),
+              goal.start_date.getMonth(),
+              goal.start_date.getDate(),
+            );
+            const utcB = Date.UTC(
+              goal.end_date.getFullYear(),
+              goal.end_date.getMonth(),
+              goal.end_date.getDate(),
+            );
+            const msPerDay = 24 * 60 * 60 * 1000;
+            leftDays = Math.abs(Math.floor((utcA - utcB) / msPerDay));
+          }
+
+          return (
+            <Grid.Col span={{ base: 12, md: 4 }} key={goal.id}>
+              <Card
+                key={goal.id}
+                padding="lg"
+                radius="md"
+                onClick={() => handleClick(goal.id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <Card.Section inheritPadding py="md">
+                  <Stack gap="md">
+                    <Stack gap="sm">
+                      <Group justify="space-between">
+                        <BookOpenIcon size={32} color="orange" weight="bold" />
+                        <Badge variant="light">{goal.status}</Badge>
+                      </Group>
+                      <Stack gap={0}>
+                        <Title order={4} size="lg">
+                          {goal.title}
+                        </Title>
+                        {goal.description && (
+                          <Text size="sm" c="dimmed">
+                            {goal.description}
+                          </Text>
+                        )}
+                      </Stack>
+                    </Stack>
+
+                    <Stack gap="xs">
+                      <Stack gap={0}>
+                        <Group justify="space-between">
+                          <Text c="dimmed" size="sm" fw={600}>
+                            Progresso
+                          </Text>
+                          <Text c="orange" size="lg" fw={600}>
+                            {mockProgressValue}%
+                          </Text>
+                        </Group>
+                        <Progress value={mockProgressValue} />
+                      </Stack>
+
+                      <Divider />
+                      <Group justify="space-between">
+                        <Text c="dimmed" size="sm" fw={600}>
+                          {leftDays} dias
+                        </Text>
+                        <CaretRightIcon />
+                      </Group>
+                    </Stack>
+                  </Stack>
+                </Card.Section>
+              </Card>
+            </Grid.Col>
+          );
+        })
       ) : (
         <Center py="lg">
           <Text c="dimmed">Nenhum plano criado ainda</Text>
         </Center>
       )}
-    </Stack>
+    </Grid>
   );
 }
