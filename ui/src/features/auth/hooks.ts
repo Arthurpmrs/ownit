@@ -26,6 +26,21 @@ export function useLogin() {
   });
 }
 
+export function useSignup() {
+  return useMutation({
+    mutationFn: (signupData: Omit<LoginRequest, 'rememberMe'> & { name: string }) => {
+      return fetch(`${import.meta.env.VITE_API_URL}/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(signupData),
+      });
+    },
+  });
+}
+
+
 export function useLogout() {
   const queryClient = useQueryClient();
 
