@@ -129,6 +129,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
                 key={goal.id}
                 padding="lg"
                 radius="md"
+                shadow="md"
                 onClick={() => handleClick(goal.id)}
                 style={{ cursor: 'pointer' }}
               >
