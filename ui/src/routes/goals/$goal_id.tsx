@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
-import { fetchMe } from '@/features/auth/api'; 
+import { fetchMe } from '@/features/auth/api';
 import GoalDetails from '@/features/goals/components/goal-detail';
 
 export const Route = createFileRoute('/goals/$goal_id')({
