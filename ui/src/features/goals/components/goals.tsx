@@ -64,7 +64,7 @@ export default function Goals() {
         </Group>
       </Header>
 
-      <Container py="xl" w="100%" fluid>
+      <Container py="xl" mx="xl" fluid>
         <GoalsList goals={goals} isLoading={isLoading} error={error} />
       </Container>
     </>
@@ -125,7 +125,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
           }
 
           return (
-            <Grid.Col span={{ base: 12, md: 4 }} key={goal.id}>
+            <Grid.Col span={{ base: 12, md: 3 }} key={goal.id}>
               <Card
                 key={goal.id}
                 withBorder
