@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import { FunnelIcon, TargetIcon } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
-import { useRouteContext } from '@tanstack/react-router';
+import { useRouteContext, Link } from '@tanstack/react-router';
 
 import { getStudentGoalsOptions } from '../api';
 import type { Goal } from '../models';
@@ -96,34 +96,36 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
     <Stack gap="md">
       {goals && goals.length > 0 ? (
         goals.map((goal) => (
-          <Card key={goal.id} padding="lg" radius="md" withBorder>
-            <Card.Section withBorder inheritPadding py="md">
-              <Group justify="space-between">
-                <Text fw={600} size="lg">
-                  {goal.title}
-                </Text>
-                <Badge color="blue" variant="light">
-                  {goal.goalType}
-                </Badge>
-              </Group>
-            </Card.Section>
+          <Link key={goal.id} to="/goals/$id" params={{ id: goal.id }} style={{ textDecoration: 'none' }}>
+            <Card key={goal.id} padding="lg" radius="md" withBorder>
+              <Card.Section withBorder inheritPadding py="md">
+                <Group justify="space-between">
+                  <Text fw={600} size="lg">
+                    {goal.title}
+                  </Text>
+                  <Badge color="blue" variant="light">
+                    {goal.goalType}
+                  </Badge>
+                </Group>
+              </Card.Section>
 
-            <Card.Section inheritPadding py="md">
-              {goal.description && (
-                <Text size="sm" c="dimmed" mb="md">
-                  {goal.description}
-                </Text>
-              )}
-              <Group justify="space-between">
-                <Text size="sm">
-                  <strong>Avaliação:</strong> {goal.rating}/10
-                </Text>
-                <Text size="xs" c="dimmed">
-                  Atualizado: {goal.updated_at.toLocaleDateString('pt-BR')}
-                </Text>
-              </Group>
-            </Card.Section>
-          </Card>
+              <Card.Section inheritPadding py="md">
+                {goal.description && (
+                  <Text size="sm" c="dimmed" mb="md">
+                    {goal.description}
+                  </Text>
+                )}
+                <Group justify="space-between">
+                  <Text size="sm">
+                    <strong>Avaliação:</strong> {goal.rating}/10
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    Atualizado: {goal.updated_at.toLocaleDateString('pt-BR')}
+                  </Text>
+                </Group>
+              </Card.Section>
+            </Card>
+          </Link>
         ))
       ) : (
         <Center py="lg">
