@@ -33,7 +33,8 @@ export default function Signup() {
       confirmPassword: '',
     },
     validate: {
-      name: (value) => (value.length < 2 ? 'Nome deve ter ao menos 2 caracteres' : null),
+      name: (value) =>
+        value.length < 2 ? 'Nome deve ter ao menos 2 caracteres' : null,
       email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Email inválido'),
       password: (value) =>
         value.length < 3 ? 'Senha deve ter ao menos 3 caracteres' : null,
@@ -44,7 +45,6 @@ export default function Signup() {
 
   async function handleSubmit(values: typeof form.values) {
     try {
-      // Removemos o confirmPassword antes de enviar para a API
       const { confirmPassword, ...signupData } = values;
       await signupMutation.mutateAsync(signupData);
 
@@ -73,7 +73,16 @@ export default function Signup() {
   });
 
   return (
-    <Container size="md" py="xl" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+    <Container
+      size="md"
+      py="xl"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Paper
         radius="md"
         p={60}
@@ -88,10 +97,17 @@ export default function Signup() {
       >
         <Stack gap="lg">
           <Box>
-            <Image src="/assets/ownit-logo.svg" alt="Ownit Logo" w={290} h={100} m="auto"/>
+            <Image
+              src="/assets/ownit-logo.svg"
+              alt="Ownit Logo"
+              w={290}
+              h={100}
+              m="auto"
+            />
           </Box>
-          <Text size="sm" ta="center" style={{color: '#868E96'}}>
-            Sua plataforma de <b>Self Regulated Learning</b>. Preencha os dados para começar.
+          <Text size="sm" ta="center" style={{ color: '#868E96' }}>
+            Sua plataforma de <b>Self Regulated Learning</b>. Preencha os dados
+            para começar.
           </Text>
 
           {signupMutation.error && (
@@ -130,14 +146,14 @@ export default function Signup() {
                 {...form.getInputProps('confirmPassword')}
               />
 
-            <MantineProvider theme={theme}>
-              <Checkbox
-                label="Eu concordo com os Termos de Uso e Políticas de Privacidade"
-                defaultChecked={false}
-                key={form.key('terms')}
-                {...form.getInputProps('terms')}
-              />
-            </MantineProvider>
+              <MantineProvider theme={theme}>
+                <Checkbox
+                  label="Eu concordo com os Termos de Uso e Políticas de Privacidade"
+                  defaultChecked={false}
+                  key={form.key('terms')}
+                  {...form.getInputProps('terms')}
+                />
+              </MantineProvider>
 
               <Button
                 type="submit"
@@ -153,7 +169,11 @@ export default function Signup() {
 
           <Divider
             my="md"
-            label={<Text size="sm" c="dimmed" px="xs" fw={400}>ou</Text>}
+            label={
+              <Text size="sm" c="dimmed" px="xs" fw={400}>
+                ou
+              </Text>
+            }
             labelPosition="center"
             color="#FCA13A"
           />
@@ -162,7 +182,9 @@ export default function Signup() {
             <p>
               Já tem uma conta?{' '}
               <Link to="/login" style={{ textDecoration: 'none' }}>
-                <span style={{ color: '#FCA13A', fontWeight: 'bold'}}>Fazer Login</span>
+                <span style={{ color: '#FCA13A', fontWeight: 'bold' }}>
+                  Fazer Login
+                </span>
               </Link>
             </p>
           </Box>
