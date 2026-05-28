@@ -28,7 +28,9 @@ export function useLogin() {
 
 export function useSignup() {
   return useMutation({
-    mutationFn: (signupData: Omit<LoginRequest, 'rememberMe'> & { name: string }) => {
+    mutationFn: (
+      signupData: Omit<LoginRequest, 'rememberMe'> & { name: string },
+    ) => {
       return fetch(`${import.meta.env.VITE_API_URL}/auth/signup`, {
         method: 'POST',
         headers: {
@@ -39,7 +41,6 @@ export function useSignup() {
     },
   });
 }
-
 
 export function useLogout() {
   const queryClient = useQueryClient();
