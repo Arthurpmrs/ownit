@@ -62,7 +62,16 @@ export default function Login() {
   }
 
   return (
-    <Container size="md" py="xl" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+    <Container
+      size="md"
+      py="xl"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Paper
         radius="md"
         p={60}
@@ -77,9 +86,18 @@ export default function Login() {
       >
         <Stack gap="lg">
           <Box>
-            <Image src="/assets/ownit-logo.svg" alt="Ownit Logo" w={290} h={100} m="auto"/>
+            <Image
+              src="/assets/ownit-logo.svg"
+              alt="Ownit Logo"
+              w={290}
+              h={100}
+              m="auto"
+            />
           </Box>
-          <Text size="sm" ta="center" style={{color: '#868E96'}}>Sua plataforma de <b>Self Regulated Learning</b>. Entre para continuar sua jornada de aprendizado.</Text>
+          <Text size="sm" ta="center" style={{ color: '#868E96' }}>
+            Sua plataforma de <b>Self Regulated Learning</b>. Entre para
+            continuar sua jornada de aprendizado.
+          </Text>
 
           {loginMutation.error && (
             <Alert color="red" title="Erro no login">
@@ -105,7 +123,15 @@ export default function Login() {
 
               <Box ta="right">
                 <Link to="/forgot-password" style={{ textDecoration: 'none' }}>
-                  <span style={{ color: '#FC8A08', fontSize: '0.9em', fontWeight: 'bolder'}}>Esqueceu a senha?</span>
+                  <span
+                    style={{
+                      color: '#FC8A08',
+                      fontSize: '0.9em',
+                      fontWeight: 'bolder',
+                    }}
+                  >
+                    Esqueceu a senha?
+                  </span>
                 </Link>
               </Box>
 
@@ -122,7 +148,11 @@ export default function Login() {
 
           <Divider
             my="md"
-            label={<Text size="sm" c="dimmed" px="xs" fw={400}>ou</Text>}
+            label={
+              <Text size="sm" c="dimmed" px="xs" fw={400}>
+                ou
+              </Text>
+            }
             labelPosition="center"
             color="#FCA13A"
           />
@@ -131,7 +161,9 @@ export default function Login() {
             <p>
               Não tem conta?{' '}
               <Link to="/signup" style={{ textDecoration: 'none' }}>
-                <span style={{ color: '#FCA13A', fontWeight: 'bold'}}>Criar conta grátis</span>
+                <span style={{ color: '#FCA13A', fontWeight: 'bold' }}>
+                  Criar conta grátis
+                </span>
               </Link>
             </p>
           </Box>
