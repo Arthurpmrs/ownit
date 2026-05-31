@@ -27,8 +27,8 @@ study_sessions = Table(
     Column('student_id', Integer, ForeignKey('students.id'), nullable=False),
     Column('goal_id', String, ForeignKey('goals.id'), nullable=False),
     Column('title', String, nullable=False),
-    Column('description', String),
-    Column('notes', String),
+    Column('description', String, nullable=False),
+    Column('notes', String, nullable=False, default=''),
     Column(
         'status',
         Enum(StudySessionStatus),
