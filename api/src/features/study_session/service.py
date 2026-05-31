@@ -49,19 +49,33 @@ def create_study_session(
 
     logger.info(f'StudySession created with id={study_session_id}')
 
-    return get_study_session_by_id(conn, study_session_id)
+    study_session = get_study_session(conn, student_id, study_session_id)
+
+    if not study_session:
+        logger.warning(f'StudySession not found: {study_session_id}')
+        raise Exception('StudySession does not exist! Something went wrong.')
+
+    return study_session
 
 
-def get_study_session_by_id(
-    conn: Connection, study_session_id: str
-) -> StudySessionResponse:
-    stmt = select(
-        *study_sessions.c,
-        (study_sessions.c.planned_to_start_at + study_sessions.c.duration).label(
-            'planned_to_end_at'
-        ),
-    ).where(study_sessions.c.id == study_session_id)
+def get_study_session(
+    conn: Connection, student_id: int, study_session_id: str
+) -> StudySessionResponse | None:
+    stmt = (
+        select(
+            *study_sessions.c,
+            (study_sessions.c.planned_to_start_at + study_sessions.c.duration).label(
+                'planned_to_end_at'
+            ),
+            goals.c.title.label('goal_title'),
+        )
+        .join(goals, study_sessions.c.goal_id == goals.c.id)
+        .where(
+            study_sessions.c.id == study_session_id,
+            study_sessions.c.student_id == student_id,
+        )
+    )
 
     result = conn.execute(stmt).fetchone()
 
-    return _row_to_schema(result)
+    return _row_to_schema(result) if result else None

@@ -17,6 +17,7 @@ class StudySessionResponse(BaseModel):
     id: str
     student_id: int
     goal_id: str
+    goal_title: str
     title: str
     description: str
     planned_to_start_at: datetime

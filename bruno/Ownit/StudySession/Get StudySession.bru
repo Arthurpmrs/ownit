@@ -1,0 +1,16 @@
+meta {
+  name: Get StudySession
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8000/sessions/a9f48637-88ba-4e6c-aa02-7bd119bb635b
+  body: json
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

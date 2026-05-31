@@ -25,3 +25,19 @@ def create_study_session(
     except Exception as e:
         logger.exception(f'Error creating study session for student_id={student_id}')
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
+
+
+@router.get(path='/{study_session_id}', response_model=StudySessionResponse)
+def get_study_session(
+    study_session_id: str,
+    conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
+):
+    study_session = service.get_study_session(conn, student_id, study_session_id)
+
+    if not study_session:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='StudySession not found'
+        )
+
+    return study_session
