@@ -1,6 +1,9 @@
+import enum
+
 from sqlalchemy import (
     Column,
     DateTime,
+    Enum,
     ForeignKey,
     Integer,
     Interval,
@@ -10,6 +13,13 @@ from sqlalchemy import (
 
 from src.core.db import metadata, timestamp_columns
 
+
+class StudySessionStatus(enum.Enum):
+    PENDING = 'pending'
+    IN_PROGRESS = 'in_progress'
+    COMPLETED = 'completed'
+
+
 study_sessions = Table(
     'study_sessions',
     metadata,
@@ -18,6 +28,13 @@ study_sessions = Table(
     Column('goal_id', String, ForeignKey('goals.id'), nullable=False),
     Column('title', String, nullable=False),
     Column('description', String),
+    Column('notes', String),
+    Column(
+        'status',
+        Enum(StudySessionStatus),
+        nullable=False,
+        default=StudySessionStatus.PENDING,
+    ),
     Column('planned_to_start_at', DateTime, nullable=False),
     Column('duration', Interval, nullable=False),
     Column('focus_mode_duration', Interval),

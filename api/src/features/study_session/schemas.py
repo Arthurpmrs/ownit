@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel
 
+from .tables import StudySessionStatus
+
 
 class StudySessionCreate(BaseModel):
     goal_id: str
@@ -20,6 +22,8 @@ class StudySessionResponse(BaseModel):
     goal_title: str
     title: str
     description: str
+    notes: str
+    status: StudySessionStatus
     planned_to_start_at: datetime
     duration: timedelta
     planned_to_end_at: datetime
