@@ -15,20 +15,21 @@ import { PlusIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 
 interface CreateSessionModalProps {
-  goalId: string;
+  onSessionCreate: (session: SessionFormValues) => void;
 }
 
 interface SessionFormValues {
   title: string;
   description: string;
   start_time: Date | null;
+  end_time: Date | null;
   duration: number;
   duration_focused: number;
   duration_paused: number;
 }
 
 export default function CreateSessionModal({
-  goalId,
+  onSessionCreate,
 }: CreateSessionModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,6 +38,7 @@ export default function CreateSessionModal({
       title: '',
       description: '',
       start_time: null,
+      end_time: null,
       duration: 30,
       duration_focused: 0,
       duration_paused: 0,
@@ -48,8 +50,7 @@ export default function CreateSessionModal({
   });
 
   function handleSubmit(values: SessionFormValues) {
-    // TODO: Implementar mutation quando backend estiver pronto
-    console.log('Criar sessão:', { ...values, goalId });
+    onSessionCreate(values);
 
     showNotification({
       title: 'Sessão criada',
@@ -111,11 +112,19 @@ export default function CreateSessionModal({
                 />
 
                 <DatePickerInput 
-                  label="Data Planejada"
-                  placeholder="Selecione data e hora"
+                  label="Data de ínicio planejada"
+                  placeholder="Selecione data"
                   radius="sm"
                   required
                   {...form.getInputProps('start_time')}
+                />
+
+                <DatePickerInput 
+                  label="Data de término planejada"
+                  placeholder="Selecione data"
+                  radius="sm"
+                  required
+                  {...form.getInputProps('end_time')}
                 />
 
                 <NumberInput
