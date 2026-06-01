@@ -30,4 +30,6 @@ export type Session = {
   start_time: Date | null;
   end_time: Date | null;
   duration: number; // em minutos
+  duration_focused: number; // em minutos
+  duration_paused: number; // em minutos
 };
