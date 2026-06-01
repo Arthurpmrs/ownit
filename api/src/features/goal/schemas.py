@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 
 from pydantic import BaseModel
 
@@ -25,7 +26,15 @@ class GoalResponse(BaseModel):
     title: str
     description: str | None
     goal_tags: list[str] | None
+    status: Status
     start_date: datetime | None = None
     end_date: datetime | None = None
     created_at: datetime
     updated_at: datetime
+
+
+class Status(str, Enum):
+    todo = 'to_do'
+    doing = 'doing'
+    done = 'done'
+    canceled = 'canceled'
