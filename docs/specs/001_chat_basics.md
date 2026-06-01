@@ -29,12 +29,12 @@ streamed in real-time via SSE and persisted in the database for future reference
 
 ### Goals
 - [ ] Chat popup UI integrated into the app shell (accessible from any page).
-- [ ] Real-time streaming of AI responses via Server-Sent Events (SSE).
-- [ ] Conversation persistence: sessions and messages stored in PostgreSQL.
+- [x] Real-time streaming of AI responses via Server-Sent Events (SSE).
+- [x] Conversation persistence: sessions and messages stored in PostgreSQL.
 - [ ] Markdown rendering in chat messages (both user and AI).
-- [ ] LLM integration using Haystack with a model-agnostic, OpenAI-compatible generator.
-- [ ] LLM metadata stored as a single JSONB column (model, tokens, response time, etc.).
-- [ ] Multi-turn conversation support with chat history sent to the LLM.
+- [x] LLM integration using Haystack with a model-agnostic, OpenAI-compatible generator.
+- [x] LLM metadata stored as a single JSONB column (model, tokens, response time, etc.).
+- [x] Multi-turn conversation support with chat history sent to the LLM.
 
 ### Non-Goals
 - RAG (Retrieval-Augmented Generation) or context from study data — future spec.
