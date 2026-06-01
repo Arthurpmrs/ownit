@@ -8,13 +8,13 @@ from src.core.db import get_connection
 from src.core.logger import get_logger
 
 from . import service
-from .schemas import GoalCreate, GoalResponse, GoalUpdate
+from .schemas import GoalCreate, GoalResponse, GoalShortResponse, GoalUpdate
 
 logger = get_logger(__name__)
 router = APIRouter(prefix='/goals', tags=['goals'])
 
 
-@router.post('/', response_model=GoalResponse, status_code=HTTPStatus.CREATED)
+@router.post('/', response_model=GoalShortResponse, status_code=HTTPStatus.CREATED)
 def create_goal(
     payload: GoalCreate,
     conn: Connection = Depends(get_connection),
@@ -41,7 +41,7 @@ def get_goal(
     return goal
 
 
-@router.get('/student/{student_id}', response_model=list[GoalResponse])
+@router.get('/student/{student_id}', response_model=list[GoalShortResponse])
 def list_goals(
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
@@ -49,7 +49,7 @@ def list_goals(
     return service.list_goals(conn, student_id)
 
 
-@router.put('/{goal_id}', response_model=GoalResponse)
+@router.put('/{goal_id}', response_model=GoalShortResponse)
 def update_goal(
     goal_id: str,
     payload: GoalUpdate,

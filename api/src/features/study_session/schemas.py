@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel
 
-from .tables import StudySessionStatus
+from src.shared.schemas import StudySessionShortResponse
 
 
 class StudySessionCreate(BaseModel):
@@ -15,18 +15,11 @@ class StudySessionCreate(BaseModel):
     pause_mode_duration: timedelta | None = None
 
 
-class StudySessionResponse(BaseModel):
-    id: str
+class StudySessionResponse(StudySessionShortResponse):
     student_id: int
     goal_id: str
     goal_title: str
-    title: str
-    description: str
     notes: str
-    status: StudySessionStatus
-    planned_to_start_at: datetime
-    duration: timedelta
-    planned_to_end_at: datetime
     focus_mode_duration: timedelta | None = None
     pause_mode_duration: timedelta | None = None
     created_at: datetime
