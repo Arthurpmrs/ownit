@@ -23,11 +23,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useRouteContext } from '@tanstack/react-router';
 import { useState } from 'react';
 
+import CreateSessionModal from '@/features/goal/components/create-session-modal';
 import { getStudentGoalsOptions } from '../api';
+import { statusMapper } from '../mappers';
 import type { Goal } from '../models';
 import CreateGoalModal from './create-goal-modal';
 import FilterGoalsModal, { type FilterGoalsValues } from './filter-goals-modal';
-import { statusMapper } from '../mappers';
 
 export default function Goals() {
   const { student } = useRouteContext({ from: '/goals/' });
@@ -66,6 +67,9 @@ export default function Goals() {
       </Header>
 
       <Container py="xl" mx="xl" fluid>
+        <Group justify="flex-end">
+          <CreateSessionModal />
+        </Group>
         <GoalsList goals={goals} isLoading={isLoading} error={error} />
       </Container>
     </>
