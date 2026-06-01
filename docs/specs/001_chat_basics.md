@@ -6,7 +6,7 @@
 
 | Field           | Value                          |
 |-----------------|--------------------------------|
-| **Status**      | Review                         |
+| **Status**      | In Progress                    |
 | **Author**      | Agent + Ricardo                |
 | **Created**     | 2026-06-01                     |
 | **Updated**     | 2026-06-01                     |

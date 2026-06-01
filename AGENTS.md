@@ -178,6 +178,7 @@ docker compose up
 - **Excluded from linting**: `migrations/` directory
 - **Lint rules**: `I` (isort), `F` (pyflakes), `E`/`W` (pycodestyle), `PL` (pylint), `PT` (pytest), `N` (naming)
 - **Import sorting**: Handled by Ruff's `I` rule
+- **Server-Sent Events (SSE)**: When implementing SSE, do NOT return an `EventSourceResponse`. Instead, yield `fastapi.sse.ServerSentEvent` directly from an `async def` path operation function, relying on FastAPI's native support for generators.
 
 ### Frontend (TypeScript/React)
 
@@ -196,8 +197,9 @@ docker compose up
 4. Implement business logic in `service.py`
 5. Define routes in `routes.py` with an `APIRouter`
 6. Register the router in `src/main.py` with `app.include_router()`
-7. Create an Alembic migration: `uv run alembic revision --autogenerate -m "description"`
-8. Apply: `uv run alembic upgrade head`
+7. **CRITICAL**: Import your `tables.py` in `api/migrations/env.py` (e.g. `from src.features.<feature_name> import tables  # noqa`) so Alembic detects the new tables!
+8. Create an Alembic migration: `uv run alembic revision --autogenerate -m "description"`
+9. Apply: `uv run alembic upgrade head`
 
 ### Frontend
 
