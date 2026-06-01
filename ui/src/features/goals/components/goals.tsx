@@ -27,6 +27,7 @@ import { getStudentGoalsOptions } from '../api';
 import type { Goal } from '../models';
 import CreateGoalModal from './create-goal-modal';
 import FilterGoalsModal, { type FilterGoalsValues } from './filter-goals-modal';
+import { statusMapper } from '../mappers';
 
 export default function Goals() {
   const { student } = useRouteContext({ from: '/goals/' });
@@ -154,7 +155,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
                     <Stack gap="sm">
                       <Group justify="space-between">
                         <BookOpenIcon size={32} color="orange" weight="bold" />
-                        <Badge variant="light">{goal.status}</Badge>
+                        <Badge variant="light">{statusMapper(goal.status)}</Badge>
                       </Group>
                       <Stack gap={0}>
                         <Title order={4} size="lg">
