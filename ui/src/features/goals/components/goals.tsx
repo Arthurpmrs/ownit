@@ -19,6 +19,7 @@ import { useRouteContext } from '@tanstack/react-router';
 import { getStudentGoalsOptions } from '../api';
 import type { Goal } from '../models';
 import CreateGoalModal from './create-goal-modal';
+import AvaliateSessionModal from './avaliate-session-modal';
 
 export default function Goals() {
   const { student } = useRouteContext({ from: '/goals/' });
@@ -59,6 +60,8 @@ export default function Goals() {
             studentId={student.id}
             disabled={isLoading || error !== null}
           />
+
+          <AvaliateSessionModal />
         </Group>
       </Header>
 
