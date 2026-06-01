@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.engine import Connection
 
 from src.core.auth import get_current_student_id
@@ -8,7 +8,7 @@ from src.core.db import get_connection
 from src.core.logger import get_logger
 
 from . import service
-from .schemas import GoalCreate, GoalResponse, GoalShortResponse, GoalUpdate
+from .schemas import GoalCreate, GoalResponse, GoalShortResponse, GoalUpdate, Status
 
 logger = get_logger(__name__)
 router = APIRouter(prefix='/goals', tags=['goals'])
@@ -45,8 +45,10 @@ def get_goal(
 def list_goals(
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
+    status: Status | None = Query(None),
+    tags: list[str] | None = Query(None),
 ):
-    return service.list_goals(conn, student_id)
+    return service.list_goals(conn, student_id, status, tags)
 
 
 @router.put('/{goal_id}', response_model=GoalShortResponse)

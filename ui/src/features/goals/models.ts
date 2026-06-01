@@ -3,6 +3,7 @@ export type Goal = {
   studentId: number;
   title: string;
   description: string;
+  status: Status;
   goal_tags: string[];
   created_at: Date;
   updated_at: Date;
@@ -18,3 +19,5 @@ export type CreateGoalData = {
   start_date: Date | null;
   end_date: Date | null;
 };
+
+export type Status = 'to_do' | 'doing' | 'done' | 'canceled';
