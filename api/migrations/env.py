@@ -8,6 +8,7 @@ from alembic import context
 from src.core.db import metadata
 from src.core.config import get_settings
 from src.features.auth import tables  # noqa
+from src.features.chat import tables  # noqa
 from src.features.goal import tables  # noqa
 from src.features.study_session import tables  # noqa
 
