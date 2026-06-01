@@ -6,14 +6,13 @@ from sqlalchemy.engine import Connection
 from src.core.logger import get_logger
 from src.features.auth.tables import students
 from src.features.study_session.tables import study_sessions
-from src.shared.schemas import StudySessionShortResponse
+from src.shared.schemas import Status, StudySessionShortResponse
 
 from .schemas import (
     GoalCreate,
     GoalResponse,
     GoalShortResponse,
     GoalUpdate,
-    Status,
 )
 from .tables import goals
 

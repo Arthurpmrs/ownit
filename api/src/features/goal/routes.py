@@ -6,9 +6,10 @@ from sqlalchemy.engine import Connection
 from src.core.auth import get_current_student_id
 from src.core.db import get_connection
 from src.core.logger import get_logger
+from src.shared.schemas import Status
 
 from . import service
-from .schemas import GoalCreate, GoalResponse, GoalShortResponse, GoalUpdate, Status
+from .schemas import GoalCreate, GoalResponse, GoalShortResponse, GoalUpdate
 
 logger = get_logger(__name__)
 router = APIRouter(prefix='/goals', tags=['goals'])

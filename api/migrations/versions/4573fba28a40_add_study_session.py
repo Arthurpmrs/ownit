@@ -1,8 +1,8 @@
-"""add study_session model
+"""add study_session
 
-Revision ID: 95990258d028
-Revises: d6f357c91edf
-Create Date: 2026-05-31 13:31:30.388393
+Revision ID: 4573fba28a40
+Revises: 8b54e362c3fc
+Create Date: 2026-06-01 22:47:11.385568
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '95990258d028'
-down_revision: Union[str, Sequence[str], None] = 'd6f357c91edf'
+revision: str = '4573fba28a40'
+down_revision: Union[str, Sequence[str], None] = '8b54e362c3fc'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -26,11 +26,18 @@ def upgrade() -> None:
     sa.Column('student_id', sa.Integer(), nullable=False),
     sa.Column('goal_id', sa.String(), nullable=False),
     sa.Column('title', sa.String(), nullable=False),
-    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('description', sa.String(), nullable=False),
+    sa.Column('notes', sa.String(), nullable=False),
+    sa.Column('status', sa.Enum('todo', 'doing', 'done', 'canceled', name='status'), nullable=False),
     sa.Column('planned_to_start_at', sa.DateTime(), nullable=False),
     sa.Column('duration', sa.Interval(), nullable=False),
     sa.Column('focus_mode_duration', sa.Interval(), nullable=True),
     sa.Column('pause_mode_duration', sa.Interval(), nullable=True),
+    sa.Column('rating', sa.Float(), nullable=True),
+    sa.Column('domain_perception_level', sa.Integer(), nullable=True),
+    sa.Column('learning_difficulty_level', sa.Integer(), nullable=True),
+    sa.Column('strategies', sa.ARRAY(sa.String()), nullable=True),
+    sa.Column('final_comment', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['goal_id'], ['goals.id'], ),

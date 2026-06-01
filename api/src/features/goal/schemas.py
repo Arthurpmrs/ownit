@@ -1,9 +1,8 @@
 from datetime import datetime
-from enum import Enum
 
 from pydantic import BaseModel
 
-from src.shared.schemas import StudySessionShortResponse
+from src.shared.schemas import Status, StudySessionShortResponse
 
 
 class GoalCreate(BaseModel):
@@ -34,14 +33,6 @@ class GoalShortResponse(BaseModel):
 
 class GoalResponse(GoalShortResponse):
     student_id: int
-    goal_tags: list[str] | None
     sessions: list[StudySessionShortResponse]
     created_at: datetime
     updated_at: datetime
-
-
-class Status(str, Enum):
-    todo = 'to_do'
-    doing = 'doing'
-    done = 'done'
-    canceled = 'canceled'

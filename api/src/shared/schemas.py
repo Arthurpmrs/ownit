@@ -1,15 +1,21 @@
 from datetime import datetime, timedelta
+from enum import Enum
 
 from pydantic import BaseModel
 
-from src.features.study_session.tables import StudySessionStatus
+
+class Status(str, Enum):
+    todo = 'to_do'
+    doing = 'doing'
+    done = 'done'
+    canceled = 'canceled'
 
 
 class StudySessionShortResponse(BaseModel):
     id: str
     title: str
     description: str
-    status: StudySessionStatus
+    status: Status
     planned_to_start_at: datetime
     planned_to_end_at: datetime
     duration: timedelta
