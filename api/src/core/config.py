@@ -11,6 +11,9 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str
     ENV: Literal['dev', 'test', 'prod']
+    LLM_BASE_URL: str = 'https://api.deepseek.com/v1'
+    LLM_MODEL: str = 'deepseek-v4-lite'
+    LLM_API_KEY: str
 
 
 @lru_cache()
