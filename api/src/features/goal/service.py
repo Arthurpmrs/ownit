@@ -5,13 +5,11 @@ from sqlalchemy.engine import Connection
 
 from src.core.logger import get_logger
 from src.features.auth.tables import students
-from src.features.study_session.tables import study_sessions
-from src.shared.schemas import Status, StudySessionShortResponse
+from src.shared.schemas import Status
 
 from .schemas import (
     GoalCreate,
     GoalResponse,
-    GoalShortResponse,
     GoalUpdate,
 )
 from .tables import goals
@@ -19,15 +17,8 @@ from .tables import goals
 logger = get_logger(__name__)
 
 
-def _row_to_short_schema(row) -> GoalShortResponse:
-    return GoalShortResponse(**row._mapping)
-
-
-def _row_to_schema(row, sessions) -> GoalResponse:
-    return GoalResponse(
-        **row._mapping,
-        sessions=[StudySessionShortResponse(**session._mapping) for session in sessions],
-    )
+def _row_to_schema(row) -> GoalResponse:
+    return GoalResponse(**row._mapping)
 
 
 def student_exists_by_id(conn: Connection, student_id: int) -> bool:
@@ -37,9 +28,7 @@ def student_exists_by_id(conn: Connection, student_id: int) -> bool:
     return False if result is None else True
 
 
-def create_goal(
-    conn: Connection, student_id: int, payload: GoalCreate
-) -> GoalShortResponse:
+def create_goal(conn: Connection, student_id: int, payload: GoalCreate) -> GoalResponse:
     logger.info(f'Creating goal for student_id={student_id}')
 
     goal_id = str(uuid4())
@@ -67,7 +56,7 @@ def create_goal(
 
     logger.info(f'Goal created with id={goal_id}')
 
-    return _row_to_short_schema(result)
+    return _row_to_schema(result)
 
 
 def get_goal(conn: Connection, student_id: int, goal_id: str) -> GoalResponse | None:
@@ -77,22 +66,12 @@ def get_goal(conn: Connection, student_id: int, goal_id: str) -> GoalResponse | 
     if not result:
         return None
 
-    sessions_stmt = select(
-        *study_sessions.c,
-        (study_sessions.c.planned_to_start_at + study_sessions.c.duration).label(
-            'planned_to_end_at'
-        ),
-    ).where(
-        study_sessions.c.goal_id == result[0], study_sessions.c.student_id == student_id
-    )
-    sessions_result = conn.execute(sessions_stmt).fetchall()
-
-    return _row_to_schema(result, sessions_result)
+    return _row_to_schema(result)
 
 
 def list_goals(
     conn: Connection, student_id: int, status: Status | None, tags: list[str] | None
-) -> list[GoalShortResponse]:
+) -> list[GoalResponse]:
     stmt = select(goals).where(goals.c.student_id == student_id)
 
     if status is not None:
@@ -103,7 +82,7 @@ def list_goals(
 
     results = conn.execute(stmt).fetchall()
 
-    return [_row_to_short_schema(row) for row in results]
+    return [_row_to_schema(row) for row in results]
 
 
 def update_goal(
@@ -111,7 +90,7 @@ def update_goal(
     student_id: int,
     goal_id: str,
     payload: GoalUpdate,
-) -> GoalShortResponse | None:
+) -> GoalResponse | None:
 
     update_data = payload.model_dump(exclude_unset=True)
 
@@ -133,7 +112,7 @@ def update_goal(
     if not result:
         return None
 
-    return _row_to_short_schema(result)
+    return _row_to_schema(result)
 
 
 def delete_goal(conn: Connection, student_id: int, goal_id: str) -> bool:

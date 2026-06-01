@@ -6,16 +6,17 @@ from sqlalchemy.engine import Connection
 from src.core.auth import get_current_student_id
 from src.core.db import get_connection
 from src.core.logger import get_logger
+from src.features.study_session import service as study_session_service
 from src.shared.schemas import Status
 
 from . import service
-from .schemas import GoalCreate, GoalResponse, GoalShortResponse, GoalUpdate
+from .schemas import GoalCreate, GoalResponse, GoalUpdate, GoalWithSessionsResponse
 
 logger = get_logger(__name__)
 router = APIRouter(prefix='/goals', tags=['goals'])
 
 
-@router.post('/', response_model=GoalShortResponse, status_code=HTTPStatus.CREATED)
+@router.post('/', response_model=GoalResponse, status_code=HTTPStatus.CREATED)
 def create_goal(
     payload: GoalCreate,
     conn: Connection = Depends(get_connection),
@@ -28,7 +29,7 @@ def create_goal(
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
 
 
-@router.get('/{goal_id}', response_model=GoalResponse)
+@router.get('/{goal_id}', response_model=GoalWithSessionsResponse)
 def get_goal(
     goal_id: str,
     conn: Connection = Depends(get_connection),
@@ -39,10 +40,12 @@ def get_goal(
     if not goal:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='Goal not found')
 
-    return goal
+    sessions = study_session_service.get_goal_study_sessions(conn, student_id, goal_id)
+
+    return GoalWithSessionsResponse(goal=goal, sessions=sessions)
 
 
-@router.get('/student/{student_id}', response_model=list[GoalShortResponse])
+@router.get('/student/{student_id}', response_model=list[GoalResponse])
 def list_goals(
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
@@ -52,7 +55,7 @@ def list_goals(
     return service.list_goals(conn, student_id, status, tags)
 
 
-@router.put('/{goal_id}', response_model=GoalShortResponse)
+@router.put('/{goal_id}', response_model=GoalResponse)
 def update_goal(
     goal_id: str,
     payload: GoalUpdate,

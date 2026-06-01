@@ -6,7 +6,7 @@ from sqlalchemy.engine import Connection
 from src.core.logger import get_logger
 from src.features.goal.tables import goals
 
-from .schemas import StudySessionCreate, StudySessionResponse
+from .schemas import StudySessionCreate, StudySessionResponse, StudySessionShortResponse
 from .tables import study_sessions
 
 logger = get_logger(__name__)
@@ -79,3 +79,19 @@ def get_study_session(
     result = conn.execute(stmt).fetchone()
 
     return _row_to_schema(result) if result else None
+
+
+def get_goal_study_sessions(
+    conn: Connection, student_id: int, goal_id: str
+) -> list[StudySessionShortResponse]:
+    stmt = select(
+        *study_sessions.c,
+        (study_sessions.c.planned_to_start_at + study_sessions.c.duration).label(
+            'planned_to_end_at'
+        ),
+    ).where(
+        study_sessions.c.goal_id == goal_id, study_sessions.c.student_id == student_id
+    )
+    sessions = conn.execute(stmt).fetchall()
+
+    return [StudySessionShortResponse(**session._mapping) for session in sessions]

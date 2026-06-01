@@ -21,18 +21,19 @@ class GoalUpdate(BaseModel):
     end_date: datetime
 
 
-class GoalShortResponse(BaseModel):
+class GoalResponse(BaseModel):
     id: str
+    student_id: int
     title: str
     description: str | None
     goal_tags: list[str] | None
     status: Status
     start_date: datetime | None = None
     end_date: datetime | None = None
-
-
-class GoalResponse(GoalShortResponse):
-    student_id: int
-    sessions: list[StudySessionShortResponse]
     created_at: datetime
     updated_at: datetime
+
+
+class GoalWithSessionsResponse(BaseModel):
+    goal: GoalResponse
+    sessions: list[StudySessionShortResponse]
