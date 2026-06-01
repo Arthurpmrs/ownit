@@ -50,7 +50,7 @@ export default function Plan() {
 
       <Grid py="xl" px="xl" gap="xl">
         <Grid.Col span={{ base: 12, md: 4 }}>
-          <SessionKanban />
+          <SessionKanban goalId={goal.id} />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 8 }}>
           <SessionPerformance />

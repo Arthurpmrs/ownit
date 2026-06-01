@@ -1,21 +1,18 @@
-import { Button } from "@mantine/core";
-import { PlusIcon } from "@phosphor-icons/react/dist/icons/Plus";
+import { Group, Title } from "@mantine/core";
+import CreateSessionModal from "./create-session-modal";
 import SessionCard from "./session-card";
 
-export default function sessionKanban() {
+interface SessionKanbanProps {
+  goalId: string;
+}
+
+export default function SessionKanban({ goalId }: SessionKanbanProps) {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%'}}>
-            <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                <h2>Sessões</h2>
-                <div>
-                    <Button variant="outline" style={{ border: 'none'}} size="xs">
-                        <PlusIcon size={16} />
-                        <p style={{ marginLeft: '5px', fontWeight: 'normal'}}>
-                            Adicionar
-                        </p>
-                    </Button>
-                </div>
-            </div>
+            <Group gap="sm" align="center">
+                <Title order={3}>Sessões</Title>
+                <CreateSessionModal goalId={goalId} />
+            </Group>
 
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <SessionCard />
