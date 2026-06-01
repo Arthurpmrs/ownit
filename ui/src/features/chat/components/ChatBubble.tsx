@@ -17,7 +17,7 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
       mb="md"
     >
       {!isUser && (
-        <Avatar size="md" radius="xl" color="blue">
+        <Avatar size="md" radius="xl" color="orange" variant="filled">
           🐴
         </Avatar>
       )}
@@ -25,12 +25,13 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
       <Box
         maw="80%"
         p="md"
-        bg={isUser ? 'blue.6' : 'gray.1'}
+        bg={isUser ? 'orange.6' : 'white'}
         c={isUser ? 'white' : 'black'}
         style={{
           borderRadius: 16,
           borderBottomRightRadius: isUser ? 4 : 16,
           borderBottomLeftRadius: !isUser ? 4 : 16,
+          border: !isUser ? '1px solid var(--mantine-color-borderLight-0)' : 'none',
         }}
       >
         {isUser ? (

@@ -182,6 +182,7 @@ docker compose up
 
 ### Frontend (TypeScript/React)
 
+- **UI Design System**: You **MUST** read and adhere to the guidelines in `docs/ui/overview.md` for colors, styling, and typography before creating or modifying UI components.
 - **Linter**: ESLint (with `eslint-config-mantine`)
 - **Formatter**: Prettier
 - **Styling**: Mantine components + PostCSS (with `postcss-preset-mantine`)

@@ -90,16 +90,26 @@ export default function ChatPopup() {
             >
               <Flex direction="column" h="100%">
                 {/* Header */}
-                <Box bg="blue.6" p="md" c="white">
+                <Box
+                  bg="white"
+                  p="md"
+                  style={{ borderBottom: '1px solid var(--mantine-color-borderLight-0)' }}
+                >
                   <Group justify="space-between">
                     <Group gap="sm">
-                      <Text size="xl">🐴</Text>
+                      <Box
+                        bg="orange.6"
+                        p={4}
+                        style={{ borderRadius: 'var(--mantine-radius-md)' }}
+                      >
+                        <Text size="lg" lh={1}>🐴</Text>
+                      </Box>
                       <Text fw={600}>James</Text>
                     </Group>
                     <Group gap="xs">
                       <ActionIcon
                         variant="transparent"
-                        color="white"
+                        color="gray"
                         onClick={handleNewSession}
                         title="New Chat Session"
                       >
@@ -107,7 +117,7 @@ export default function ChatPopup() {
                       </ActionIcon>
                       <CloseButton
                         variant="transparent"
-                        color="white"
+                        color="gray"
                         iconSize={20}
                         onClick={() => setIsOpen(false)}
                       />
@@ -129,7 +139,7 @@ export default function ChatPopup() {
                 </ScrollArea>
 
                 {/* Input Area */}
-                <Box p="md" style={{ borderTop: '1px solid #eee' }}>
+                <Box p="md" style={{ borderTop: '1px solid var(--mantine-color-borderLight-0)' }}>
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -145,7 +155,7 @@ export default function ChatPopup() {
                         <ActionIcon
                           type="submit"
                           variant="filled"
-                          color="blue"
+                          color="orange"
                           disabled={!input.trim() || streamMutation.isPending}
                         >
                           <PaperPlaneRight size={18} />
@@ -163,7 +173,7 @@ export default function ChatPopup() {
           size="xl"
           radius="xl"
           variant="filled"
-          color="blue"
+          color="orange"
           onClick={() => setIsOpen(!isOpen)}
           style={{
             width: 60,
