@@ -1,7 +1,8 @@
-import { Badge, Group, Stack, Text, Title } from "@mantine/core";
+import { Group, Stack, Text, Title, Box } from "@mantine/core";
 import type { Session } from "../models";
 import CreateSessionModal from "./create-session-modal";
 import SessionCard from "./session-card";
+import { PencilSimpleIcon, HourglassMediumIcon, CheckCircleIcon } from "@phosphor-icons/react";
 
 interface SessionKanbanProps {
   sessions: Session[];
@@ -21,9 +22,9 @@ export default function SessionKanban({ sessions, onSessionCreate }: SessionKanb
       </Group>
 
       <Stack gap="md">
-        <SessionColumn title="Ativa" sessions={activeSessions} color="green" />
-        <SessionColumn title="Pendentes" sessions={pendingSessions} color="orange" />
-        <SessionColumn title="Concluídas" sessions={completedSessions} color="gray" />
+        <SessionColumn title="Ativa" sessions={activeSessions} icon={<PencilSimpleIcon size={16} color="#000" />} />
+        <SessionColumn title="Pendentes" sessions={pendingSessions} icon={<HourglassMediumIcon size={16} color="#000" />} />
+        <SessionColumn title="Concluídas" sessions={completedSessions} icon={<CheckCircleIcon size={16} color="#000" />} />
       </Stack>
     </Stack>
   );
@@ -32,15 +33,17 @@ export default function SessionKanban({ sessions, onSessionCreate }: SessionKanb
 interface SessionColumnProps {
   title: string;
   sessions: Session[];
-  color: string;
+  icon: React.ReactNode;
 }
 
-function SessionColumn({ title, sessions, color }: SessionColumnProps) {
+function SessionColumn({ title, sessions, icon }: SessionColumnProps) {
   return (
     <Stack gap="xs">
       <Group gap="xs">
+        {icon}
         <Text size="sm" fw={500}>{title}</Text>
-        <Badge size="sm" variant="light" color={color}>{sessions.length}</Badge>
+        <Box flex={1} style={{ borderBottom: '2px solid #EAE1D7', alignSelf: 'center' }} />
+
       </Group>
       {sessions.length > 0 ? (
         sessions.map((session) => (

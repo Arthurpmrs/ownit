@@ -33,7 +33,7 @@ export default function SessionCard({ session }: SessionCardProps) {
   };
 
   return (
-    <Card padding="md" radius="sm" withBorder>
+    <Card padding="md" radius="lg" withBorder>
       <Title order={5} mb={4}>{session.title}</Title>
       <Text size="sm" c="dimmed" mb="sm">{session.description}</Text>
       <Group gap="lg">
