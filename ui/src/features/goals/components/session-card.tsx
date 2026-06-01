@@ -1,20 +1,51 @@
+import { Card, Group, Text, Title } from "@mantine/core";
 import { CalendarIcon, ClockIcon } from "@phosphor-icons/react";
+import type { Session } from "../models";
 
-export default function sessionCard() {
+interface SessionCardProps {
+  session: Session;
+}
+
+export default function SessionCard({ session }: SessionCardProps) {
+  const formatDate = (date: Date | string | null) => {
+    console.log('Formatting date:', date);
+    if (!date) {
+      return '-';
+    }
+    const dateObj = typeof date === 'string'
+      ? new Date(date.replace(/-/g, '/'))
+      : date;
+    const day = String(dateObj.getUTCDate()).padStart(2, '0');
+    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+    const year = dateObj.getUTCFullYear();
+
+    const formattedDate = `${day}/${month}/${year}`;
+    return formattedDate;
+  };
+
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${mins}min`;
+    }
+    return `${mins}min`;
+  };
+
   return (
-    <div style={{ border: '1px solid #E8DFD6', padding: '20px', borderRadius: '8px', backgroundColor: '#fff', width: '100%' }}>
-      <h2 style={{ margin: '0'}}>Título da sessão de estudo</h2>
-      <p style={{ margin: '0', color: '#868E96'}}>descrição da sessão de estudo</p>
-      <div style={{ display: 'flex', gap: '20px'}}>
-        <div style={{ display: 'flex', fontSize: '12px', color: '#868E96', alignItems: 'center', gap: '5px' }}>
-            <CalendarIcon size={18} />
-            <p>01/07/2026 - 31/08/2026</p>
-        </div>
-        <div style={{ display: 'flex', fontSize: '12px', color: '#868E96', alignItems: 'center', gap: '5px' }}>
-            <ClockIcon size={18} />
-            <p>X horas</p>
-        </div>
-      </div>
-    </div>
+    <Card padding="md" radius="sm" withBorder>
+      <Title order={5} mb={4}>{session.title}</Title>
+      <Text size="sm" c="dimmed" mb="sm">{session.description}</Text>
+      <Group gap="lg">
+        <Group gap={4}>
+          <CalendarIcon size={16} color="#868E96" />
+          <Text size="xs" c="dimmed">{formatDate(session.start_time)} - {formatDate(session.end_time)}</Text>
+        </Group>
+        <Group gap={4}>
+          <ClockIcon size={16} color="#868E96" />
+          <Text size="xs" c="dimmed">{formatDuration(session.duration)}</Text>
+        </Group>
+      </Group>
+    </Card>
   );
 }
