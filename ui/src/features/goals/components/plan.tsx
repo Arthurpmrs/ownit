@@ -1,26 +1,61 @@
 import Header from '@/features/appshell/header';
-import { Container } from '@mantine/core';
+import { Alert, Center, Container, Grid, Loader } from '@mantine/core';
 import { BookOpenIcon } from '@phosphor-icons/react';
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from '@tanstack/react-router';
+import SessionKanban from './session-kanban';
+import SessionPerformance from './session-performance';
+
+import { getGoalByIdOptions } from '../api';
 
 export default function Plan() {
+  const { id } = useParams({ from: '/goals/$id' });
+  const { data: goal, isLoading, error } = useQuery(getGoalByIdOptions(id));
 
-  // TODO: Utilizar o id para buscar o plano correto na API (ex: useQuery)
-  // const { data: goal, isLoading } = useQuery(getGoalByIdOptions(id));
-  
-  // mock
-  const goal = { title: 'Meu Plano de Estudo', description: 'Descrição do plano de estudo' };
+  if (isLoading) {
+    return (
+      <Center h="100vh">
+        <Loader />
+      </Center>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container py="xl">
+        <Alert title="Erro ao carregar plano" color="red">
+          {error instanceof Error ? error.message : 'Erro desconhecido'}
+        </Alert>
+      </Container>
+    );
+  }
+
+  if (!goal) {
+    return (
+      <Container py="xl">
+        <Alert title="Plano não encontrado" color="yellow">
+          O plano solicitado não existe.
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
     <>
       <Header
-        title={goal?.title || 'Carregando...'}
-        description={goal?.description || 'Detalhes do plano de estudo'}
+        title={goal.title}
+        description={goal.description || 'Detalhes do plano de estudo'}
         icon={<BookOpenIcon weight="bold" color="white" size={32} />}
       />
 
-      <Container py="xl">
-        <h1>oi</h1>
-      </Container>
+      <Grid py="xl" px="xl" gap="xl">
+        <Grid.Col span={{ base: 12, md: 4 }}>
+          <SessionKanban />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 8 }}>
+          <SessionPerformance />
+        </Grid.Col>
+      </Grid>
     </>
   );
 }
