@@ -9,6 +9,7 @@ from testcontainers.postgres import PostgresContainer
 
 # importa as definições de tabela para registro no metadata
 import src.features.auth.tables  # noqa: F401
+import src.features.chat.tables  # noqa: F401
 import src.features.goal.tables  # noqa: F401
 import src.features.study_session.tables  # noqa: F401
 from src.core.config import Settings, get_settings
