@@ -1,3 +1,5 @@
+import type { Status } from './models';
+
 export type GoalDTO = {
   id: string;
   student_id: number;
@@ -6,6 +8,7 @@ export type GoalDTO = {
   goal_type?: string;
   rating?: number;
   goal_tags?: string[];
+  status: Status;
   start_date?: string | null;
   end_date?: string | null;
   created_at: string;

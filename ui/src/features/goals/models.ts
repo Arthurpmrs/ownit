@@ -3,6 +3,7 @@ export type Goal = {
   studentId: number;
   title: string;
   description: string;
+  status: Status;
   goal_tags: string[];
   created_at: Date;
   updated_at: Date;
@@ -32,3 +33,4 @@ export type Session = {
   duration_focused: number; // em minutos
   duration_paused: number; // em minutos
 };
+export type Status = 'to_do' | 'doing' | 'done' | 'canceled';
