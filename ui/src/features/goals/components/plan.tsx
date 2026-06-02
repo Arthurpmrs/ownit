@@ -1,5 +1,5 @@
 import Header from '@/features/appshell/header';
-import { Alert, Badge, Center, Container, Flex, Grid, Group, Loader, Stack, Text } from '@mantine/core';
+import { Alert, Center, Container, Flex, Grid, Group, Loader, Stack, Text } from '@mantine/core';
 import { BookOpenIcon, CalendarIcon, TagIcon } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
