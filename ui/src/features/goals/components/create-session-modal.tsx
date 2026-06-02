@@ -46,6 +46,15 @@ export default function CreateSessionModal({
     validate: {
       duration: (value) =>
         value < 1 ? 'Duração deve ser pelo menos 1 minuto' : null,
+      end_time: (value, values) => {
+        if (!value || !values.start_time) {
+          return null;
+        }
+        if (value <= values.start_time) {
+          return 'Data de término deve ser maior que a data de início';
+        }
+        return null;
+      },
     },
   });
 
