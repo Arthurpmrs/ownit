@@ -31,6 +31,7 @@ export default function Signup() {
       email: '',
       password: '',
       confirmPassword: '',
+      termsOfService: false,
     },
     validate: {
       name: (value) =>
@@ -40,6 +41,8 @@ export default function Signup() {
         value.length < 3 ? 'Senha deve ter ao menos 3 caracteres' : null,
       confirmPassword: (value, values) =>
         value !== values.password ? 'As senhas não conferem' : null,
+      termsOfService: (value) =>
+        !value ? 'Você deve aceitar os Termos de Uso e Políticas de Privacidade' : null,
     },
   });
 
@@ -150,8 +153,8 @@ export default function Signup() {
                 <Checkbox
                   label="Eu concordo com os Termos de Uso e Políticas de Privacidade"
                   defaultChecked={false}
-                  key={form.key('terms')}
-                  {...form.getInputProps('terms')}
+                  key={form.key('termsOfService')}
+                  {...form.getInputProps('termsOfService', { type: 'checkbox' })}
                 />
               </MantineProvider>
 
