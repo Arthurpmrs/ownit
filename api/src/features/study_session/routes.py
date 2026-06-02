@@ -8,7 +8,7 @@ from src.core.db import get_connection
 from src.core.logger import get_logger
 
 from . import service
-from .schemas import StudySessionCreate, StudySessionResponse
+from .schemas import StudySessionCreate, StudySessionResponse, StudySessionStatusUpdate
 
 logger = get_logger(__name__)
 router = APIRouter(prefix='/sessions', tags=['sessions', 'study-sessions'])
@@ -41,3 +41,20 @@ def get_study_session(
         )
 
     return study_session
+
+
+@router.patch(path='/{study_session_id}/status', response_model=StudySessionResponse)
+def update_study_session_status(
+    study_session_id: str,
+    payload: StudySessionStatusUpdate,
+    conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
+):
+    try:
+        return service.update_study_session_status(
+            conn, student_id, study_session_id, payload.new_status
+        )
+
+    except Exception as e:
+        logger.exception(f'Error creating study session for student_id={student_id}')
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))

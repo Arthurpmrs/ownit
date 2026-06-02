@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel
 
-from src.shared.schemas import StudySessionShortResponse
+from src.shared.schemas import Status, StudySessionShortResponse
 
 
 class StudySessionCreate(BaseModel):
@@ -29,3 +29,7 @@ class StudySessionResponse(StudySessionShortResponse):
     final_comment: str | None = None
     created_at: datetime
     updated_at: datetime
+
+
+class StudySessionStatusUpdate(BaseModel):
+    new_status: Status
