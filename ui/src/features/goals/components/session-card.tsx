@@ -8,7 +8,6 @@ interface SessionCardProps {
 
 export default function SessionCard({ session }: SessionCardProps) {
   const formatDate = (date: Date | string | null) => {
-    console.log('Formatting date:', date);
     if (!date) {
       return '-';
     }
@@ -39,7 +38,7 @@ export default function SessionCard({ session }: SessionCardProps) {
       <Group gap="lg">
         <Group gap={4}>
           <CalendarIcon size={16} color="#868E96" />
-          <Text size="xs" c="dimmed">{formatDate(session.start_time)} - {formatDate(session.end_time)}</Text>
+          <Text size="xs" c="dimmed">{formatDate(session.date_range[0])} - {formatDate(session.date_range[1])}</Text>
         </Group>
         <Group gap={4}>
           <ClockIcon size={16} color="#868E96" />

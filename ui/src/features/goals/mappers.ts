@@ -16,10 +16,11 @@ export const goalMapper = {
       studentId: dto.student_id,
       title: dto.title,
       description: dto.description ?? '',
-      goalType: dto.goal_type,
-      rating: dto.rating,
+      goal_tags: dto.goal_tags ?? [],
       created_at: new Date(dto.created_at),
       updated_at: new Date(dto.updated_at),
+      start_date: dto.start_date ? new Date(dto.start_date) : null,
+      end_date: dto.end_date ? new Date(dto.end_date) : null,
     };
   },
   fromDTOList(dtos: GoalDTO[]): Goal[] {
