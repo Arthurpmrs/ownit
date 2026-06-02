@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.shared.schemas import Status, StudySessionShortResponse
 
@@ -33,3 +33,11 @@ class StudySessionResponse(StudySessionShortResponse):
 
 class StudySessionStatusUpdate(BaseModel):
     new_status: Status
+
+
+class StudySessionEvaluate(BaseModel):
+    rating: float = Field(ge=0.0, le=5.0)
+    domain_perception_level: int = Field(ge=1, le=5)
+    learning_difficulty_level: int = Field(ge=1, le=5)
+    strategies: list[str]
+    final_comment: str | None = None

@@ -8,7 +8,7 @@ from src.core.state_machine import StudySessionStateMachine
 from src.features.goal.tables import goals
 from src.shared.schemas import Status, StudySessionShortResponse
 
-from .schemas import StudySessionCreate, StudySessionResponse
+from .schemas import StudySessionCreate, StudySessionEvaluate, StudySessionResponse
 from .tables import study_sessions
 
 logger = get_logger(__name__)
@@ -145,6 +145,53 @@ def update_study_session_status(
         .where(*select_conditions)
         .values(
             status=new_status,
+            updated_at=func.now(),
+        )
+    )
+
+    conn.execute(stmt)
+
+    updated = get_study_session(conn, student_id, study_session_id)
+
+    if not updated:
+        logger.warning(f'StudySession not found: {study_session_id}')
+        raise Exception('StudySession does not exist! Something went wrong.')
+
+    return updated
+
+
+def evaluate_study_session(
+    conn: Connection,
+    student_id: int,
+    study_session_id: str,
+    payload: StudySessionEvaluate,
+) -> StudySessionResponse:
+    select_conditions = [
+        study_sessions.c.id == study_session_id,
+        study_sessions.c.student_id == student_id,
+    ]
+    current_status = conn.scalar(
+        select(study_sessions.c.status).where(*select_conditions)
+    )
+
+    if current_status != Status.done:
+        logger.error(
+            f'StudySession({study_session_id}): '
+            'Cannot evaluate a study session that is not finished!'
+        )
+        raise Exception('StudySession is not completed!')
+
+    stmt = (
+        update(study_sessions)
+        .where(*select_conditions)
+        .values(
+            rating=payload.rating,
+            domain_perception_level=payload.domain_perception_level,
+            learning_difficulty_level=payload.learning_difficulty_level,
+            strategies=payload.strategies,
+            final_comment=payload.final_comment
+            if payload.final_comment is not None
+            else '',
             updated_at=func.now(),
         )
     )
