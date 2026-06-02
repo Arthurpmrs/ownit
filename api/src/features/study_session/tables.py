@@ -36,7 +36,7 @@ study_sessions = Table(
     Column('rating', Float),
     Column('domain_perception_level', Integer),
     Column('learning_difficulty_level', Integer),
-    Column('strategies', ARRAY(String)),
+    Column('strategies', ARRAY(String), default=list),
     Column('final_comment', String, nullable=False, default=''),
     *timestamp_columns(),
 )

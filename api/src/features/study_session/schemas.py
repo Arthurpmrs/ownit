@@ -22,10 +22,10 @@ class StudySessionResponse(StudySessionShortResponse):
     notes: str
     focus_mode_duration: timedelta | None = None
     pause_mode_duration: timedelta | None = None
-    rating: float
-    domain_perception_level: int
-    learning_difficulty_level: int
+    rating: float | None = None
+    domain_perception_level: int | None = None
+    learning_difficulty_level: int | None = None
     strategies: list[str]
-    final_comment: str
+    final_comment: str | None = None
     created_at: datetime
     updated_at: datetime
