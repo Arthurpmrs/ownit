@@ -21,8 +21,7 @@ interface CreateSessionModalProps {
 interface SessionFormValues {
   title: string;
   description: string;
-  start_time: Date | null;
-  end_time: Date | null;
+  date_range: [Date | null, Date | null];
   duration: number;
   duration_focused: number;
   duration_paused: number;
@@ -37,8 +36,7 @@ export default function CreateSessionModal({
     initialValues: {
       title: '',
       description: '',
-      start_time: null,
-      end_time: null,
+      date_range: [null, null],
       duration: 30,
       duration_focused: 0,
       duration_paused: 0,
@@ -46,15 +44,10 @@ export default function CreateSessionModal({
     validate: {
       duration: (value) =>
         value < 1 ? 'Duração deve ser pelo menos 1 minuto' : null,
-      end_time: (value, values) => {
-        if (!value || !values.start_time) {
-          return null;
-        }
-        if (value <= values.start_time) {
-          return 'Data de término deve ser maior que a data de início';
-        }
-        return null;
-      },
+      date_range: (value) =>
+        !value[0] || !value[1]
+          ? 'Selecione um intervalo de datas válido'
+          : null,
     },
   });
 
@@ -122,19 +115,13 @@ export default function CreateSessionModal({
                 />
 
                 <DatePickerInput 
-                  label="Data de ínicio planejada"
+                  label="Data Planejada"
+                  type="range"
                   placeholder="Selecione data"
                   radius="sm"
+                  minDate={new Date()}
                   required
-                  {...form.getInputProps('start_time')}
-                />
-
-                <DatePickerInput 
-                  label="Data de término planejada"
-                  placeholder="Selecione data"
-                  radius="sm"
-                  required
-                  {...form.getInputProps('end_time')}
+                  {...form.getInputProps('date_range')}
                 />
 
                 <NumberInput
