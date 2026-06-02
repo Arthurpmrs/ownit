@@ -17,8 +17,8 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
       mb="md"
     >
       {!isUser && (
-        <Avatar size="md" radius="xl" color="orange" variant="filled">
-          🐴
+        <Avatar size="md" radius="xl" color="orange.6" variant="filled">
+          <img src="/favicon.svg" style={{ width: '70%', height: '70%', objectFit: 'contain' }} alt="James" />
         </Avatar>
       )}
 

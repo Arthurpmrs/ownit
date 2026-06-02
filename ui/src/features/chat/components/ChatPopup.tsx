@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   ActionIcon,
   Affix,
+  Avatar,
   Box,
   CloseButton,
   Flex,
@@ -15,7 +16,6 @@ import {
 } from '@mantine/core';
 import {
   ArrowsClockwise,
-  ChatCircleDots,
   PaperPlaneRight,
 } from '@phosphor-icons/react';
 import { chatQueryOptions, createSession } from '../api';
@@ -97,13 +97,9 @@ export default function ChatPopup() {
                 >
                   <Group justify="space-between">
                     <Group gap="sm">
-                      <Box
-                        bg="orange.6"
-                        p={4}
-                        style={{ borderRadius: 'var(--mantine-radius-md)' }}
-                      >
-                        <Text size="lg" lh={1}>🐴</Text>
-                      </Box>
+                      <Avatar size={32} radius="md" color="orange.6" variant="filled">
+                        <img src="/favicon.svg" style={{ width: '70%', height: '70%', objectFit: 'contain' }} alt="James" />
+                      </Avatar>
                       <Text fw={600}>James</Text>
                     </Group>
                     <Group gap="xs">
@@ -181,7 +177,7 @@ export default function ChatPopup() {
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           }}
         >
-          <ChatCircleDots size={32} />
+          <img src="/favicon.svg" width={32} height={32} alt="Chat" />
         </ActionIcon>
       </Flex>
     </Affix>
