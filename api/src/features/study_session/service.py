@@ -8,7 +8,12 @@ from src.core.state_machine import StudySessionStateMachine
 from src.features.goal.tables import goals
 from src.shared.schemas import Status, StudySessionShortResponse
 
-from .schemas import StudySessionCreate, StudySessionEvaluate, StudySessionResponse
+from .schemas import (
+    StudySessionCreate,
+    StudySessionEvaluate,
+    StudySessionNotesUpdate,
+    StudySessionResponse,
+)
 from .tables import study_sessions
 
 logger = get_logger(__name__)
@@ -192,6 +197,37 @@ def evaluate_study_session(
             final_comment=payload.final_comment
             if payload.final_comment is not None
             else '',
+            updated_at=func.now(),
+        )
+    )
+
+    conn.execute(stmt)
+
+    updated = get_study_session(conn, student_id, study_session_id)
+
+    if not updated:
+        logger.warning(f'StudySession not found: {study_session_id}')
+        raise Exception('StudySession does not exist! Something went wrong.')
+
+    return updated
+
+
+def update_study_session_notes(
+    conn: Connection,
+    student_id: int,
+    study_session_id: str,
+    payload: StudySessionNotesUpdate,
+) -> StudySessionResponse:
+    select_conditions = [
+        study_sessions.c.id == study_session_id,
+        study_sessions.c.student_id == student_id,
+    ]
+
+    stmt = (
+        update(study_sessions)
+        .where(*select_conditions)
+        .values(
+            notes=payload.new_notes,
             updated_at=func.now(),
         )
     )

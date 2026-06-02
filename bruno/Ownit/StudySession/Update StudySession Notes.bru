@@ -1,0 +1,22 @@
+meta {
+  name: Update StudySession Notes
+  type: http
+  seq: 5
+}
+
+patch {
+  url: http://localhost:8000/sessions/a767781f-e234-4627-9a3f-4cc61e2fa321/notes
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "new_notes": "Ih rapaiz. Lorem lorem ipsum lorem ipsum lalalalala"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
