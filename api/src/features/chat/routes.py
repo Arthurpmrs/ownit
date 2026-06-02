@@ -1,5 +1,4 @@
 import asyncio
-import json
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -104,16 +103,16 @@ async def send_message(
     async for item in collector.stream():
         if item['type'] == 'token':
             yield ServerSentEvent(
-                data=json.dumps({'content': item['content']}),
+                data={'content': item['content']},
                 event='token',
             )
         elif item['type'] == 'done':
             yield ServerSentEvent(
-                data=json.dumps(item['data']),
+                data=item['data'],
                 event='done',
             )
         elif item['type'] == 'error':
             yield ServerSentEvent(
-                data=json.dumps({'detail': item['detail']}),
+                data={'detail': item['detail']},
                 event='error',
             )
