@@ -75,6 +75,7 @@ export default function CreateSessionModal({
     <>
       <Button
         variant="subtle"
+        color="#FD7E14"
         size="xs"
         leftSection={<PlusIcon size={16} />}
         onClick={() => setIsModalOpen(true)}

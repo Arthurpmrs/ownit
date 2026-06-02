@@ -16,7 +16,7 @@ export default function SessionKanban({ sessions, onSessionCreate }: SessionKanb
 
   return (
     <Stack gap="lg">
-      <Group gap="sm" align="center">
+      <Group justify="space-between" align="center">
         <Title order={3}>Sessões</Title>
         <CreateSessionModal onSessionCreate={onSessionCreate} />
       </Group>

@@ -57,7 +57,7 @@ export default function Plan() {
     <>
       <Header
         title={goal.title}
-        description={goal.description || 'Detalhes do plano de estudo'}
+        description={goal.description || 'Detalhes da sessão de estudo'}
         icon={<BookOpenIcon weight="bold" color="white" size={32} />}
       />
 
