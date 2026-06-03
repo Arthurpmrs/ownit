@@ -8,6 +8,11 @@ from src.core.db import get_connection
 from src.core.logger import get_logger
 
 from . import service
+from .exceptions import (
+    ActiveSessionExistsError,
+    InvalidTransitionError,
+    WrongStudySessionStateError,
+)
 from .schemas import (
     StudySessionCreate,
     StudySessionEvaluate,
@@ -26,11 +31,7 @@ def create_study_session(
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
 ):
-    try:
-        return service.create_study_session(conn, student_id, payload)
-    except Exception as e:
-        logger.exception(f'Error creating study session for student_id={student_id}.')
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
+    return service.create_study_session(conn, student_id, payload)
 
 
 @router.get(path='/{study_session_id}', response_model=StudySessionResponse)
@@ -39,14 +40,7 @@ def get_study_session(
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
 ):
-    study_session = service.get_study_session(conn, student_id, study_session_id)
-
-    if not study_session:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='StudySession not found.'
-        )
-
-    return study_session
+    return service.get_study_session(conn, student_id, study_session_id)
 
 
 @router.patch(path='/{study_session_id}/status', response_model=StudySessionResponse)
@@ -60,11 +54,7 @@ def update_study_session_status(
         return service.update_study_session_status(
             conn, student_id, study_session_id, payload.new_status
         )
-    except Exception as e:
-        logger.exception(
-            f'Error updating StudySession({study_session_id}) '
-            f'status to {payload.new_status}.'
-        )
+    except (ActiveSessionExistsError, InvalidTransitionError) as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
 
 
@@ -77,8 +67,7 @@ def evaluate_study_session(
 ):
     try:
         return service.evaluate_study_session(conn, student_id, study_session_id, payload)
-    except Exception as e:
-        logger.exception(f'Error evaluating StudySession({study_session_id}).')
+    except WrongStudySessionStateError as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
 
 
@@ -89,10 +78,4 @@ def update_study_session_notes(
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
 ):
-    try:
-        return service.update_study_session_notes(
-            conn, student_id, study_session_id, payload
-        )
-    except Exception as e:
-        logger.exception(f'Error updating StudySession({study_session_id}) notes.')
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
+    return service.update_study_session_notes(conn, student_id, study_session_id, payload)

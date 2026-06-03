@@ -5,9 +5,16 @@ from sqlalchemy.engine import Connection
 
 from src.core.logger import get_logger
 from src.core.state_machine import StudySessionStateMachine
+from src.features.goal.exceptions import GoalNotFoundError
 from src.features.goal.tables import goals
 from src.shared.schemas import Status, StudySessionShortResponse
 
+from .exceptions import (
+    ActiveSessionExistsError,
+    InvalidTransitionError,
+    StudySessionNotFoundError,
+    WrongStudySessionStateError,
+)
 from .schemas import (
     StudySessionCreate,
     StudySessionEvaluate,
@@ -19,12 +26,19 @@ from .tables import study_sessions
 logger = get_logger(__name__)
 
 
+def _get_study_session_predicate(study_session_id: str, student_id: int):
+    return (
+        study_sessions.c.id == study_session_id,
+        study_sessions.c.student_id == student_id,
+    )
+
+
 def _row_to_schema(row) -> StudySessionResponse:
     return StudySessionResponse(**row._mapping)
 
 
 def goal_exists_by_id(conn: Connection, goal_id: str) -> bool:
-    stmt = select(goals).where(goals.c.id == goal_id)
+    stmt = select(exists().where(goals.c.id == goal_id))
     return bool(conn.scalar(stmt))
 
 
@@ -32,11 +46,11 @@ def create_study_session(
     conn: Connection, student_id: int, payload: StudySessionCreate
 ) -> StudySessionResponse:
     goal_id = payload.goal_id
+
     logger.info(f'Creating StudySession for goal_id={goal_id} & student_id={student_id}')
 
     if not goal_exists_by_id(conn, goal_id):
-        logger.warning(f'Goal not found: {goal_id}')
-        raise Exception('Goal does not exist!')
+        raise GoalNotFoundError(goal_id)
 
     study_session_id = str(uuid4())
 
@@ -56,18 +70,12 @@ def create_study_session(
 
     logger.info(f'StudySession created with id={study_session_id}')
 
-    study_session = get_study_session(conn, student_id, study_session_id)
-
-    if not study_session:
-        logger.warning(f'StudySession not found: {study_session_id}')
-        raise Exception('StudySession does not exist! Something went wrong.')
-
-    return study_session
+    return get_study_session(conn, student_id, study_session_id)
 
 
 def get_study_session(
     conn: Connection, student_id: int, study_session_id: str
-) -> StudySessionResponse | None:
+) -> StudySessionResponse:
     stmt = (
         select(
             *study_sessions.c,
@@ -77,15 +85,15 @@ def get_study_session(
             goals.c.title.label('goal_title'),
         )
         .join(goals, study_sessions.c.goal_id == goals.c.id)
-        .where(
-            study_sessions.c.id == study_session_id,
-            study_sessions.c.student_id == student_id,
-        )
+        .where(*_get_study_session_predicate(study_session_id, student_id))
     )
 
     result = conn.execute(stmt).fetchone()
 
-    return _row_to_schema(result) if result else None
+    if not result:
+        raise StudySessionNotFoundError(study_session_id)
+
+    return _row_to_schema(result)
 
 
 def get_goal_study_sessions(
@@ -104,30 +112,31 @@ def get_goal_study_sessions(
     return [StudySessionShortResponse(**session._mapping) for session in sessions]
 
 
+def _get_study_session_status(
+    conn: Connection, study_session_id: str, student_id: int
+) -> Status:
+    status = conn.scalar(
+        select(study_sessions.c.status).where(
+            *_get_study_session_predicate(study_session_id, student_id)
+        )
+    )
+
+    if not status:
+        raise StudySessionNotFoundError(study_session_id)
+
+    return status
+
+
 def update_study_session_status(
     conn: Connection,
     student_id: int,
     study_session_id: str,
     new_status: Status,
 ) -> StudySessionResponse:
-    select_conditions = [
-        study_sessions.c.id == study_session_id,
-        study_sessions.c.student_id == student_id,
-    ]
-    current_status = conn.scalar(
-        select(study_sessions.c.status).where(*select_conditions)
-    )
-
-    if not current_status:
-        logger.warning(f'StudySession({study_session_id}) does not exist!')
-        raise Exception('StudySession does not exist!')
+    current_status = _get_study_session_status(conn, study_session_id, student_id)
 
     if not StudySessionStateMachine.can_transition(current_status, new_status):
-        logger.warning(
-            f'StudySession({study_session_id}): '
-            f'Cannot transition from {current_status} to {new_status}'
-        )
-        raise Exception(f'Cannot transition from {current_status} to {new_status}')
+        raise InvalidTransitionError(study_session_id, current_status, new_status)
 
     if new_status == Status.doing:
         doing_session_exists = conn.scalar(
@@ -140,14 +149,11 @@ def update_study_session_status(
         )
 
         if doing_session_exists:
-            logger.warning(
-                f'StudySession({study_session_id}): Cannot update. Active session exists.'
-            )
-            raise Exception('There is already an active study session.')
+            raise ActiveSessionExistsError(study_session_id)
 
     stmt = (
         update(study_sessions)
-        .where(*select_conditions)
+        .where(*_get_study_session_predicate(study_session_id, student_id))
         .values(
             status=new_status,
             updated_at=func.now(),
@@ -156,13 +162,7 @@ def update_study_session_status(
 
     conn.execute(stmt)
 
-    updated = get_study_session(conn, student_id, study_session_id)
-
-    if not updated:
-        logger.warning(f'StudySession not found: {study_session_id}')
-        raise Exception('StudySession does not exist! Something went wrong.')
-
-    return updated
+    return get_study_session(conn, student_id, study_session_id)
 
 
 def evaluate_study_session(
@@ -171,24 +171,14 @@ def evaluate_study_session(
     study_session_id: str,
     payload: StudySessionEvaluate,
 ) -> StudySessionResponse:
-    select_conditions = [
-        study_sessions.c.id == study_session_id,
-        study_sessions.c.student_id == student_id,
-    ]
-    current_status = conn.scalar(
-        select(study_sessions.c.status).where(*select_conditions)
-    )
+    status = _get_study_session_status(conn, study_session_id, student_id)
 
-    if current_status != Status.done:
-        logger.error(
-            f'StudySession({study_session_id}): '
-            'Cannot evaluate a study session that is not finished!'
-        )
-        raise Exception('StudySession is not completed!')
+    if status != Status.done:
+        raise WrongStudySessionStateError(study_session_id)
 
     stmt = (
         update(study_sessions)
-        .where(*select_conditions)
+        .where(*_get_study_session_predicate(study_session_id, student_id))
         .values(
             rating=payload.rating,
             domain_perception_level=payload.domain_perception_level,
@@ -203,13 +193,7 @@ def evaluate_study_session(
 
     conn.execute(stmt)
 
-    updated = get_study_session(conn, student_id, study_session_id)
-
-    if not updated:
-        logger.warning(f'StudySession not found: {study_session_id}')
-        raise Exception('StudySession does not exist! Something went wrong.')
-
-    return updated
+    return get_study_session(conn, student_id, study_session_id)
 
 
 def update_study_session_notes(
@@ -218,14 +202,9 @@ def update_study_session_notes(
     study_session_id: str,
     payload: StudySessionNotesUpdate,
 ) -> StudySessionResponse:
-    select_conditions = [
-        study_sessions.c.id == study_session_id,
-        study_sessions.c.student_id == student_id,
-    ]
-
     stmt = (
         update(study_sessions)
-        .where(*select_conditions)
+        .where(*_get_study_session_predicate(study_session_id, student_id))
         .values(
             notes=payload.new_notes,
             updated_at=func.now(),
@@ -234,10 +213,4 @@ def update_study_session_notes(
 
     conn.execute(stmt)
 
-    updated = get_study_session(conn, student_id, study_session_id)
-
-    if not updated:
-        logger.warning(f'StudySession not found: {study_session_id}')
-        raise Exception('StudySession does not exist! Something went wrong.')
-
-    return updated
+    return get_study_session(conn, student_id, study_session_id)
