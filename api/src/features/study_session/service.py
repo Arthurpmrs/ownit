@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from sqlalchemy import exists, func, insert, select, update
 from sqlalchemy.engine import Connection
+from sqlalchemy.exc import IntegrityError
 
 from src.core.logger import get_logger
 from src.core.state_machine import StudySessionStateMachine
@@ -160,7 +161,10 @@ def update_study_session_status(
         )
     )
 
-    conn.execute(stmt)
+    try:
+        conn.execute(stmt)
+    except IntegrityError as e:
+        raise ActiveSessionExistsError(study_session_id) from e
 
     return get_study_session(conn, student_id, study_session_id)
 

@@ -5,6 +5,7 @@ from sqlalchemy import (
     Enum,
     Float,
     ForeignKey,
+    Index,
     Integer,
     Interval,
     String,
@@ -39,4 +40,11 @@ study_sessions = Table(
     Column('strategies', ARRAY(String), default=list),
     Column('final_comment', String, nullable=False, default=''),
     *timestamp_columns(),
+)
+
+Index(
+    'unique_active_session_per_student',
+    study_sessions.c.student_id,
+    unique=True,
+    postgresql_where=study_sessions.c.status == 'doing',
 )
