@@ -1,3 +1,5 @@
+import enum
+
 from sqlalchemy import (
     ARRAY,
     Column,
@@ -10,10 +12,20 @@ from sqlalchemy import (
     Interval,
     String,
     Table,
+    UniqueConstraint,
 )
 
 from src.core.db import metadata, timestamp_columns
 from src.shared.schemas import Status
+
+
+class PomodoroStatus(enum.Enum):
+    not_started = 'not_started'
+    focus_mode = 'focus_mode'
+    break_mode = 'break'
+    pause = 'pause'
+    done = 'done'
+
 
 study_sessions = Table(
     'study_sessions',
@@ -47,4 +59,20 @@ Index(
     study_sessions.c.student_id,
     unique=True,
     postgresql_where=study_sessions.c.status == 'doing',
+)
+
+study_session_pomodoros = Table(
+    'study_session_pomodoros',
+    metadata,
+    Column('id', Integer, primary_key=True, unique=True),
+    Column('study_session_id', Integer, ForeignKey('study_sessions.id'), nullable=False),
+    Column('state_started_at', DateTime(timezone=True), nullable=False),
+    Column('state_remaining_duration', Interval, nullable=False),
+    Column(
+        'status',
+        Enum(PomodoroStatus),
+        nullable=False,
+        default=PomodoroStatus.not_started,
+    ),
+    *timestamp_columns(),
 )
