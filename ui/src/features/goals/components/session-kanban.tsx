@@ -1,12 +1,12 @@
 import { Group, Stack, Text, Title, Box } from "@mantine/core";
 import type { Session } from "../models";
-import CreateSessionModal from "./create-session-modal";
+import CreateSessionModal, { type SessionFormValues } from "@/features/goal/components/create-session-modal";
 import SessionCard from "./session-card";
 import { PencilSimpleIcon, HourglassMediumIcon, CheckCircleIcon } from "@phosphor-icons/react";
 
 interface SessionKanbanProps {
   sessions: Session[];
-  onSessionCreate: (session: Omit<Session, 'id' | 'goalId' | 'status'>) => void;
+  onSessionCreate: (session: SessionFormValues) => void;
 }
 
 export default function SessionKanban({ sessions, onSessionCreate }: SessionKanbanProps) {
