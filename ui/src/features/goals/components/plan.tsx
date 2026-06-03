@@ -9,19 +9,34 @@ import SessionPerformance from './session-performance';
 
 import { getGoalByIdOptions } from '../api';
 import type { Session } from '../models';
+import type { SessionFormValues } from '@/features/goal/components/create-session-modal';
+
+const parseTimeToMinutes = (time: string): number => {
+  if (!time) {
+    return 0;
+  }
+  const [hours, minutes] = time.split(':').map(Number);
+  return (hours || 0) * 60 + (minutes || 0);
+};
 
 export default function Plan() {
   const { id } = useParams({ from: '/goals/$id' });
   const { data: goal, isLoading, error } = useQuery(getGoalByIdOptions(id));
   const [sessions, setSessions] = useState<Session[]>([]);
 
-  const handleSessionCreate = (sessionData: Omit<Session, 'id' | 'goalId' | 'status'>) => {
+  const handleSessionCreate = (sessionData: SessionFormValues) => {
     const newSession: Session = {
-      ...sessionData,
       id: crypto.randomUUID(),
       goalId: id,
+      title: sessionData.title,
+      description: sessionData.description,
       status: 'pending',
+      date_range: [sessionData.planned_date, goal?.end_date ?? null],
+      duration: parseTimeToMinutes(sessionData.session_duration),
+      duration_focused: parseTimeToMinutes(sessionData.focus_duration),
+      duration_paused: parseTimeToMinutes(sessionData.pause_duration),
     };
+    console.log('Nova sessão criada:', newSession);
     setSessions((prev) => [...prev, newSession]);
   };
 

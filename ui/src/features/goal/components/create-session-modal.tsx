@@ -10,10 +10,11 @@ import {
 } from '@mantine/core';
 import { DateTimePicker, TimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
+import { showNotification } from '@mantine/notifications';
 import { CalendarBlankIcon, ClockIcon, PlusIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 
-interface SessionFormValues {
+export interface SessionFormValues {
   title: string;
   description: string;
   planned_date: Date | null;
@@ -22,7 +23,11 @@ interface SessionFormValues {
   pause_duration: string;
 }
 
-export default function CreateSessionModal() {
+interface CreateSessionModalProps {
+  onSessionCreate: (session: SessionFormValues) => void;
+}
+
+export default function CreateSessionModal({ onSessionCreate }: CreateSessionModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [moreSession, setMoreSession] = useState(false);
   const openModal = () => setIsModalOpen(true);
@@ -48,11 +53,17 @@ export default function CreateSessionModal() {
   });
 
   function handleSubmit(values: SessionFormValues) {
+    onSessionCreate(values);
+
+    showNotification({
+      title: 'Sessão criada',
+      message: 'Sua sessão foi criada com sucesso.',
+      color: 'green',
+    });
+
     if (moreSession) {
-      console.log(values);
       form.reset();
     } else {
-      console.log(values);
       form.reset();
       setIsModalOpen(false);
     }
