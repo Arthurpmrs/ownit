@@ -1,3 +1,4 @@
+from datetime import timedelta
 from uuid import uuid4
 
 from sqlalchemy import exists, func, insert, select, update
@@ -17,12 +18,13 @@ from .exceptions import (
     WrongStudySessionStateError,
 )
 from .schemas import (
+    PomodoroResponse,
     StudySessionCreate,
     StudySessionEvaluate,
     StudySessionNotesUpdate,
     StudySessionResponse,
 )
-from .tables import study_sessions
+from .tables import PomodoroStatus, study_session_pomodoros, study_sessions
 
 logger = get_logger(__name__)
 
@@ -34,13 +36,27 @@ def _get_study_session_predicate(study_session_id: str, student_id: int):
     )
 
 
-def _row_to_schema(row) -> StudySessionResponse:
-    return StudySessionResponse(**row._mapping)
+def _row_to_schema(row, pomodoro_row) -> StudySessionResponse:
+    pomodoro = PomodoroResponse(**pomodoro_row._mapping) if pomodoro_row else None
+    return StudySessionResponse(**row._mapping, pomodoro=pomodoro)
 
 
 def goal_exists_by_id(conn: Connection, goal_id: str) -> bool:
     stmt = select(exists().where(goals.c.id == goal_id))
     return bool(conn.scalar(stmt))
+
+
+def create_pomodoro(conn: Connection, study_session_id: str):
+    stmt = insert(study_session_pomodoros).values(
+        study_session_id=study_session_id,
+        state_started_at=func.now(),
+        state_remaining_duration=timedelta(0),
+        status=PomodoroStatus.not_started,
+    )
+
+    conn.execute(stmt)
+
+    logger.info(f'Pomodoro created for StudySession({study_session_id})')
 
 
 def create_study_session(
@@ -71,6 +87,9 @@ def create_study_session(
 
     logger.info(f'StudySession created with id={study_session_id}')
 
+    if payload.focus_mode_duration and payload.pause_mode_duration:
+        create_pomodoro(conn, study_session_id)
+
     return get_study_session(conn, student_id, study_session_id)
 
 
@@ -94,7 +113,13 @@ def get_study_session(
     if not result:
         raise StudySessionNotFoundError(study_session_id)
 
-    return _row_to_schema(result)
+    pomodoro_result = conn.execute(
+        select(study_session_pomodoros).where(
+            study_session_pomodoros.c.study_session_id == study_session_id
+        )
+    ).fetchone()
+
+    return _row_to_schema(result, pomodoro_result)
 
 
 def get_goal_study_sessions(

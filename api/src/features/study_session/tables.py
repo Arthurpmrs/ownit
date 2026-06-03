@@ -12,7 +12,6 @@ from sqlalchemy import (
     Interval,
     String,
     Table,
-    UniqueConstraint,
 )
 
 from src.core.db import metadata, timestamp_columns
@@ -65,7 +64,7 @@ study_session_pomodoros = Table(
     'study_session_pomodoros',
     metadata,
     Column('id', Integer, primary_key=True, unique=True),
-    Column('study_session_id', Integer, ForeignKey('study_sessions.id'), nullable=False),
+    Column('study_session_id', String, ForeignKey('study_sessions.id'), nullable=False),
     Column('state_started_at', DateTime(timezone=True), nullable=False),
     Column('state_remaining_duration', Interval, nullable=False),
     Column(

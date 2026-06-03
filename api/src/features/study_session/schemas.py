@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field
 
 from src.shared.schemas import Status, StudySessionShortResponse
 
+from .tables import PomodoroStatus
+
 
 class StudySessionCreate(BaseModel):
     goal_id: str
@@ -22,6 +24,7 @@ class StudySessionResponse(StudySessionShortResponse):
     notes: str
     focus_mode_duration: timedelta | None = None
     pause_mode_duration: timedelta | None = None
+    pomodoro: PomodoroResponse | None = None
     rating: float | None = None
     domain_perception_level: int | None = None
     learning_difficulty_level: int | None = None
@@ -45,3 +48,16 @@ class StudySessionEvaluate(BaseModel):
     learning_difficulty_level: int = Field(ge=1, le=5)
     strategies: list[str]
     final_comment: str | None = None
+
+
+class PomodoroResponse(BaseModel):
+    id: int
+    state_started_at: datetime
+    state_remaining_duration: timedelta
+    status: PomodoroStatus
+    created_at: datetime
+    updated_at: datetime
+
+
+class PomodoroUpdate(BaseModel):
+    new_status: PomodoroStatus
