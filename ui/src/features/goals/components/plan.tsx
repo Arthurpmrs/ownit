@@ -36,7 +36,6 @@ export default function Plan() {
       duration_focused: parseTimeToMinutes(sessionData.focus_duration),
       duration_paused: parseTimeToMinutes(sessionData.pause_duration),
     };
-    console.log('Nova sessão criada:', newSession);
     setSessions((prev) => [...prev, newSession]);
   };
 
