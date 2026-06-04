@@ -44,7 +44,7 @@ class WrongStudySessionStateError(Exception):
 
 class PomodoroNotFoundError(Exception):
     def __init__(self, study_session_id: str):
-        super().__init__(f"StudySession(id={study_session_id}) pomodoro's not enabled.")
+        super().__init__(f'StudySession(id={study_session_id}) pomodoro not enabled.')
         self.study_session_id = study_session_id
 
 

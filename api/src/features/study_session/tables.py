@@ -22,7 +22,7 @@ class PomodoroStatus(enum.Enum):
     not_started = 'not_started'
     focus_mode = 'focus_mode'
     focus_pause = 'focus_pause'
-    break_mode = 'break'
+    break_mode = 'break_mode'
     break_pause = 'break_pause'
     done = 'done'
 
@@ -44,8 +44,6 @@ study_sessions = Table(
     ),
     Column('planned_to_start_at', DateTime, nullable=False),
     Column('duration', Interval, nullable=False),
-    Column('focus_mode_duration', Interval),
-    Column('pause_mode_duration', Interval),
     Column('rating', Float),
     Column('domain_perception_level', Integer),
     Column('learning_difficulty_level', Integer),
@@ -64,10 +62,18 @@ Index(
 study_session_pomodoros = Table(
     'study_session_pomodoros',
     metadata,
-    Column('id', Integer, primary_key=True, unique=True),
-    Column('study_session_id', String, ForeignKey('study_sessions.id'), nullable=False),
-    Column('state_started_at', DateTime(timezone=True), nullable=False),
-    Column('state_remaining_duration', Interval, nullable=False),
+    Column('id', Integer, primary_key=True),
+    Column(
+        'study_session_id',
+        String,
+        ForeignKey('study_sessions.id'),
+        nullable=False,
+        unique=True,
+    ),
+    Column('focus_duration', Interval, nullable=False),
+    Column('break_duration', Interval, nullable=False),
+    Column('current_started_at', DateTime(timezone=True), nullable=False),
+    Column('current_remaining_duration', Interval, nullable=False),
     Column(
         'status',
         Enum(PomodoroStatus),

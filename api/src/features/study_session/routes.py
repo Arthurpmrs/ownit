@@ -86,14 +86,14 @@ def update_study_session_notes(
 
 
 @router.patch(path='/{study_session_id}/pomodoro', response_model=PomodoroResponse)
-def update_pomodoro_state(
+def update_pomodoro_status(
     study_session_id: str,
     payload: PomodoroUpdate,
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
 ):
     try:
-        return service.update_pomodoro_state(
+        return service.update_pomodoro_status(
             conn, student_id, study_session_id, payload.new_status
         )
     except PomodoroNotFoundError as e:

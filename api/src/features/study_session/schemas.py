@@ -13,8 +13,8 @@ class StudySessionCreate(BaseModel):
     description: str
     planned_to_start_at: datetime
     duration: timedelta
-    focus_mode_duration: timedelta | None = None
-    pause_mode_duration: timedelta | None = None
+    focus_duration: timedelta | None = None
+    break_duration: timedelta | None = None
 
 
 class StudySessionResponse(StudySessionShortResponse):
@@ -22,8 +22,6 @@ class StudySessionResponse(StudySessionShortResponse):
     goal_id: str
     goal_title: str
     notes: str
-    focus_mode_duration: timedelta | None = None
-    pause_mode_duration: timedelta | None = None
     pomodoro: PomodoroResponse | None = None
     rating: float | None = None
     domain_perception_level: int | None = None
@@ -50,21 +48,14 @@ class StudySessionEvaluate(BaseModel):
     final_comment: str | None = None
 
 
-class PomodoroStateChangeData(BaseModel):
+class PomodoroResponse(BaseModel):
     id: int
     study_session_id: str
     status: PomodoroStatus
-    state_started_at: datetime
-    state_remaining_duration: timedelta
+    current_started_at: datetime
+    current_remaining_duration: timedelta
     focus_duration: timedelta
     break_duration: timedelta
-
-
-class PomodoroResponse(BaseModel):
-    id: int
-    state_started_at: datetime
-    state_remaining_duration: timedelta
-    status: PomodoroStatus
     created_at: datetime
     updated_at: datetime
 

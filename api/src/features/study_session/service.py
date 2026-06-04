@@ -21,7 +21,6 @@ from .exceptions import (
 )
 from .schemas import (
     PomodoroResponse,
-    PomodoroStateChangeData,
     StudySessionCreate,
     StudySessionEvaluate,
     StudySessionNotesUpdate,
@@ -49,17 +48,24 @@ def goal_exists_by_id(conn: Connection, goal_id: str) -> bool:
     return bool(conn.scalar(stmt))
 
 
-def create_pomodoro(conn: Connection, study_session_id: str):
+def create_pomodoro(
+    conn: Connection,
+    study_session_id: str,
+    focus_duration: timedelta,
+    break_duration: timedelta,
+):
     stmt = insert(study_session_pomodoros).values(
         study_session_id=study_session_id,
-        state_started_at=func.now(),
-        state_remaining_duration=timedelta(0),
         status=PomodoroStatus.not_started,
+        current_started_at=func.now(),
+        current_remaining_duration=timedelta(0),
+        focus_duration=focus_duration,
+        break_duration=break_duration,
     )
 
     conn.execute(stmt)
 
-    logger.info(f'Pomodoro created for StudySession({study_session_id})')
+    logger.info(f'Pomodoro created for StudySession({study_session_id}).')
 
 
 def create_study_session(
@@ -82,16 +88,16 @@ def create_study_session(
         description=payload.description,
         planned_to_start_at=payload.planned_to_start_at,
         duration=payload.duration,
-        focus_mode_duration=payload.focus_mode_duration,
-        pause_mode_duration=payload.pause_mode_duration,
     )
 
     conn.execute(stmt)
 
     logger.info(f'StudySession created with id={study_session_id}')
 
-    if payload.focus_mode_duration and payload.pause_mode_duration:
-        create_pomodoro(conn, study_session_id)
+    if payload.focus_duration and payload.break_duration:
+        create_pomodoro(
+            conn, study_session_id, payload.focus_duration, payload.break_duration
+        )
 
     return get_study_session(conn, student_id, study_session_id)
 
@@ -194,6 +200,17 @@ def update_study_session_status(
     except IntegrityError as e:
         raise ActiveSessionExistsError(study_session_id) from e
 
+    if new_status == Status.done:
+        try:
+            update_pomodoro_status(
+                conn, student_id, study_session_id, PomodoroStatus.done
+            )
+        except PomodoroNotFoundError:
+            logger.warning(
+                f'StudySession({study_session_id}): '
+                'Pomodoro cannot be finalized because was not enabled.'
+            )
+
     return get_study_session(conn, student_id, study_session_id)
 
 
@@ -249,7 +266,7 @@ def update_study_session_notes(
 
 
 def _calculate_remaining_duration(
-    now: datetime, pomodoro: PomodoroStateChangeData, new_status: PomodoroStatus
+    now: datetime, pomodoro: PomodoroResponse, new_status: PomodoroStatus
 ) -> timedelta:
     match pomodoro.status, new_status:
         case PomodoroStatus.not_started, PomodoroStatus.focus_mode:
@@ -262,13 +279,13 @@ def _calculate_remaining_duration(
             PomodoroStatus.break_mode,
             PomodoroStatus.break_pause,
         ):
-            elapsed = now - pomodoro.state_started_at
-            duration = max(timedelta(0), pomodoro.state_remaining_duration - elapsed)
+            elapsed = now - pomodoro.current_started_at
+            duration = max(timedelta(0), pomodoro.current_remaining_duration - elapsed)
         case (PomodoroStatus.focus_pause, PomodoroStatus.focus_mode) | (
             PomodoroStatus.break_pause,
             PomodoroStatus.break_mode,
         ):
-            duration = pomodoro.state_remaining_duration
+            duration = pomodoro.current_remaining_duration
         case _, PomodoroStatus.not_started | PomodoroStatus.done:
             duration = timedelta(0)
         case _:
@@ -277,18 +294,14 @@ def _calculate_remaining_duration(
     return duration
 
 
-def update_pomodoro_state(
+def update_pomodoro_status(
     conn: Connection,
     student_id: int,
     study_session_id: str,
     new_status: PomodoroStatus,
 ) -> PomodoroResponse:
     pomodoro_row = conn.execute(
-        select(
-            study_session_pomodoros,
-            study_sessions.c.focus_mode_duration.label('focus_duration'),
-            study_sessions.c.pause_mode_duration.label('break_duration'),
-        )
+        select(study_session_pomodoros)
         .join(
             study_sessions,
             study_session_pomodoros.c.study_session_id == study_sessions.c.id,
@@ -302,7 +315,7 @@ def update_pomodoro_state(
     if not pomodoro_row:
         raise PomodoroNotFoundError(study_session_id)
 
-    pomodoro = PomodoroStateChangeData(**pomodoro_row._mapping)
+    pomodoro = PomodoroResponse(**pomodoro_row._mapping)
 
     if not PomodoroStateMachine.can_transition(pomodoro.status, new_status):
         raise InvalidPomodoroTransitionError(
@@ -316,8 +329,8 @@ def update_pomodoro_state(
         update(study_session_pomodoros)
         .where(study_session_pomodoros.c.id == pomodoro.id)
         .values(
-            state_started_at=now,
-            state_remaining_duration=duration,
+            current_started_at=now,
+            current_remaining_duration=duration,
             status=new_status,
         )
         .returning(study_session_pomodoros)

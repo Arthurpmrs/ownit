@@ -4,17 +4,15 @@ from src.shared.schemas import Status
 
 class StudySessionStateMachine:
     TRANSITIONS = {
-        'to_do': ['doing', 'canceled'],
-        'doing': ['done', 'to_do', 'canceled'],
-        'done': [],
-        'canceled': [],
+        Status.todo: {Status.doing, Status.canceled},
+        Status.doing: {Status.done, Status.todo, Status.canceled},
+        Status.done: set(),
+        Status.canceled: set(),
     }
 
     @staticmethod
-    def can_transition(current_status: Status, next_status: Status) -> bool:
-        return next_status.value in StudySessionStateMachine.TRANSITIONS.get(
-            current_status.value, []
-        )
+    def can_transition(current: Status, target: Status) -> bool:
+        return target in StudySessionStateMachine.TRANSITIONS.get(current, set())
 
 
 class PomodoroStateMachine:

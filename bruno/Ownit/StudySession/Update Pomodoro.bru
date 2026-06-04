@@ -1,0 +1,22 @@
+meta {
+  name: Update Pomodoro
+  type: http
+  seq: 6
+}
+
+patch {
+  url: http://localhost:8000/sessions/9283f363-bd2f-4724-9b34-a80841f53796/pomodoro
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "new_status": "break_mode"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
