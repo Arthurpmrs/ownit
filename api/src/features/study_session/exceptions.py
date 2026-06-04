@@ -5,6 +5,8 @@ from fastapi.responses import JSONResponse
 
 from src.shared.schemas import Status
 
+from .tables import PomodoroStatus
+
 
 class StudySessionNotFoundError(Exception):
     def __init__(self, study_session_id: str):
@@ -38,6 +40,25 @@ class WrongStudySessionStateError(Exception):
             'Cannot evaluate a study session that is not done!'
         )
         self.study_session_id = study_session_id
+
+
+class PomodoroNotFoundError(Exception):
+    def __init__(self, study_session_id: str):
+        super().__init__(f"StudySession(id={study_session_id}) pomodoro's not enabled.")
+        self.study_session_id = study_session_id
+
+
+class InvalidPomodoroTransitionError(Exception):
+    def __init__(
+        self, study_session_id: str, current: PomodoroStatus, new: PomodoroStatus
+    ):
+        super().__init__(
+            f'Pomodoro from StudySession(id={study_session_id}): '
+            f'Cannot transition from {current} to {new}'
+        )
+        self.study_session_id = study_session_id
+        self.current = current
+        self.new = new
 
 
 def register_exception_handlers(app: FastAPI) -> None:

@@ -10,10 +10,14 @@ from src.core.logger import get_logger
 from . import service
 from .exceptions import (
     ActiveSessionExistsError,
+    InvalidPomodoroTransitionError,
     InvalidTransitionError,
+    PomodoroNotFoundError,
     WrongStudySessionStateError,
 )
 from .schemas import (
+    PomodoroResponse,
+    PomodoroUpdate,
     StudySessionCreate,
     StudySessionEvaluate,
     StudySessionNotesUpdate,
@@ -79,3 +83,20 @@ def update_study_session_notes(
     student_id: int = Depends(get_current_student_id),
 ):
     return service.update_study_session_notes(conn, student_id, study_session_id, payload)
+
+
+@router.patch(path='/{study_session_id}/pomodoro', response_model=PomodoroResponse)
+def update_pomodoro_state(
+    study_session_id: str,
+    payload: PomodoroUpdate,
+    conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
+):
+    try:
+        return service.update_pomodoro_state(
+            conn, student_id, study_session_id, payload.new_status
+        )
+    except PomodoroNotFoundError as e:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=str(e))
+    except InvalidPomodoroTransitionError as e:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))

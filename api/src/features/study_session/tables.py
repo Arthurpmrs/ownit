@@ -21,8 +21,9 @@ from src.shared.schemas import Status
 class PomodoroStatus(enum.Enum):
     not_started = 'not_started'
     focus_mode = 'focus_mode'
+    focus_pause = 'focus_pause'
     break_mode = 'break'
-    pause = 'pause'
+    break_pause = 'break_pause'
     done = 'done'
 
 

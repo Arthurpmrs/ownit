@@ -50,6 +50,16 @@ class StudySessionEvaluate(BaseModel):
     final_comment: str | None = None
 
 
+class PomodoroStateChangeData(BaseModel):
+    id: int
+    study_session_id: str
+    status: PomodoroStatus
+    state_started_at: datetime
+    state_remaining_duration: timedelta
+    focus_duration: timedelta
+    break_duration: timedelta
+
+
 class PomodoroResponse(BaseModel):
     id: int
     state_started_at: datetime

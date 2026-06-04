@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from sqlalchemy import exists, func, insert, select, update
@@ -6,19 +6,22 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.exc import IntegrityError
 
 from src.core.logger import get_logger
-from src.core.state_machine import StudySessionStateMachine
+from src.core.state_machine import PomodoroStateMachine, StudySessionStateMachine
 from src.features.goal.exceptions import GoalNotFoundError
 from src.features.goal.tables import goals
 from src.shared.schemas import Status, StudySessionShortResponse
 
 from .exceptions import (
     ActiveSessionExistsError,
+    InvalidPomodoroTransitionError,
     InvalidTransitionError,
+    PomodoroNotFoundError,
     StudySessionNotFoundError,
     WrongStudySessionStateError,
 )
 from .schemas import (
     PomodoroResponse,
+    PomodoroStateChangeData,
     StudySessionCreate,
     StudySessionEvaluate,
     StudySessionNotesUpdate,
@@ -243,3 +246,86 @@ def update_study_session_notes(
     conn.execute(stmt)
 
     return get_study_session(conn, student_id, study_session_id)
+
+
+def _calculate_remaining_duration(
+    now: datetime, pomodoro: PomodoroStateChangeData, new_status: PomodoroStatus
+) -> timedelta:
+    match pomodoro.status, new_status:
+        case PomodoroStatus.not_started, PomodoroStatus.focus_mode:
+            duration = pomodoro.focus_duration
+        case PomodoroStatus.focus_mode, PomodoroStatus.break_mode:
+            duration = pomodoro.break_duration
+        case PomodoroStatus.break_mode, PomodoroStatus.focus_mode:
+            duration = pomodoro.focus_duration
+        case (PomodoroStatus.focus_mode, PomodoroStatus.focus_pause) | (
+            PomodoroStatus.break_mode,
+            PomodoroStatus.break_pause,
+        ):
+            elapsed = now - pomodoro.state_started_at
+            duration = max(timedelta(0), pomodoro.state_remaining_duration - elapsed)
+        case (PomodoroStatus.focus_pause, PomodoroStatus.focus_mode) | (
+            PomodoroStatus.break_pause,
+            PomodoroStatus.break_mode,
+        ):
+            duration = pomodoro.state_remaining_duration
+        case _, PomodoroStatus.not_started | PomodoroStatus.done:
+            duration = timedelta(0)
+        case _:
+            raise RuntimeError(f'Unhandled transition: {pomodoro.status} -> {new_status}')
+
+    return duration
+
+
+def update_pomodoro_state(
+    conn: Connection,
+    student_id: int,
+    study_session_id: str,
+    new_status: PomodoroStatus,
+) -> PomodoroResponse:
+    pomodoro_row = conn.execute(
+        select(
+            study_session_pomodoros,
+            study_sessions.c.focus_mode_duration.label('focus_duration'),
+            study_sessions.c.pause_mode_duration.label('break_duration'),
+        )
+        .join(
+            study_sessions,
+            study_session_pomodoros.c.study_session_id == study_sessions.c.id,
+        )
+        .where(
+            study_session_pomodoros.c.study_session_id == study_session_id,
+            study_sessions.c.student_id == student_id,
+        )
+    ).fetchone()
+
+    if not pomodoro_row:
+        raise PomodoroNotFoundError(study_session_id)
+
+    pomodoro = PomodoroStateChangeData(**pomodoro_row._mapping)
+
+    if not PomodoroStateMachine.can_transition(pomodoro.status, new_status):
+        raise InvalidPomodoroTransitionError(
+            study_session_id, pomodoro.status, new_status
+        )
+
+    now = datetime.now(UTC)
+    duration = _calculate_remaining_duration(now, pomodoro, new_status)
+
+    stmt = (
+        update(study_session_pomodoros)
+        .where(study_session_pomodoros.c.id == pomodoro.id)
+        .values(
+            state_started_at=now,
+            state_remaining_duration=duration,
+            status=new_status,
+        )
+        .returning(study_session_pomodoros)
+    )
+
+    updated_row = conn.execute(stmt).fetchone()
+
+    if not updated_row:
+        raise PomodoroNotFoundError(study_session_id)
+
+    return PomodoroResponse(**updated_row._mapping)
