@@ -1,3 +1,4 @@
+from datetime import datetime
 from http import HTTPStatus
 from typing import Generator
 
@@ -9,9 +10,12 @@ from testcontainers.postgres import PostgresContainer
 # importa as definições de tabela para registro no metadata
 import src.features.auth.tables  # noqa: F401
 import src.features.goal.tables  # noqa: F401
+import src.features.study_session.tables  # noqa: F401
 from src.core.config import Settings, get_settings
 from src.core.db import get_connection, metadata
 from src.features.auth.service import create_student
+from src.features.goal.schemas import GoalCreate
+from src.features.goal.service import create_goal
 from src.main import app
 
 
@@ -62,6 +66,19 @@ def student(conn: Connection) -> dict:
     student_id, _, _ = create_student(conn, **student_data)
     student_data.update({'id': student_id})
     return student_data
+
+
+@pytest.fixture
+def goal(conn: Connection, student: dict) -> dict:
+    goal_payload = GoalCreate(
+        title='Meta de Teste',
+        description='Meta criada para testes',
+        goal_tags=['study', 'test'],
+        start_date=datetime(2026, 5, 1, 0, 0, 0),
+        end_date=datetime(2026, 5, 31, 23, 59, 59),
+    )
+    goal_response = create_goal(conn, student['id'], goal_payload)
+    return goal_response.model_dump()
 
 
 @pytest.fixture
