@@ -7,6 +7,9 @@ from sqlalchemy.exc import IntegrityError
 
 from src.core.logger import get_logger
 from src.core.state_machine import PomodoroStateMachine, StudySessionStateMachine
+from src.features.analytics.schemas import EventCreate
+from src.features.analytics.service import create_event
+from src.features.analytics.tables import EventType
 from src.features.goal.exceptions import GoalNotFoundError
 from src.features.goal.tables import goals
 from src.shared.schemas import Status, StudySessionShortResponse
@@ -99,7 +102,19 @@ def create_study_session(
             conn, study_session_id, payload.focus_duration, payload.break_duration
         )
 
-    return get_study_session(conn, student_id, study_session_id)
+    study_session = get_study_session(conn, student_id, study_session_id)
+
+    create_event(
+        conn,
+        EventCreate(
+            type=EventType.STUDY_SESSION_CREATED,
+            student_id=student_id,
+            goal_id=study_session.goal_id,
+            study_session_id=study_session.id,
+        ),
+    )
+
+    return study_session
 
 
 def get_study_session(
@@ -162,6 +177,20 @@ def _get_study_session_status(
     return status
 
 
+def _get_event_type_based_on_status(status: Status) -> EventType:
+    match status:
+        case Status.doing:
+            event_type = EventType.STUDY_SESSION_STARTED
+        case Status.done:
+            event_type = EventType.STUDY_SESSION_FINISHED
+        case Status.canceled:
+            event_type = EventType.STUDY_SESSION_CANCELED
+        case _:
+            raise RuntimeError(f'Cannot generate event for {status}.')
+
+    return event_type
+
+
 def update_study_session_status(
     conn: Connection,
     student_id: int,
@@ -211,7 +240,20 @@ def update_study_session_status(
                 'Pomodoro cannot be finalized because was not enabled.'
             )
 
-    return get_study_session(conn, student_id, study_session_id)
+    study_session = get_study_session(conn, student_id, study_session_id)
+
+    create_event(
+        conn,
+        EventCreate(
+            type=_get_event_type_based_on_status(new_status),
+            student_id=student_id,
+            goal_id=study_session.goal_id,
+            study_session_id=study_session.id,
+            context={'old_status': current_status, 'new_status': new_status},
+        ),
+    )
+
+    return study_session
 
 
 def evaluate_study_session(
@@ -225,6 +267,8 @@ def evaluate_study_session(
     if status != Status.done:
         raise WrongStudySessionStateError(study_session_id)
 
+    final_comment = payload.final_comment if payload.final_comment is not None else ''
+
     stmt = (
         update(study_sessions)
         .where(*_get_study_session_predicate(study_session_id, student_id))
@@ -233,16 +277,33 @@ def evaluate_study_session(
             domain_perception_level=payload.domain_perception_level,
             learning_difficulty_level=payload.learning_difficulty_level,
             strategies=payload.strategies,
-            final_comment=payload.final_comment
-            if payload.final_comment is not None
-            else '',
+            final_comment=final_comment,
             updated_at=func.now(),
         )
     )
 
     conn.execute(stmt)
 
-    return get_study_session(conn, student_id, study_session_id)
+    study_session = get_study_session(conn, student_id, study_session_id)
+
+    create_event(
+        conn,
+        EventCreate(
+            type=EventType.STUDY_SESSION_EVALUATED,
+            student_id=student_id,
+            goal_id=study_session.goal_id,
+            study_session_id=study_session.id,
+            context={
+                'rating': payload.rating,
+                'domain_perception_level': payload.domain_perception_level,
+                'learning_difficulty_level': payload.learning_difficulty_level,
+                'strategies': payload.strategies,
+                'final_comment': final_comment,
+            },
+        ),
+    )
+
+    return study_session
 
 
 def update_study_session_notes(
@@ -251,18 +312,42 @@ def update_study_session_notes(
     study_session_id: str,
     payload: StudySessionNotesUpdate,
 ) -> StudySessionResponse:
+    old_notes = conn.scalar(
+        select(study_sessions.c.notes).where(
+            *_get_study_session_predicate(study_session_id, student_id)
+        )
+    )
+
+    if old_notes is None:
+        raise StudySessionNotFoundError(study_session_id)
+
+    new_notes = payload.new_notes
+
     stmt = (
         update(study_sessions)
         .where(*_get_study_session_predicate(study_session_id, student_id))
         .values(
-            notes=payload.new_notes,
+            notes=new_notes,
             updated_at=func.now(),
         )
     )
 
     conn.execute(stmt)
 
-    return get_study_session(conn, student_id, study_session_id)
+    study_session = get_study_session(conn, student_id, study_session_id)
+
+    create_event(
+        conn,
+        EventCreate(
+            type=EventType.STUDY_SESSION_EDITED_NOTES,
+            student_id=student_id,
+            goal_id=study_session.goal_id,
+            study_session_id=study_session.id,
+            context={'old_notes': old_notes, 'new_status': new_notes},
+        ),
+    )
+
+    return study_session
 
 
 def _calculate_remaining_duration(
@@ -292,6 +377,34 @@ def _calculate_remaining_duration(
             raise RuntimeError(f'Unhandled transition: {pomodoro.status} -> {new_status}')
 
     return duration
+
+
+def _get_pomodoro_event(old: PomodoroStatus, new: PomodoroStatus) -> EventType:
+    match old, new:
+        case PomodoroStatus.not_started, PomodoroStatus.focus_mode:
+            event_type = EventType.POMODORO_FOCUS_MODE_STARTED
+        case PomodoroStatus.focus_mode, PomodoroStatus.break_mode:
+            event_type = EventType.POMODORO_BREAK_MODE_STARTED
+        case PomodoroStatus.break_mode, PomodoroStatus.focus_mode:
+            event_type = EventType.POMODORO_FOCUS_MODE_STARTED
+        case (PomodoroStatus.focus_mode, PomodoroStatus.focus_pause) | (
+            PomodoroStatus.break_mode,
+            PomodoroStatus.break_pause,
+        ):
+            event_type = EventType.POMODORO_PAUSED
+        case (PomodoroStatus.focus_pause, PomodoroStatus.focus_mode) | (
+            PomodoroStatus.break_pause,
+            PomodoroStatus.break_mode,
+        ):
+            event_type = EventType.POMODORO_RESUMED
+        case _, PomodoroStatus.done:
+            event_type = EventType.POMODORO_FINISHED
+        case _, PomodoroStatus.not_started:
+            event_type = EventType.POMODORO_RESTARTED
+        case _:
+            raise RuntimeError(f'No event covering: {old} -> {new}')
+
+    return event_type
 
 
 def update_pomodoro_status(
@@ -341,4 +454,21 @@ def update_pomodoro_status(
     if not updated_row:
         raise PomodoroNotFoundError(study_session_id)
 
-    return PomodoroResponse(**updated_row._mapping)
+    response = PomodoroResponse(**updated_row._mapping)
+
+    create_event(
+        conn,
+        EventCreate(
+            type=_get_pomodoro_event(pomodoro.status, new_status),
+            student_id=student_id,
+            study_session_id=study_session_id,
+            context={
+                'remaining_duration': duration,
+                'current_started_at': now,
+                'old_status': pomodoro.status,
+                'new_status': new_status,
+            },
+        ),
+    )
+
+    return response
