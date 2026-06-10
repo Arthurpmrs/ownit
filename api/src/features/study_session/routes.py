@@ -26,7 +26,7 @@ from .schemas import (
 )
 
 logger = get_logger(__name__)
-router = APIRouter(prefix='/sessions', tags=['sessions', 'study-sessions'])
+router = APIRouter(prefix='/sessions', tags=['study-sessions'])
 
 
 @router.post('/', response_model=StudySessionResponse, status_code=HTTPStatus.CREATED)
