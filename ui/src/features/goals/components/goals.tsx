@@ -128,74 +128,74 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
           return (
             <Grid.Col span={{ base: 12, md: 3 }} key={goal.id}>
               {/* <Link key={goal.id} to="/goals/$id" params={{ id: goal.id }} style={{ textDecoration: 'none' }}> */}
-                <Card
-                  key={goal.id}
-                  withBorder
-                  padding="lg"
-                  radius="md"
-                  h="100%"
-                  w="100%"
-                  shadow={hoveredGoalId === goal.id ? 'lg' : 'md'}
-                  onClick={() => handleClick(goal.id)}
-                  onMouseEnter={() => setHoveredGoalId(goal.id)}
-                  onMouseLeave={() => setHoveredGoalId(null)}
-                  style={{
-                    cursor: 'pointer',
-                    transition:
-                      'transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease',
-                    transform:
-                      hoveredGoalId === goal.id ? 'translateY(-4px)' : 'none',
-                    borderColor:
-                      hoveredGoalId === goal.id
-                        ? 'var(--mantine-color-orange-4)'
-                        : undefined,
-                  }}
-                >
-                  <Card.Section inheritPadding py="md" flex={1} h="100%">
-                    <Stack gap="md" justify="space-between" h="100%">
-                      <Stack gap="sm">
-                        <Group justify="space-between">
-                          <BookOpenIcon size={32} color="orange" weight="bold" />
-                          <Badge variant="light">
-                            {statusMapper(goal.status)}
-                          </Badge>
-                        </Group>
-                        <Stack gap={0}>
-                          <Title order={4} size="lg">
-                            {goal.title}
-                          </Title>
-                          {goal.description && (
-                            <Text size="sm" c="dimmed">
-                              {goal.description}
-                            </Text>
-                          )}
-                        </Stack>
-                      </Stack>
-
-                      <Stack gap="xs">
-                        <Stack gap={0}>
-                          <Group justify="space-between">
-                            <Text c="dimmed" size="sm" fw={600}>
-                              Progresso
-                            </Text>
-                            <Text c="orange" size="lg" fw={600}>
-                              {mockProgressValue}%
-                            </Text>
-                          </Group>
-                          <Progress value={mockProgressValue} />
-                        </Stack>
-
-                        <Divider />
-                        <Group justify="space-between">
-                          <Text c="dimmed" size="sm" fw={600}>
-                            {leftDays} dias
+              <Card
+                key={goal.id}
+                withBorder
+                padding="lg"
+                radius="md"
+                h="100%"
+                w="100%"
+                shadow={hoveredGoalId === goal.id ? 'lg' : 'md'}
+                onClick={() => handleClick(goal.id)}
+                onMouseEnter={() => setHoveredGoalId(goal.id)}
+                onMouseLeave={() => setHoveredGoalId(null)}
+                style={{
+                  cursor: 'pointer',
+                  transition:
+                    'transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease',
+                  transform:
+                    hoveredGoalId === goal.id ? 'translateY(-4px)' : 'none',
+                  borderColor:
+                    hoveredGoalId === goal.id
+                      ? 'var(--mantine-color-orange-4)'
+                      : undefined,
+                }}
+              >
+                <Card.Section inheritPadding py="md" flex={1} h="100%">
+                  <Stack gap="md" justify="space-between" h="100%">
+                    <Stack gap="sm">
+                      <Group justify="space-between">
+                        <BookOpenIcon size={32} color="orange" weight="bold" />
+                        <Badge variant="light">
+                          {statusMapper(goal.status)}
+                        </Badge>
+                      </Group>
+                      <Stack gap={0}>
+                        <Title order={4} size="lg">
+                          {goal.title}
+                        </Title>
+                        {goal.description && (
+                          <Text size="sm" c="dimmed">
+                            {goal.description}
                           </Text>
-                          <CaretRightIcon />
-                        </Group>
+                        )}
                       </Stack>
                     </Stack>
-                  </Card.Section>
-                </Card>
+
+                    <Stack gap="xs">
+                      <Stack gap={0}>
+                        <Group justify="space-between">
+                          <Text c="dimmed" size="sm" fw={600}>
+                            Progresso
+                          </Text>
+                          <Text c="orange" size="lg" fw={600}>
+                            {mockProgressValue}%
+                          </Text>
+                        </Group>
+                        <Progress value={mockProgressValue} />
+                      </Stack>
+
+                      <Divider />
+                      <Group justify="space-between">
+                        <Text c="dimmed" size="sm" fw={600}>
+                          {leftDays} dias
+                        </Text>
+                        <CaretRightIcon />
+                      </Group>
+                    </Stack>
+                  </Stack>
+                </Card.Section>
+              </Card>
               {/* </Link> */}
             </Grid.Col>
           );
