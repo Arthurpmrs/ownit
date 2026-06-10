@@ -56,7 +56,7 @@ export interface FileRoutesByTo {
   '/statistics': typeof StatisticsIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
+  _root_: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/goals/$id': typeof GoalsIdRoute
@@ -68,7 +68,7 @@ export interface FileRouteTypes {
   fullPaths: '/' | '/login' | '/goals/$id' | '/goals/' | '/statistics/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/login' | '/goals/$id' | '/goals' | '/statistics'
-  id: '__root__' | '/' | '/login' | '/goals/$id' | '/goals/' | '/statistics/'
+  id: '_root_' | '/' | '/login' | '/goals/$id' | '/goals/' | '/statistics/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
