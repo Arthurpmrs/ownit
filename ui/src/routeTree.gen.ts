@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatisticsIndexRouteImport } from './routes/statistics/index'
 import { Route as GoalsIndexRouteImport } from './routes/goals/index'
+import { Route as GoalsGoal_idRouteImport } from './routes/goals/$goal_id'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -38,6 +39,11 @@ const StatisticsIndexRoute = StatisticsIndexRouteImport.update({
 const GoalsIndexRoute = GoalsIndexRouteImport.update({
   id: '/goals/',
   path: '/goals/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GoalsGoal_idRoute = GoalsGoal_idRouteImport.update({
+  id: '/goals/$goal_id',
+  path: '/goals/$goal_id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -114,6 +120,13 @@ declare module '@tanstack/react-router' {
       path: '/goals'
       fullPath: '/goals/'
       preLoaderRoute: typeof GoalsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/goals/$goal_id': {
+      id: '/goals/$goal_id'
+      path: '/goals/$goal_id'
+      fullPath: '/goals/$goal_id'
+      preLoaderRoute: typeof GoalsGoal_idRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

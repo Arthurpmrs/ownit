@@ -6,7 +6,7 @@ from sqlalchemy.engine import Connection
 from src.core.logger import get_logger
 from src.features.auth.tables import students
 
-from .schemas import GoalCreate, GoalResponse, GoalUpdate
+from .schemas import GoalCreate, GoalResponse, GoalUpdate, Status
 from .tables import goals
 
 logger = get_logger(__name__)
@@ -39,8 +39,10 @@ def create_goal(conn: Connection, student_id: int, payload: GoalCreate) -> GoalR
             student_id=student_id,
             title=payload.title,
             description=payload.description,
-            goal_type=payload.goal_type,
-            rating=payload.rating or 0,
+            status='to_do',
+            goal_tags=payload.goal_tags,
+            start_date=payload.start_date,
+            end_date=payload.end_date,
         )
         .returning(goals)
     )
@@ -62,8 +64,17 @@ def get_goal(conn: Connection, student_id: int, goal_id: str) -> GoalResponse | 
     return _row_to_schema(result)
 
 
-def list_goals(conn: Connection, student_id: int) -> list[GoalResponse]:
+def list_goals(
+    conn: Connection, student_id: int, status: Status | None, tags: list[str] | None
+) -> list[GoalResponse]:
     stmt = select(goals).where(goals.c.student_id == student_id)
+
+    if status is not None:
+        stmt = stmt.where(goals.c.status == status.value)
+
+    if tags:
+        stmt = stmt.where(goals.c.goal_tags.overlap(tags))
+
     results = conn.execute(stmt).fetchall()
 
     return [_row_to_schema(row) for row in results]
