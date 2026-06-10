@@ -1,6 +1,6 @@
-import { Card, Group, Text, Title } from "@mantine/core";
-import { CalendarIcon, ClockIcon } from "@phosphor-icons/react";
-import type { Session } from "../models";
+import { Card, Group, Text, Title } from '@mantine/core';
+import { CalendarIcon, ClockIcon } from '@phosphor-icons/react';
+import type { Session } from '../models';
 
 interface SessionCardProps {
   session: Session;
@@ -11,9 +11,8 @@ export default function SessionCard({ session }: SessionCardProps) {
     if (!date) {
       return '-';
     }
-    const dateObj = typeof date === 'string'
-      ? new Date(date.replace(/-/g, '/'))
-      : date;
+    const dateObj =
+      typeof date === 'string' ? new Date(date.replace(/-/g, '/')) : date;
     const day = String(dateObj.getUTCDate()).padStart(2, '0');
     const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
     const year = dateObj.getUTCFullYear();
@@ -33,16 +32,25 @@ export default function SessionCard({ session }: SessionCardProps) {
 
   return (
     <Card padding="md" radius="lg" withBorder>
-      <Title order={5} mb={4}>{session.title}</Title>
-      <Text size="sm" c="dimmed" mb="sm">{session.description}</Text>
+      <Title order={5} mb={4}>
+        {session.title}
+      </Title>
+      <Text size="sm" c="dimmed" mb="sm">
+        {session.description}
+      </Text>
       <Group gap="lg">
         <Group gap={4}>
           <CalendarIcon size={16} color="#868E96" />
-          <Text size="xs" c="dimmed">{formatDate(session.date_range[0])} - {formatDate(session.date_range[1])}</Text>
+          <Text size="xs" c="dimmed">
+            {formatDate(session.date_range[0])} -{' '}
+            {formatDate(session.date_range[1])}
+          </Text>
         </Group>
         <Group gap={4}>
           <ClockIcon size={16} color="#868E96" />
-          <Text size="xs" c="dimmed">{formatDuration(session.duration)}</Text>
+          <Text size="xs" c="dimmed">
+            {formatDuration(session.duration)}
+          </Text>
         </Group>
       </Group>
     </Card>

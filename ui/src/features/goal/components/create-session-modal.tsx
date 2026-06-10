@@ -27,7 +27,9 @@ interface CreateSessionModalProps {
   onSessionCreate: (session: SessionFormValues) => void;
 }
 
-export default function CreateSessionModal({ onSessionCreate }: CreateSessionModalProps) {
+export default function CreateSessionModal({
+  onSessionCreate,
+}: CreateSessionModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [moreSession, setMoreSession] = useState(false);
   const openModal = () => setIsModalOpen(true);
