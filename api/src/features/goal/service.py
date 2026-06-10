@@ -5,8 +5,13 @@ from sqlalchemy.engine import Connection
 
 from src.core.logger import get_logger
 from src.features.auth.tables import students
+from src.shared.schemas import Status
 
-from .schemas import GoalCreate, GoalResponse, GoalUpdate, Status
+from .schemas import (
+    GoalCreate,
+    GoalResponse,
+    GoalUpdate,
+)
 from .tables import goals
 
 logger = get_logger(__name__)

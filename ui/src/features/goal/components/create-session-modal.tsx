@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Checkbox,
   Group,
@@ -12,6 +13,10 @@ import { DateTimePicker, TimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { CalendarBlankIcon, ClockIcon, PlusIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
+import { useCreateStudySession } from '../hooks';
+import { showNotification } from '@mantine/notifications';
+import type { CreateStudySessionData } from '../models';
+import { durationToIso } from '@/shared/utils';
 
 interface SessionFormValues {
   title: string;
@@ -19,13 +24,14 @@ interface SessionFormValues {
   planned_date: Date | null;
   session_duration: string;
   focus_duration: string;
-  pause_duration: string;
+  break_duration: string;
 }
 
 export default function CreateSessionModal() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [moreSession, setMoreSession] = useState(false);
   const openModal = () => setIsModalOpen(true);
+  const goalId = '6af2702a-84b2-4cd7-8913-c31cd83e8a1a';
 
   const form = useForm<SessionFormValues>({
     initialValues: {
@@ -34,7 +40,7 @@ export default function CreateSessionModal() {
       planned_date: null,
       session_duration: '',
       focus_duration: '00:50',
-      pause_duration: '00:15',
+      break_duration: '00:15',
     },
     validate: {
       title: (value) =>
@@ -47,15 +53,41 @@ export default function CreateSessionModal() {
     },
   });
 
+  const createStudySessionMutation = useCreateStudySession(goalId);
+
   function handleSubmit(values: SessionFormValues) {
-    if (moreSession) {
-      console.log(values);
-      form.reset();
-    } else {
-      console.log(values);
-      form.reset();
-      setIsModalOpen(false);
-    }
+    const payload: CreateStudySessionData = {
+      goal_id: goalId,
+      title: values.title,
+      description: values.description,
+      planned_to_start_at: values.planned_date,
+      duration: durationToIso(values.session_duration),
+      focus_duration: durationToIso(values.focus_duration),
+      break_duration: durationToIso(values.break_duration),
+    };
+
+    createStudySessionMutation.mutate(payload, {
+      onSuccess: () => {
+        showNotification({
+          title: 'Sessão de estudo criada',
+          message: 'Sua nova sessão de estudo foi criado com sucesso.',
+          color: 'green',
+        });
+        if (moreSession) {
+          form.reset();
+        } else {
+          form.reset();
+          setIsModalOpen(false);
+        }
+      },
+      onError: (error) => {
+        showNotification({
+          title: 'Erro ao criar sessão de estudo',
+          message: error instanceof Error ? error.message : 'Erro desconhecido',
+          color: 'red',
+        });
+      },
+    });
   }
 
   return (
@@ -137,17 +169,17 @@ export default function CreateSessionModal() {
                     label="Duração do Modo Pause"
                     defaultValue="00:15"
                     flex={1}
-                    {...form.getInputProps('pause_duration')}
+                    {...form.getInputProps('break_duration')}
                   />
                 </Group>
 
-                {/* {createGoalMutation.isError && (
+                {createStudySessionMutation.isError && (
                   <Alert color="red" title="Erro ao criar plano">
-                    {createGoalMutation.error instanceof Error
-                      ? createGoalMutation.error.message
+                    {createStudySessionMutation.error instanceof Error
+                      ? createStudySessionMutation.error.message
                       : 'Erro desconhecido'}
                   </Alert>
-                )} */}
+                )}
 
                 <Group justify="space-between">
                   <Checkbox

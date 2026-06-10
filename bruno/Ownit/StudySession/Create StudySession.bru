@@ -1,0 +1,28 @@
+meta {
+  name: Create StudySession
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8000/sessions/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "goal_id": "6af2702a-84b2-4cd7-8913-c31cd83e8a1a",
+    "title": "Estudar Redes Bayesianas",
+    "description": "Revisar conceitos de inferência probabilística e resolver exercícios da disciplina.",
+    "planned_to_start_at": "2026-05-31T19:00:00Z",
+    "duration": "PT2H",
+    "focus_duration": "PT25M",
+    "break_duration": "PT5M"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Update StudySession status
+  type: http
+  seq: 3
+}
+
+patch {
+  url: http://localhost:8000/sessions/5f3b49ae-11d3-4b4b-8da0-05d679571d02/status
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "new_status": "doing"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
