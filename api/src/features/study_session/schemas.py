@@ -62,3 +62,7 @@ class PomodoroResponse(BaseModel):
 
 class PomodoroUpdate(BaseModel):
     new_status: PomodoroStatus
+
+
+class CommentCreate(BaseModel):
+    comment: str

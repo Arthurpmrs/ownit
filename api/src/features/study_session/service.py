@@ -8,11 +8,11 @@ from sqlalchemy.exc import IntegrityError
 from src.core.logger import get_logger
 from src.core.state_machine import PomodoroStateMachine, StudySessionStateMachine
 from src.features.analytics.schemas import EventCreate
-from src.features.analytics.service import create_event
+from src.features.analytics.service import create_comment, create_event
 from src.features.analytics.tables import EventType
 from src.features.goal.exceptions import GoalNotFoundError
 from src.features.goal.tables import goals
-from src.shared.schemas import Status, StudySessionShortResponse
+from src.shared.schemas import EventResponse, Status, StudySessionShortResponse
 
 from .exceptions import (
     ActiveSessionExistsError,
@@ -348,6 +348,20 @@ def update_study_session_notes(
     )
 
     return study_session
+
+
+def add_study_session_comment(
+    conn: Connection, student_id: int, study_session_id: str, comment: str
+) -> EventResponse:
+    return create_comment(
+        conn,
+        EventCreate(
+            type=EventType.STUDY_SESSION_ADDED_COMMENT,
+            student_id=student_id,
+            study_session_id=study_session_id,
+            context={'comment': comment},
+        ),
+    )
 
 
 def _calculate_remaining_duration(

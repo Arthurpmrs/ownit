@@ -6,6 +6,8 @@ from sqlalchemy.engine import Connection
 from src.core.auth import get_current_student_id
 from src.core.db import get_connection
 from src.core.logger import get_logger
+from src.features.analytics.exceptions import EventNotFountError
+from src.shared.schemas import EventResponse
 
 from . import service
 from .exceptions import (
@@ -16,6 +18,7 @@ from .exceptions import (
     WrongStudySessionStateError,
 )
 from .schemas import (
+    CommentCreate,
     PomodoroResponse,
     PomodoroUpdate,
     StudySessionCreate,
@@ -83,6 +86,25 @@ def update_study_session_notes(
     student_id: int = Depends(get_current_student_id),
 ):
     return service.update_study_session_notes(conn, student_id, study_session_id, payload)
+
+
+@router.post(
+    path='/{study_session_id}/comment',
+    response_model=EventResponse,
+    status_code=HTTPStatus.CREATED,
+)
+def add_study_session_comment(
+    study_session_id: str,
+    payload: CommentCreate,
+    conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
+):
+    try:
+        return service.add_study_session_comment(
+            conn, student_id, study_session_id, payload.comment
+        )
+    except EventNotFountError as e:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=str(e))
 
 
 @router.patch(path='/{study_session_id}/pomodoro', response_model=PomodoroResponse)
