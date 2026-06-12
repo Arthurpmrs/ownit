@@ -44,6 +44,7 @@ events = Table(
     Column('type', Enum(EventType), nullable=False),
     Column('student_id', Integer, ForeignKey('students.id'), nullable=False),
     Column('goal_id', String, ForeignKey('goals.id')),
+    Column('study_session_id', String, ForeignKey('study_sessions.id')),
     Column(
         'timestamp', DateTime(timezone=True), server_default=func.now(), nullable=False
     ),
