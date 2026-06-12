@@ -73,3 +73,20 @@ def create_comment(conn: Connection, data: EventCreate) -> EventResponse:
         )
 
     return EventResponse(**event_row._mapping)
+
+
+def get_study_session_history(
+    conn: Connection, student_id: int, study_session_id: str
+) -> list[EventResponse]:
+    stmt = (
+        select(events)
+        .where(
+            events.c.student_id == student_id,
+            events.c.study_session_id == study_session_id,
+        )
+        .order_by(events.c.timestamp.asc())
+    )
+
+    rows = conn.execute(stmt).fetchall()
+
+    return [EventResponse(**row._mapping) for row in rows]
