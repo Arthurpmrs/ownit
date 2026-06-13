@@ -14,10 +14,7 @@ import {
   TextInput,
   Transition,
 } from '@mantine/core';
-import {
-  ArrowsClockwise,
-  PaperPlaneRight,
-} from '@phosphor-icons/react';
+import { ArrowsClockwise, PaperPlaneRight } from '@phosphor-icons/react';
 import { chatQueryOptions, createSession } from '../api';
 import { useChatStream } from '../hooks';
 import ChatBubble from './ChatBubble';
@@ -93,12 +90,28 @@ export default function ChatPopup() {
                 <Box
                   bg="white"
                   p="md"
-                  style={{ borderBottom: '1px solid var(--mantine-color-borderLight-0)' }}
+                  style={{
+                    borderBottom:
+                      '1px solid var(--mantine-color-borderLight-0)',
+                  }}
                 >
                   <Group justify="space-between">
                     <Group gap="sm">
-                      <Avatar size={32} radius="md" color="orange.6" variant="filled">
-                        <img src="/favicon.svg" style={{ width: '70%', height: '70%', objectFit: 'contain' }} alt="James" />
+                      <Avatar
+                        size={32}
+                        radius="md"
+                        color="orange.6"
+                        variant="filled"
+                      >
+                        <img
+                          src="/favicon.svg"
+                          style={{
+                            width: '70%',
+                            height: '70%',
+                            objectFit: 'contain',
+                          }}
+                          alt="James"
+                        />
                       </Avatar>
                       <Text fw={600}>James</Text>
                     </Group>
@@ -135,7 +148,12 @@ export default function ChatPopup() {
                 </ScrollArea>
 
                 {/* Input Area */}
-                <Box p="md" style={{ borderTop: '1px solid var(--mantine-color-borderLight-0)' }}>
+                <Box
+                  p="md"
+                  style={{
+                    borderTop: '1px solid var(--mantine-color-borderLight-0)',
+                  }}
+                >
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();

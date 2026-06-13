@@ -18,7 +18,11 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
     >
       {!isUser && (
         <Avatar size="md" radius="xl" color="orange.6" variant="filled">
-          <img src="/favicon.svg" style={{ width: '70%', height: '70%', objectFit: 'contain' }} alt="James" />
+          <img
+            src="/favicon.svg"
+            style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+            alt="James"
+          />
         </Avatar>
       )}
 
@@ -31,7 +35,9 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
           borderRadius: 16,
           borderBottomRightRadius: isUser ? 4 : 16,
           borderBottomLeftRadius: !isUser ? 4 : 16,
-          border: !isUser ? '1px solid var(--mantine-color-borderLight-0)' : 'none',
+          border: !isUser
+            ? '1px solid var(--mantine-color-borderLight-0)'
+            : 'none',
         }}
       >
         {isUser ? (
