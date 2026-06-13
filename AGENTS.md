@@ -243,6 +243,22 @@ Reference: `.env.example`
 | `ENV` | Environment (`dev`, `test`, `prod`) |
 | `VITE_API_URL` | Backend API URL for the frontend |
 
+### Troubleshooting Missing Config Values in Tests
+
+When adding new environment variables to `api/src/core/config.py` in the `Settings` class without default values, backend tests may fail with `pydantic_core._pydantic_core.ValidationError` indicating a missing field. 
+
+To resolve this, ensure you update the `get_test_settings()` function inside `api/tests/conftest.py` to provide a mock or dummy value for the new setting.
+
+Example:
+```python
+def get_test_settings() -> Settings:
+    return Settings(
+        DATABASE_URL='postgresql+psycopg://postgres:postgres@localhost:5432/postgres',
+        ENV='test',
+        YOUR_NEW_SETTING='mock_value',
+    )
+```
+
 ## CI/CD
 
 The CI pipeline (`.github/workflows/ci.yml`) runs on PRs to `dev` and `main`:

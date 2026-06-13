@@ -24,6 +24,7 @@ def get_test_settings() -> Settings:
     return Settings(
         DATABASE_URL='postgresql+psycopg://postgres:postgres@localhost:5432/postgres',
         ENV='test',
+        LLM_API_KEY='test_api_key',
     )
 
 
