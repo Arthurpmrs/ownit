@@ -1,7 +1,7 @@
 """add_chat_sessions_and_chat_messages
 
 Revision ID: c99e88d033f5
-Revises: d6f357c91edf
+Revises: fec1ca207901
 Create Date: 2026-06-01 15:03:32.829550
 
 """
