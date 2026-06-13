@@ -1,6 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
+from pydantic_core import to_jsonable_python
 from sqlalchemy import exists, func, insert, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import IntegrityError
@@ -239,6 +240,11 @@ def update_study_session_status(
                 f'StudySession({study_session_id}): '
                 'Pomodoro cannot be finalized because was not enabled.'
             )
+        except InvalidPomodoroTransitionError:
+            logger.warning(
+                f'StudySession({study_session_id}): '
+                'Pomodoro cannot be finalized because was not finalized.'
+            )
 
     study_session = get_study_session(conn, student_id, study_session_id)
 
@@ -470,18 +476,20 @@ def update_pomodoro_status(
 
     response = PomodoroResponse(**updated_row._mapping)
 
+    context = {
+        'remaining_duration': duration,
+        'current_started_at': now,
+        'old_status': pomodoro.status,
+        'new_status': new_status,
+    }
+
     create_event(
         conn,
         EventCreate(
             type=_get_pomodoro_event(pomodoro.status, new_status),
             student_id=student_id,
             study_session_id=study_session_id,
-            context={
-                'remaining_duration': duration,
-                'current_started_at': now,
-                'old_status': pomodoro.status,
-                'new_status': new_status,
-            },
+            context=to_jsonable_python(context),
         ),
     )
 

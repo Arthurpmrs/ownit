@@ -19,6 +19,7 @@ class PomodoroStateMachine:
     TRANSITIONS = {
         PomodoroStatus.not_started: {
             PomodoroStatus.focus_mode,
+            PomodoroStatus.done,
         },
         PomodoroStatus.focus_mode: {
             PomodoroStatus.focus_pause,
