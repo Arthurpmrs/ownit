@@ -53,7 +53,7 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
             {message.isStreaming && (
               <Text component="span" c="dimmed" size="xs">
                 {' '}
-                █
+                &#x2588;
               </Text>
             )}
           </Box>
