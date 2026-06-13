@@ -200,7 +200,13 @@ export default function AvaliateSessionModal() {
 
   return (
     <>
-      <Button variant="outline" radius="sm" size="md" fw={400} onClick={openModal}>
+      <Button
+        variant="outline"
+        radius="sm"
+        size="md"
+        fw={400}
+        onClick={openModal}
+      >
         Finalizar Sessão
       </Button>
       <Modal.Root
@@ -256,6 +262,7 @@ export default function AvaliateSessionModal() {
                   <Rating
                     fractions={4}
                     size="xl"
+                    style={{ gap: '8px' }}
                     {...form.getInputProps('planning')}
                   />
                 </Center>
@@ -275,6 +282,7 @@ export default function AvaliateSessionModal() {
                     size="xl"
                     emptySymbol={getEmptyIcon}
                     fullSymbol={getDomainFullIcon}
+                    style={{ gap: '8px' }}
                     {...form.getInputProps('domain_perception')}
                   />
                 </Center>
@@ -294,6 +302,7 @@ export default function AvaliateSessionModal() {
                     size="xl"
                     emptySymbol={(value) => getEmptyIcon(6 - value)}
                     fullSymbol={getDifficultyFullIcon}
+                    style={{ gap: '8px' }}
                     {...form.getInputProps('difficulty')}
                   />
                 </Center>
