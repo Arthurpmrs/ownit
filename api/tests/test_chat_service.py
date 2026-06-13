@@ -1,3 +1,4 @@
+from src.features.auth.service import create_student
 from src.features.chat.service import (
     build_chat_history,
     create_session,
@@ -60,7 +61,7 @@ def test_save_assistant_message(conn, student):
     assert msg.content == 'Hello User'
     assert msg.llm_metadata is not None
     assert msg.llm_metadata.model == 'deepseek-v4-lite'
-    assert msg.llm_metadata.prompt_tokens == 10
+    assert msg.llm_metadata.prompt_tokens == 10  # noqa: PLR2004
 
 
 def test_build_chat_history(conn, student):
@@ -76,12 +77,11 @@ def test_build_chat_history(conn, student):
     history = build_chat_history(conn, session.id)
 
     # Should be limited to 50 messages
-    assert len(history) == 50
+    assert len(history) == 50  # noqa: PLR2004
 
 
 def test_session_ownership(conn, student):
     # The `student` fixture gives us one student. Let's create another.
-    from src.features.auth.service import create_student
 
     student2_id, _, _ = create_student(conn, 'Student 2', 'student2@example.com', 'pwd')
 

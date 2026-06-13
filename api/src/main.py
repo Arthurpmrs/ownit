@@ -3,8 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.logger import setup_logger
 from src.features.auth.routes import router as auth_router
-from src.features.goal import exceptions as goal_exceptions
 from src.features.chat.routes import router as chat_router
+from src.features.goal import exceptions as goal_exceptions
 from src.features.goal.routes import router as goal_router
 from src.features.study_session import exceptions as study_session_exceptions
 from src.features.study_session.routes import router as study_session_router
