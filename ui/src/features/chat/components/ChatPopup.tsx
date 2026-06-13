@@ -14,7 +14,7 @@ import {
   TextInput,
   Transition,
 } from '@mantine/core';
-import { ArrowsClockwise, PaperPlaneRight } from '@phosphor-icons/react';
+import { ArrowsClockwiseIcon, PaperPlaneRightIcon } from '@phosphor-icons/react';
 import { chatQueryOptions, createSession } from '../api';
 import { useChatStream } from '../hooks';
 import ChatBubble from './ChatBubble';
@@ -122,7 +122,7 @@ export default function ChatPopup() {
                         onClick={handleNewSession}
                         title="New Chat Session"
                       >
-                        <ArrowsClockwise size={20} />
+                        <ArrowsClockwiseIcon size={20} />
                       </ActionIcon>
                       <CloseButton
                         variant="transparent"
@@ -172,7 +172,7 @@ export default function ChatPopup() {
                           color="orange"
                           disabled={!input.trim() || streamMutation.isPending}
                         >
-                          <PaperPlaneRight size={18} />
+                          <PaperPlaneRightIcon size={18} />
                         </ActionIcon>
                       }
                     />
