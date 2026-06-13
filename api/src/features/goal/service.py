@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from sqlalchemy import delete, func, insert, select, update
+from sqlalchemy import func, insert, select, update
 from sqlalchemy.engine import Connection
 
 from src.core.logger import get_logger
@@ -76,7 +76,11 @@ def create_goal(conn: Connection, student_id: int, payload: GoalCreate) -> GoalR
 
 
 def get_goal(conn: Connection, student_id: int, goal_id: str) -> GoalResponse | None:
-    stmt = select(goals).where(*_get_goal_predicate(goal_id, student_id))
+    stmt = (
+        select(goals)
+        .where(goals.c.is_deleted.is_(False))
+        .where(*_get_goal_predicate(goal_id, student_id))
+    )
     result = conn.execute(stmt).fetchone()
 
     if not result:
@@ -88,7 +92,11 @@ def get_goal(conn: Connection, student_id: int, goal_id: str) -> GoalResponse | 
 def list_goals(
     conn: Connection, student_id: int, status: Status | None, tags: list[str] | None
 ) -> list[GoalResponse]:
-    stmt = select(goals).where(goals.c.student_id == student_id)
+    stmt = (
+        select(goals)
+        .where(goals.c.is_deleted.is_(False))
+        .where(goals.c.student_id == student_id)
+    )
 
     if status is not None:
         stmt = stmt.where(goals.c.status == status.value)
@@ -148,7 +156,11 @@ def update_goal(
 
 
 def delete_goal(conn: Connection, student_id: int, goal_id: str) -> bool:
-    stmt = delete(goals).where(*_get_goal_predicate(goal_id, student_id))
+    stmt = (
+        update(goals)
+        .where(*_get_goal_predicate(goal_id, student_id))
+        .values(is_deleted=True, updated_at=func.now())
+    )
     result = conn.execute(stmt)
 
     if result.rowcount == 0:
