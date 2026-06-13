@@ -31,9 +31,9 @@ def test_create_and_get_study_session(authenticated_client: TestClient, goal: di
     response = authenticated_client.get(f'/sessions/{session_id}')
     assert response.status_code == HTTPStatus.OK
     session_data = response.json()
-    assert session_data['id'] == session_id
-    assert session_data['goal_id'] == goal['id']
-    assert session_data['title'] == payload['title']
+    assert session_data['study_session']['id'] == session_id
+    assert session_data['study_session']['goal_id'] == goal['id']
+    assert session_data['study_session']['title'] == payload['title']
 
 
 def test_update_study_session_status(authenticated_client: TestClient, goal: dict):
@@ -165,7 +165,7 @@ def test_update_study_session_notes(authenticated_client: TestClient, goal: dict
     # Verifica se as notas foram persistidas
     response = authenticated_client.get(f'/sessions/{session_id}')
     assert response.status_code == HTTPStatus.OK
-    assert response.json()['notes'] == notes_payload['new_notes']
+    assert response.json()['study_session']['notes'] == notes_payload['new_notes']
 
 
 def test_evaluate_study_session(authenticated_client: TestClient, goal: dict):
