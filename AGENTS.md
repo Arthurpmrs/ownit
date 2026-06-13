@@ -188,6 +188,11 @@ docker compose up
 - **Formatter**: Prettier
 - **Styling**: Mantine components + PostCSS (with `postcss-preset-mantine`)
 - **Icons**: Phosphor Icons (`@phosphor-icons/react`)
+- **Component Structure**: Follow the separation of concerns. Break down "God Components" into smaller, single-responsibility components (e.g., separate the trigger/layout wrapper from the internal content).
+- **Mantine Best Practices**: Avoid inline `style={{ width, height }}` objects. Use Mantine's style props (e.g., `w={380}`, `h={500}`) to integrate smoothly with the theme engine and keep JSX clean.
+- **TanStack Query Best Practices**:
+  - Prefer using `queryClient.invalidateQueries({ queryKey: ... })` inside mutation `onSuccess` callbacks over directly returning and calling a query's `refetch()` function. This correctly updates the global cache.
+  - When a query depends on an ID, ensure the query definition includes an `enabled: !!id` check to avoid initial requests with undefined parameters.
 
 ## Adding a New Feature
 
