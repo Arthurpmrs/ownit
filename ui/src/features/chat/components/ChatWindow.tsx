@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ActionIcon,
   Avatar,
@@ -16,8 +15,7 @@ import {
   ArrowsClockwiseIcon,
   PaperPlaneRightIcon,
 } from '@phosphor-icons/react';
-import { chatQueryOptions, createSession } from '../api';
-import { useChatStream } from '../hooks';
+import { useChat } from '../hooks';
 import ChatBubble from './ChatBubble';
 
 interface ChatWindowProps {
@@ -28,47 +26,26 @@ interface ChatWindowProps {
 export default function ChatWindow({ onClose, style }: ChatWindowProps) {
   const [input, setInput] = useState('');
   const viewportRef = useRef<HTMLDivElement>(null);
-  const queryClient = useQueryClient();
 
-  const { data: session } = useQuery(chatQueryOptions.activeSession());
-
-  const { data: messages, isLoading } = useQuery({
-    ...chatQueryOptions.sessionMessages(session?.id),
-    enabled: !!session?.id,
-  });
-
-  const createSessionMutation = useMutation({
-    mutationFn: createSession,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: chatQueryOptions.activeSession().queryKey,
-      });
-    },
-  });
-
-  const streamMutation = useChatStream();
+  const { messages, isLoading, isPending, sendMessage, handleNewSession } =
+    useChat();
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    const content = input.trim();
 
-    if (!content || streamMutation.isPending) {
+    if (!input.trim() || isPending) {
       return;
     }
 
-    try {
-      let currentSessionId = session?.id;
-      if (!currentSessionId) {
-        const newSession = await createSessionMutation.mutateAsync();
-        currentSessionId = newSession.id;
-      }
-
+    const sent = await sendMessage(input);
+    if (sent) {
       setInput('');
-      streamMutation.mutate({ sessionId: currentSessionId, content });
-    } catch (error) {
-      console.error('Failed to start chat session', error);
-      // Input is preserved if creation fails
     }
+  };
+
+  const onNewSession = async () => {
+    await handleNewSession();
+    setInput('');
   };
 
   // Auto-scroll to bottom when messages change
@@ -80,11 +57,6 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
       });
     }
   }, [messages]);
-
-  const handleNewSession = async () => {
-    await createSessionMutation.mutateAsync();
-    setInput('');
-  };
 
   return (
     <Paper
@@ -126,7 +98,7 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
               <ActionIcon
                 variant="transparent"
                 color="gray"
-                onClick={handleNewSession}
+                onClick={onNewSession}
                 title="New Chat Session"
               >
                 <ArrowsClockwiseIcon size={20} />
@@ -171,13 +143,13 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
               placeholder="Ask James something..."
               value={input}
               onChange={(e) => setInput(e.currentTarget.value)}
-              disabled={streamMutation.isPending}
+              disabled={isPending}
               rightSection={
                 <ActionIcon
                   type="submit"
                   variant="filled"
                   color="orange"
-                  disabled={!input.trim() || streamMutation.isPending}
+                  disabled={!input.trim() || isPending}
                 >
                   <PaperPlaneRightIcon size={18} />
                 </ActionIcon>

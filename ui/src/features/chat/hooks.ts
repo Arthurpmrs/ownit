@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { chatQueryOptions } from './api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { chatQueryOptions, createSession } from './api';
 import type { ChatMessage } from './models';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -133,4 +133,63 @@ export function useChatStream() {
       });
     },
   });
+}
+
+export function useChat() {
+  const queryClient = useQueryClient();
+
+  const { data: session } = useQuery(chatQueryOptions.activeSession());
+
+  const { data: messages, isLoading } = useQuery({
+    ...chatQueryOptions.sessionMessages(session?.id),
+    enabled: !!session?.id,
+  });
+
+  const createSessionMutation = useMutation({
+    mutationFn: createSession,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: chatQueryOptions.activeSession().queryKey,
+      });
+    },
+  });
+
+  const streamMutation = useChatStream();
+
+  const handleNewSession = async () => {
+    await createSessionMutation.mutateAsync();
+  };
+
+  const sendMessage = async (content: string) => {
+    const trimmedContent = content.trim();
+
+    if (!trimmedContent || streamMutation.isPending) {
+      return false;
+    }
+
+    try {
+      let currentSessionId = session?.id;
+      if (!currentSessionId) {
+        const newSession = await createSessionMutation.mutateAsync();
+        currentSessionId = newSession.id;
+      }
+
+      streamMutation.mutate({
+        sessionId: currentSessionId,
+        content: trimmedContent,
+      });
+      return true;
+    } catch (error) {
+      console.error('Failed to start chat session', error);
+      return false;
+    }
+  };
+
+  return {
+    messages,
+    isLoading,
+    isPending: streamMutation.isPending,
+    sendMessage,
+    handleNewSession,
+  };
 }
