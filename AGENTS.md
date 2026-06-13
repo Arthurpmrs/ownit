@@ -178,6 +178,7 @@ docker compose up
 - **Excluded from linting**: `migrations/` directory
 - **Lint rules**: `I` (isort), `F` (pyflakes), `E`/`W` (pycodestyle), `PL` (pylint), `PT` (pytest), `N` (naming)
 - **Import sorting**: Handled by Ruff's `I` rule
+- **Magic numbers**: Avoid hardcoding magic numbers. Extract constants into configuration settings (`api/src/core/config.py` `Settings` class) where possible.
 - **Server-Sent Events (SSE)**: When implementing SSE, do NOT return an `EventSourceResponse`. Instead, yield `fastapi.sse.ServerSentEvent` directly from an `async def` path operation function, relying on FastAPI's native support for generators.
 
 ### Frontend (TypeScript/React)

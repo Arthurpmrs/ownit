@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     LLM_BASE_URL: str = 'https://api.deepseek.com/v1'
     LLM_MODEL: str = 'deepseek-v4-lite'
     LLM_API_KEY: str
+    LLM_MAX_TOKENS: int = 2048
+    LLM_TEMPERATURE: float = 0.7
 
 
 @lru_cache()

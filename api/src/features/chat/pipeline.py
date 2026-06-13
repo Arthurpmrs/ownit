@@ -37,8 +37,8 @@ def create_chat_generator(
         model=settings.LLM_MODEL,
         streaming_callback=streaming_callback,
         generation_kwargs={
-            'max_tokens': 2048,
-            'temperature': 0.7,
+            'max_tokens': settings.LLM_MAX_TOKENS,
+            'temperature': settings.LLM_TEMPERATURE,
         },
     )
 
