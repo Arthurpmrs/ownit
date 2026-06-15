@@ -1,11 +1,11 @@
 meta {
   name: Get StudySession
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
-  url: http://localhost:8000/sessions/a9f48637-88ba-4e6c-aa02-7bd119bb635b
+  url: http://localhost:8000/sessions/{{study_session_id}}
   body: json
   auth: inherit
 }

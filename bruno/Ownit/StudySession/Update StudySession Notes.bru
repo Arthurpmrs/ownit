@@ -1,11 +1,11 @@
 meta {
   name: Update StudySession Notes
   type: http
-  seq: 5
+  seq: 4
 }
 
 patch {
-  url: http://localhost:8000/sessions/a767781f-e234-4627-9a3f-4cc61e2fa321/notes
+  url: http://localhost:8000/sessions/{{study_session_id}}/notes
   body: json
   auth: inherit
 }

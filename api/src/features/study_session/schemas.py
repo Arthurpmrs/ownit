@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from pydantic import BaseModel, Field
 
-from src.shared.schemas import Status, StudySessionShortResponse
+from src.shared.schemas import EventResponse, Status, StudySessionShortResponse
 
 from .tables import PomodoroStatus
 
@@ -30,6 +30,11 @@ class StudySessionResponse(StudySessionShortResponse):
     final_comment: str | None = None
     created_at: datetime
     updated_at: datetime
+
+
+class StudySessionWithHistory(BaseModel):
+    study_session: StudySessionResponse
+    history: list[EventResponse]
 
 
 class StudySessionStatusUpdate(BaseModel):
@@ -62,3 +67,7 @@ class PomodoroResponse(BaseModel):
 
 class PomodoroUpdate(BaseModel):
     new_status: PomodoroStatus
+
+
+class CommentCreate(BaseModel):
+    comment: str
