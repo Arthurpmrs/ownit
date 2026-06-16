@@ -1,12 +1,16 @@
 import Header from '@/features/appshell/header';
 import {
   ActionIcon,
+  Alert,
   Button,
   Card,
+  Center,
   Checkbox,
+  Container,
   Flex,
   Grid,
   Group,
+  Loader,
   Stack,
   Text,
   Textarea,
@@ -28,14 +32,10 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import Color from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from '@tanstack/react-router';
+import { getStudySessionOptions } from '@/features/goal/api';
 import { useState } from 'react';
-
-const MOCK_SESSION = {
-  title: 'Fundamentos de UI/UX Design',
-  goalTitle: 'Dominar UI/UX',
-  dateRange: '15 Jan - 30 Mar 2024',
-  totalDuration: '180 min totais',
-};
 
 const INITIAL_CHECKLIST = [
   { id: 1, label: 'Text here', checked: true },
@@ -44,9 +44,12 @@ const INITIAL_CHECKLIST = [
   { id: 4, label: 'Text here', checked: false },
 ];
 
-const INITIAL_NOTES = `<ul><li>Princípios de hierarquia visual</li><li>Regras de espaçamento e alinhamento</li><li>Teoria das cores aplicada a interfaces</li></ul>`;
+const INITIAL_NOTES = `<p>Use este espaço para anotar insights, dificuldades ou qualquer coisa que achar relevante durante a execução da sessão. Essas anotações podem ajudar no seu planejamento futuro!</p>`;
 
 export default function SessionExecution() {
+  const { id } = useParams({ from: '/sessions/$id' });
+  const { data, isLoading, error } = useQuery(getStudySessionOptions(id));
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -62,9 +65,9 @@ export default function SessionExecution() {
   const [comment, setComment] = useState('');
   const [checklist, setChecklist] = useState(INITIAL_CHECKLIST);
 
-  const toggleChecklistItem = (id: number) => {
+  const toggleChecklistItem = (itemId: number) => {
     setChecklist((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item)),
+      prev.map((item) => (item.id === itemId ? { ...item, checked: !item.checked } : item)),
     );
   };
 
@@ -73,29 +76,58 @@ export default function SessionExecution() {
     setComment('');
   };
 
+  if (isLoading) {
+    return (
+      <Center h="100vh">
+        <Loader />
+      </Center>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container py="xl">
+        <Alert title="Erro ao carregar sessão" color="red">
+          {error instanceof Error ? error.message : 'Erro desconhecido'}
+        </Alert>
+      </Container>
+    );
+  }
+
+  if (!data) {
+    return (
+      <Container py="xl">
+        <Alert title="Sessão não encontrada" color="yellow">
+          A sessão solicitada não existe.
+        </Alert>
+      </Container>
+    );
+  }
+
+  const { studySession } = data;
+
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+
+  const dateRange = `${formatDate(studySession.plannedToStartAt)} - ${formatDate(studySession.plannedToEndAt)}`;
+
   return (
     <>
       <Header
-        title={MOCK_SESSION.title}
+        title={studySession.title}
         description={
           <Group gap="lg" mt={4}>
             <Flex align="center" gap={6}>
               <TargetIcon size={14} color="#868E96" weight="bold" />
-              <Text component="span" size="xs" c="dimmed">
-                {MOCK_SESSION.goalTitle}
-              </Text>
+              <Text component="span" size="xs" c="dimmed">{studySession.goalTitle}</Text>
             </Flex>
             <Flex align="center" gap={6}>
               <CalendarIcon size={14} color="#868E96" weight="bold" />
-              <Text component="span" size="xs" c="dimmed">
-                {MOCK_SESSION.dateRange}
-              </Text>
+              <Text component="span" size="xs" c="dimmed">{dateRange}</Text>
             </Flex>
             <Flex align="center" gap={6}>
               <ClockIcon size={14} color="#868E96" weight="bold" />
-              <Text component="span" size="xs" c="dimmed">
-                {MOCK_SESSION.totalDuration}
-              </Text>
+              <Text component="span" size="xs" c="dimmed">{studySession.duration}</Text>
             </Flex>
           </Group>
         }
