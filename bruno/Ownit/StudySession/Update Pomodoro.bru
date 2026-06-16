@@ -1,0 +1,22 @@
+meta {
+  name: Update Pomodoro
+  type: http
+  seq: 6
+}
+
+patch {
+  url: http://localhost:8000/sessions/{{study_session_id}}/pomodoro
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "new_status": "done"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

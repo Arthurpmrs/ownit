@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from src.shared.schemas import Status, StudySessionShortResponse
+
 
 class GoalCreate(BaseModel):
     title: str
@@ -25,7 +27,13 @@ class GoalResponse(BaseModel):
     title: str
     description: str | None
     goal_tags: list[str] | None
+    status: Status
     start_date: datetime | None = None
     end_date: datetime | None = None
     created_at: datetime
     updated_at: datetime
+
+
+class GoalWithSessionsResponse(BaseModel):
+    goal: GoalResponse
+    sessions: list[StudySessionShortResponse]

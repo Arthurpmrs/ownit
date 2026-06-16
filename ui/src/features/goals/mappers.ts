@@ -1,3 +1,4 @@
+import type { Status } from '@/shared/models';
 import type { GoalDTO } from './dto';
 import type { Goal } from './models';
 
@@ -16,13 +17,28 @@ export const goalMapper = {
       studentId: dto.student_id,
       title: dto.title,
       description: dto.description ?? '',
-      goalType: dto.goal_type,
-      rating: dto.rating,
+      goal_tags: dto.goal_tags ?? [],
+      status: dto.status,
       created_at: new Date(dto.created_at),
       updated_at: new Date(dto.updated_at),
+      start_date: dto.start_date ? new Date(dto.start_date) : null,
+      end_date: dto.end_date ? new Date(dto.end_date) : null,
     };
   },
   fromDTOList(dtos: GoalDTO[]): Goal[] {
     return dtos.map((dto) => this.fromDTO(dto));
   },
 };
+
+export function statusMapper(status: Status): string {
+  switch (status) {
+    case 'to_do':
+      return 'Pendente';
+    case 'doing':
+      return 'Em andamento';
+    case 'done':
+      return 'Concluído';
+    case 'canceled':
+      return 'Cancelado';
+  }
+}

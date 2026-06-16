@@ -1,8 +1,9 @@
 from http import HTTPStatus
 
-from sqlalchemy import insert
+from sqlalchemy import insert, update
 
 from src.features.auth.tables import students
+from src.features.goal.tables import goals
 
 
 def test_create_and_get_goal(authenticated_client, student, conn):
@@ -32,7 +33,7 @@ def test_create_and_get_goal(authenticated_client, student, conn):
     goal_id = data['id']
     response = authenticated_client.get(f'/goals/{goal_id}')
     assert response.status_code == HTTPStatus.OK
-    assert response.json()['id'] == goal_id
+    assert response.json()['goal']['id'] == goal_id
 
 
 def test_list_goals_by_student(authenticated_client, student):
@@ -66,6 +67,42 @@ def test_list_goals_by_student(authenticated_client, student):
     assert len(goals) == 2  # noqa
     assert goals[0]['title'] == 'Meta 1'
     assert goals[1]['title'] == 'Meta 2'
+
+
+def test_list_goals_filtered_by_tags_and_status(authenticated_client, student, conn):
+    payload1 = {
+        'title': 'Meta estudo',
+        'description': 'Primeira meta',
+        'goal_tags': ['study', 'focus'],
+        'start_date': '2026-05-01T00:00:00',
+        'end_date': '2026-05-31T00:00:00',
+    }
+    payload2 = {
+        'title': 'Meta treino',
+        'description': 'Segunda meta',
+        'goal_tags': ['exercise'],
+        'start_date': '2026-05-01T00:00:00',
+        'end_date': '2026-05-31T00:00:00',
+    }
+
+    response1 = authenticated_client.post('/goals/', json=payload1)
+    response2 = authenticated_client.post('/goals/', json=payload2)
+    assert response1.status_code == HTTPStatus.CREATED
+    assert response2.status_code == HTTPStatus.CREATED
+
+    goal1_id = response1.json()['id']
+
+    conn.execute(update(goals).where(goals.c.id == goal1_id).values(status='done'))
+
+    response = authenticated_client.get(
+        f'/goals/student/{student["id"]}?status=done&tags=study'
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    filtered_goals = response.json()
+    assert len(filtered_goals) == 1  # noqa
+    assert filtered_goals[0]['id'] == goal1_id
+    assert filtered_goals[0]['status'] == 'done'
 
 
 def test_update_goal(authenticated_client, student):

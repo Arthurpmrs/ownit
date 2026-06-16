@@ -1,4 +1,5 @@
-from sqlalchemy import ARRAY, Column, DateTime, ForeignKey, Integer, String, Table
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Table
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from src.core.db import metadata, timestamp_columns
 
@@ -9,6 +10,8 @@ goals = Table(
     Column('student_id', Integer, ForeignKey('students.id')),
     Column('title', String, nullable=False),
     Column('description', String, nullable=True),
+    Column('status', String, nullable=False),
+    Column('is_deleted', Boolean, nullable=False, default=False),
     Column('goal_tags', ARRAY(String), nullable=True),
     Column('start_date', DateTime),
     Column('end_date', DateTime),
