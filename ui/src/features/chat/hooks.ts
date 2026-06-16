@@ -125,8 +125,7 @@ export function useChatStream() {
         queryKey: chatQueryOptions.sessionMessages(sessionId).queryKey,
       });
     },
-    onError: (error, { sessionId }) => {
-      console.error('Chat stream failed:', error);
+    onError: (_, { sessionId }) => {
       // Invalidate to remove any broken optimistic updates
       queryClient.invalidateQueries({
         queryKey: chatQueryOptions.sessionMessages(sessionId).queryKey,
@@ -179,8 +178,7 @@ export function useChat() {
         content: trimmedContent,
       });
       return true;
-    } catch (error) {
-      console.error('Failed to start chat session', error);
+    } catch {
       return false;
     }
   };
