@@ -1,13 +1,16 @@
+import type { Status } from '@/shared/models';
+
 export type Goal = {
   id: string;
   studentId: number;
   title: string;
   description: string;
+  status: Status;
   goal_tags: string[];
-  created_at: Date;
-  updated_at: Date;
   start_date: Date | null;
   end_date: Date | null;
+  created_at: Date;
+  updated_at: Date;
 };
 
 export type CreateGoalData = {
@@ -17,18 +20,4 @@ export type CreateGoalData = {
   goal_tags?: string[];
   start_date: Date | null;
   end_date: Date | null;
-};
-
-export type SessionStatus = 'active' | 'pending' | 'completed';
-
-export type Session = {
-  id: string;
-  goalId: string;
-  title: string;
-  description: string;
-  status: SessionStatus;
-  date_range: [Date | null, Date | null];
-  duration: number; // em minutos
-  duration_focused: number; // em minutos
-  duration_paused: number; // em minutos
 };

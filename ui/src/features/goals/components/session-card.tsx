@@ -1,37 +1,33 @@
 import { Card, Group, Text, Title } from '@mantine/core';
+import { useDraggable } from '@dnd-kit/react';
 import { CalendarIcon, ClockIcon } from '@phosphor-icons/react';
-import type { Session } from '../models';
+import type { StudySessionShort } from '@/features/goal/models';
 
 interface SessionCardProps {
-  session: Session;
+  session: StudySessionShort;
 }
 
 export default function SessionCard({ session }: SessionCardProps) {
-  const formatDate = (date: Date | string | null) => {
-    if (!date) {
-      return '-';
-    }
-    const dateObj =
-      typeof date === 'string' ? new Date(date.replace(/-/g, '/')) : date;
-    const day = String(dateObj.getUTCDate()).padStart(2, '0');
-    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
-    const year = dateObj.getUTCFullYear();
+  const { ref, isDragging } = useDraggable({
+    id: session.id,
+    data: { sessionId: session.id, currentStatus: session.status },
+  });
 
-    const formattedDate = `${day}/${month}/${year}`;
-    return formattedDate;
-  };
-
-  const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0) {
-      return `${hours}h ${mins}min`;
-    }
-    return `${mins}min`;
+  const formatDate = (date: Date) => {
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   return (
-    <Card padding="md" radius="lg" withBorder>
+    <Card
+      ref={ref}
+      padding="md"
+      radius="lg"
+      withBorder
+      style={{ opacity: isDragging ? 0.4 : 1, cursor: 'grab' }}
+    >
       <Title order={5} mb={4}>
         {session.title}
       </Title>
@@ -42,14 +38,14 @@ export default function SessionCard({ session }: SessionCardProps) {
         <Group gap={4}>
           <CalendarIcon size={16} color="#868E96" />
           <Text size="xs" c="dimmed">
-            {formatDate(session.date_range[0])} -{' '}
-            {formatDate(session.date_range[1])}
+            {formatDate(session.plannedToStartAt)} -{' '}
+            {formatDate(session.plannedToEndAt)}
           </Text>
         </Group>
         <Group gap={4}>
           <ClockIcon size={16} color="#868E96" />
           <Text size="xs" c="dimmed">
-            {formatDuration(session.duration)}
+            {session.duration}
           </Text>
         </Group>
       </Group>
