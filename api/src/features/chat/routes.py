@@ -8,14 +8,13 @@ from sqlalchemy.engine import Connection
 from src.core.auth import get_current_student_id
 from src.core.db import get_connection
 from src.core.logger import get_logger
-
-from . import service
-from .pipeline import (
+from src.features.chat import service
+from src.features.chat.pipeline import (
     ChunkCollector,
     build_haystack_messages,
     run_pipeline_and_persist,
 )
-from .schemas import (
+from src.features.chat.schemas import (
     ChatMessageResponse,
     ChatSessionResponse,
     SendMessageRequest,

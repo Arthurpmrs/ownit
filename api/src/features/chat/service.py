@@ -2,9 +2,8 @@ from sqlalchemy import insert, select
 from sqlalchemy.engine import Connection
 
 from src.core.logger import get_logger
-
-from .schemas import ChatMessageResponse, ChatSessionResponse
-from .tables import chat_messages, chat_sessions
+from src.features.chat.schemas import ChatMessageResponse, ChatSessionResponse
+from src.features.chat.tables import chat_messages, chat_sessions
 
 logger = get_logger(__name__)
 

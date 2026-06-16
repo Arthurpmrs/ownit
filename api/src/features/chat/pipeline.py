@@ -8,9 +8,8 @@ from haystack.utils import Secret
 from src.core.config import get_settings
 from src.core.db import get_engine
 from src.core.logger import get_logger
-
-from . import service
-from .prompts import SYSTEM_PROMPT
+from src.features.chat import service
+from src.features.chat.prompts import SYSTEM_PROMPT
 
 logger = get_logger(__name__)
 
