@@ -1,4 +1,4 @@
-import { Avatar, Box, Flex, Text } from '@mantine/core';
+import { Avatar, Box, Flex, Loader, Text } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
 import type { ChatMessage } from '../models';
 
@@ -52,8 +52,7 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
             <ReactMarkdown>{message.content}</ReactMarkdown>
             {message.isStreaming && (
               <Text component="span" c="dimmed" size="xs">
-                {' '}
-                &#x2588;
+                <Loader size="sm" color="orange" type="dots" />
               </Text>
             )}
           </Box>

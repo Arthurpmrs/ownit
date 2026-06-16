@@ -3,9 +3,11 @@ import {
   ActionIcon,
   Avatar,
   Box,
+  Center,
   CloseButton,
   Flex,
   Group,
+  Loader,
   Paper,
   ScrollArea,
   Text,
@@ -116,9 +118,9 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
         {/* Messages List */}
         <ScrollArea flex={1} p="md" viewportRef={viewportRef}>
           {isLoading && (
-            <Text c="dimmed" ta="center" mt="xl">
-              Carregando...
-            </Text>
+            <Center>
+              <Loader size="md" color="orange" type="dots" />
+            </Center>
           )}
           {messages?.map((msg) => (
             <ChatBubble key={msg.id} message={msg} />
