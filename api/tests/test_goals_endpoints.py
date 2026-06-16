@@ -33,7 +33,7 @@ def test_create_and_get_goal(authenticated_client, student, conn):
     goal_id = data['id']
     response = authenticated_client.get(f'/goals/{goal_id}')
     assert response.status_code == HTTPStatus.OK
-    assert response.json()['id'] == goal_id
+    assert response.json()['goal']['id'] == goal_id
 
 
 def test_list_goals_by_student(authenticated_client, student):

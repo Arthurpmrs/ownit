@@ -1,3 +1,5 @@
+import type { Status } from '@/shared/models';
+
 export type Goal = {
   id: string;
   studentId: number;
@@ -5,10 +7,10 @@ export type Goal = {
   description: string;
   status: Status;
   goal_tags: string[];
-  created_at: Date;
-  updated_at: Date;
   start_date: Date | null;
   end_date: Date | null;
+  created_at: Date;
+  updated_at: Date;
 };
 
 export type CreateGoalData = {

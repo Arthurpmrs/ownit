@@ -1,15 +1,27 @@
 from uuid import uuid4
 
-from sqlalchemy import delete, func, insert, select, update
+from sqlalchemy import func, insert, select, update
 from sqlalchemy.engine import Connection
 
 from src.core.logger import get_logger
+from src.features.analytics.schemas import EventCreate
+from src.features.analytics.service import create_event
+from src.features.analytics.tables import EventType
 from src.features.auth.tables import students
+from src.shared.schemas import Status
 
-from .schemas import GoalCreate, GoalResponse, GoalUpdate, Status
+from .schemas import (
+    GoalCreate,
+    GoalResponse,
+    GoalUpdate,
+)
 from .tables import goals
 
 logger = get_logger(__name__)
+
+
+def _get_goal_predicate(goal_id: str, student_id: int):
+    return goals.c.id == goal_id, goals.c.student_id == student_id
 
 
 def _row_to_schema(row) -> GoalResponse:
@@ -51,11 +63,24 @@ def create_goal(conn: Connection, student_id: int, payload: GoalCreate) -> GoalR
 
     logger.info(f'Goal created with id={goal_id}')
 
+    create_event(
+        conn,
+        EventCreate(
+            type=EventType.GOAL_CREATED,
+            student_id=student_id,
+            goal_id=goal_id,
+        ),
+    )
+
     return _row_to_schema(result)
 
 
 def get_goal(conn: Connection, student_id: int, goal_id: str) -> GoalResponse | None:
-    stmt = select(goals).where(goals.c.id == goal_id, goals.c.student_id == student_id)
+    stmt = (
+        select(goals)
+        .where(goals.c.is_deleted.is_(False))
+        .where(*_get_goal_predicate(goal_id, student_id))
+    )
     result = conn.execute(stmt).fetchone()
 
     if not result:
@@ -67,7 +92,11 @@ def get_goal(conn: Connection, student_id: int, goal_id: str) -> GoalResponse | 
 def list_goals(
     conn: Connection, student_id: int, status: Status | None, tags: list[str] | None
 ) -> list[GoalResponse]:
-    stmt = select(goals).where(goals.c.student_id == student_id)
+    stmt = (
+        select(goals)
+        .where(goals.c.is_deleted.is_(False))
+        .where(goals.c.student_id == student_id)
+    )
 
     if status is not None:
         stmt = stmt.where(goals.c.status == status.value)
@@ -86,6 +115,12 @@ def update_goal(
     goal_id: str,
     payload: GoalUpdate,
 ) -> GoalResponse | None:
+    current_goal_row = conn.execute(
+        select(goals).where(*_get_goal_predicate(goal_id, student_id))
+    ).fetchone()
+
+    if current_goal_row is None:
+        return None
 
     update_data = payload.model_dump(exclude_unset=True)
 
@@ -94,7 +129,7 @@ def update_goal(
 
     stmt = (
         update(goals)
-        .where(goals.c.id == goal_id, goals.c.student_id == student_id)
+        .where(*_get_goal_predicate(goal_id, student_id))
         .values(
             **update_data,
             updated_at=func.now(),
@@ -107,11 +142,37 @@ def update_goal(
     if not result:
         return None
 
+    create_event(
+        conn,
+        EventCreate(
+            type=EventType.GOAL_EDITED,
+            student_id=student_id,
+            goal_id=goal_id,
+            context={**current_goal_row._mapping},
+        ),
+    )
+
     return _row_to_schema(result)
 
 
 def delete_goal(conn: Connection, student_id: int, goal_id: str) -> bool:
-    stmt = delete(goals).where(goals.c.id == goal_id, goals.c.student_id == student_id)
+    stmt = (
+        update(goals)
+        .where(*_get_goal_predicate(goal_id, student_id))
+        .values(is_deleted=True, updated_at=func.now())
+    )
     result = conn.execute(stmt)
 
-    return result.rowcount > 0
+    if result.rowcount == 0:
+        return False
+
+    create_event(
+        conn,
+        EventCreate(
+            type=EventType.GOAL_DELETED,
+            student_id=student_id,
+            goal_id=goal_id,
+        ),
+    )
+
+    return True
