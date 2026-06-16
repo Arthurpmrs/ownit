@@ -64,7 +64,10 @@ export default function SessionPerformance() {
             gridAxis="y"
             withLegend={false}
             strokeDasharray="4 4"
-            yAxisProps={{ domain: [0, 250], ticks: [0, 50, 100, 150, 200, 250] }}
+            yAxisProps={{
+              domain: [0, 250],
+              ticks: [0, 50, 100, 150, 200, 250],
+            }}
             barProps={{ radius: 0 }}
             xAxisProps={{ tick: { fill: '#ADB5BD', fontSize: 12 } }}
           />
