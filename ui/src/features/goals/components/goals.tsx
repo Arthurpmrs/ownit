@@ -20,15 +20,14 @@ import {
   TargetIcon,
 } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate, useRouteContext } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useRouteContext, useNavigate } from '@tanstack/react-router';
 
-import CreateSessionModal from '@/features/goal/components/create-session-modal';
 import { getStudentGoalsOptions } from '../api';
 import { statusMapper } from '../mappers';
 import type { Goal } from '../models';
 import CreateGoalModal from './create-goal-modal';
 import FilterGoalsModal, { type FilterGoalsValues } from './filter-goals-modal';
+import { useState } from 'react';
 
 export default function Goals() {
   const { student } = useRouteContext({ from: '/goals/' });
@@ -67,9 +66,6 @@ export default function Goals() {
       </Header>
 
       <Container py="xl" mx="xl" fluid>
-        <Group justify="flex-end">
-          <CreateSessionModal />
-        </Group>
         <GoalsList goals={goals} isLoading={isLoading} error={error} />
       </Container>
     </>
@@ -87,7 +83,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
   const [hoveredGoalId, setHoveredGoalId] = useState<string | null>(null);
 
   function handleClick(id: string) {
-    void navigate({ to: '/goals/$goal_id', params: { goal_id: id } });
+    void navigate({ to: '/goals/$id', params: { id } });
   }
 
   if (goals === undefined && isLoading) {
@@ -131,6 +127,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
 
           return (
             <Grid.Col span={{ base: 12, md: 3 }} key={goal.id}>
+              {/* <Link key={goal.id} to="/goals/$id" params={{ id: goal.id }} style={{ textDecoration: 'none' }}> */}
               <Card
                 key={goal.id}
                 withBorder
@@ -199,6 +196,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
                   </Stack>
                 </Card.Section>
               </Card>
+              {/* </Link> */}
             </Grid.Col>
           );
         })

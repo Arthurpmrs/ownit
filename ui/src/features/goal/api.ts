@@ -6,6 +6,7 @@ import type {
 } from './models';
 import type { GoalWithSessionsDTO, StudySessionDTO } from './dto';
 import { goalWithSessionsMapper, studySessionMapper } from './mappers';
+import type { Status } from '@/shared/models';
 
 export function getGoalOptions(goalId: string) {
   return queryOptions({
@@ -64,6 +65,30 @@ export async function createStudySession(
     throw new Error(
       `Falha ao criar study session: ${response.status} ${response.statusText}`,
     );
+  }
+
+  const dto: StudySessionDTO = await response.json();
+  return studySessionMapper.fromDTO(dto);
+}
+
+export async function updateStudySessionStatus(
+  sessionId: string,
+  newStatus: Status,
+): Promise<StudySession> {
+  const url = `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/status`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ new_status: newStatus }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const detail = body?.detail ?? `${response.status} ${response.statusText}`;
+    throw new Error(detail);
   }
 
   const dto: StudySessionDTO = await response.json();

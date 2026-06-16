@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 interface HeaderProps {
   title: string;
-  description: string;
+  description: ReactNode;
   icon: ReactNode;
   children?: ReactNode;
 }
@@ -32,7 +32,7 @@ export default function Header({
         </Center>
         <Stack gap="2px" justify="center" align="flex-start">
           <Title size="h3">{title}</Title>
-          <Text c="dimmed" size="xs">
+          <Text c="dimmed" size="xs" component="span">
             {description}
           </Text>
         </Stack>
