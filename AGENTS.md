@@ -183,6 +183,7 @@ docker compose up
 
 ### Frontend (TypeScript/React)
 
+- **Localization**: ALL user-facing text and UI copy **MUST** be written in Portuguese (pt-BR). Do not use English for interface texts.
 - **UI Design System**: You **MUST** read and adhere to the guidelines in `docs/ui/overview.md` for colors, styling, and typography before creating or modifying UI components.
 - **Linter**: ESLint (with `eslint-config-mantine`)
 - **Formatter**: Prettier

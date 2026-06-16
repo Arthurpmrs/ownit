@@ -99,7 +99,7 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
                 variant="transparent"
                 color="gray"
                 onClick={onNewSession}
-                title="New Chat Session"
+                title="Nova sessão de chat"
               >
                 <ArrowsClockwiseIcon size={20} />
               </ActionIcon>
@@ -117,7 +117,7 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
         <ScrollArea flex={1} p="md" viewportRef={viewportRef}>
           {isLoading && (
             <Text c="dimmed" ta="center" mt="xl">
-              Loading...
+              Carregando...
             </Text>
           )}
           {messages?.map((msg) => (
@@ -125,8 +125,8 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
           ))}
           {!isLoading && messages?.length === 0 && (
             <Text c="dimmed" ta="center" mt="xl">
-              Hello! I'm James, your AI study assistant. How can I help you
-              today?
+              Olá! Eu sou o James, seu assistente de estudos de IA. Como posso
+              ajudar você hoje?
             </Text>
           )}
         </ScrollArea>
@@ -140,7 +140,7 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
         >
           <form onSubmit={handleSend}>
             <TextInput
-              placeholder="Ask James something..."
+              placeholder="Pergunte algo ao James..."
               value={input}
               onChange={(e) => setInput(e.currentTarget.value)}
               disabled={isPending}

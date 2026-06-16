@@ -23,7 +23,7 @@ export default function ChatPopup() {
           variant="filled"
           color="orange"
           onClick={() => setIsOpen(!isOpen)}
-          aria-label="Open chat"
+          aria-label="Abrir chat"
           w={60}
           h={60}
           style={{
