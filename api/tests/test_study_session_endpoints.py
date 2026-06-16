@@ -76,7 +76,7 @@ def test_update_study_session_status(authenticated_client: TestClient, goal: dic
 def test_update_study_session_status_invalid_transition(
     authenticated_client: TestClient, goal: dict
 ):
-    # Given - cria uma sessão de estudo
+    # Given - cria uma sessão de estudo e a conclui
     payload = {
         'goal_id': goal['id'],
         'title': 'Sessão para Teste de Transição Inválida',
@@ -87,14 +87,66 @@ def test_update_study_session_status_invalid_transition(
     response = authenticated_client.post('/sessions/', json=payload)
     session_id = response.json()['id']
 
-    # When - tenta fazer uma transição inválida (todo -> done)
-    status_payload = {'new_status': 'done'}
+    authenticated_client.patch(
+        f'/sessions/{session_id}/status', json={'new_status': 'done'}
+    )
+
+    # When - tenta ativar uma sessão já concluída (done -> doing é inválido)
     response = authenticated_client.patch(
-        f'/sessions/{session_id}/status', json=status_payload
+        f'/sessions/{session_id}/status', json={'new_status': 'doing'}
     )
 
     # Then
     assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+def test_todo_to_done_transition(authenticated_client: TestClient, goal: dict):
+    # Given - cria uma sessão pendente
+    payload = {
+        'goal_id': goal['id'],
+        'title': 'Sessão Pendente para Concluída',
+        'description': 'Testando transição direta de to_do para done',
+        'planned_to_start_at': '2026-05-05T10:00:00',
+        'duration': 'PT1H',
+    }
+    response = authenticated_client.post('/sessions/', json=payload)
+    assert response.status_code == HTTPStatus.CREATED
+    session_id = response.json()['id']
+
+    # When - conclui diretamente sem passar por 'doing'
+    response = authenticated_client.patch(
+        f'/sessions/{session_id}/status', json={'new_status': 'done'}
+    )
+
+    # Then
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['status'] == 'done'
+
+
+def test_done_to_todo_transition(authenticated_client: TestClient, goal: dict):
+    # Given - cria uma sessão e a conclui
+    payload = {
+        'goal_id': goal['id'],
+        'title': 'Sessão Concluída para Pendente',
+        'description': 'Testando reversão de sessão concluída',
+        'planned_to_start_at': '2026-05-05T10:00:00',
+        'duration': 'PT1H',
+    }
+    response = authenticated_client.post('/sessions/', json=payload)
+    session_id = response.json()['id']
+
+    authenticated_client.patch(
+        f'/sessions/{session_id}/status', json={'new_status': 'done'}
+    )
+
+    # When - reverte para pendente
+    response = authenticated_client.patch(
+        f'/sessions/{session_id}/status', json={'new_status': 'to_do'}
+    )
+
+    # Then
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['status'] == 'to_do'
 
 
 def test_cannot_have_multiple_active_sessions(
