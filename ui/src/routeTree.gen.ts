@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatisticsIndexRouteImport } from './routes/statistics/index'
 import { Route as GoalsIndexRouteImport } from './routes/goals/index'
+import { Route as SessionsIdRouteImport } from './routes/sessions/$id'
 import { Route as GoalsIdRouteImport } from './routes/goals/$id'
 
 const SignupRoute = SignupRouteImport.update({
@@ -41,6 +42,11 @@ const GoalsIndexRoute = GoalsIndexRouteImport.update({
   path: '/goals/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SessionsIdRoute = SessionsIdRouteImport.update({
+  id: '/sessions/$id',
+  path: '/sessions/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GoalsIdRoute = GoalsIdRouteImport.update({
   id: '/goals/$id',
   path: '/goals/$id',
@@ -50,45 +56,67 @@ const GoalsIdRoute = GoalsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/goals/$id': typeof GoalsIdRoute
   '/signup': typeof SignupRoute
+  '/goals/$id': typeof GoalsIdRoute
+  '/sessions/$id': typeof SessionsIdRoute
   '/goals/': typeof GoalsIndexRoute
   '/statistics/': typeof StatisticsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/goals/$id': typeof GoalsIdRoute
   '/signup': typeof SignupRoute
+  '/goals/$id': typeof GoalsIdRoute
+  '/sessions/$id': typeof SessionsIdRoute
   '/goals': typeof GoalsIndexRoute
   '/statistics': typeof StatisticsIndexRoute
 }
 export interface FileRoutesById {
-  _root_: typeof rootRouteImport
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/goals/$id': typeof GoalsIdRoute
   '/signup': typeof SignupRoute
+  '/goals/$id': typeof GoalsIdRoute
+  '/sessions/$id': typeof SessionsIdRoute
   '/goals/': typeof GoalsIndexRoute
   '/statistics/': typeof StatisticsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/goals/$id' | '/goals/' | '/statistics/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/goals/$id'
+    | '/sessions/$id'
+    | '/goals/'
+    | '/statistics/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/goals/$id' | '/goals' | '/statistics'
-  id: '_root_' | '/' | '/login' | '/goals/$id' | '/goals/' | '/statistics/'
-  fullPaths: '/' | '/login' | '/signup' | '/goals/' | '/statistics/'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/goals' | '/statistics'
-  id: '__root__' | '/' | '/login' | '/signup' | '/goals/' | '/statistics/'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/goals/$id'
+    | '/sessions/$id'
+    | '/goals'
+    | '/statistics'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/goals/$id'
+    | '/sessions/$id'
+    | '/goals/'
+    | '/statistics/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
-  GoalsIdRoute: typeof GoalsIdRoute
   SignupRoute: typeof SignupRoute
+  GoalsIdRoute: typeof GoalsIdRoute
+  SessionsIdRoute: typeof SessionsIdRoute
   GoalsIndexRoute: typeof GoalsIndexRoute
   StatisticsIndexRoute: typeof StatisticsIndexRoute
 }
@@ -130,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GoalsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sessions/$id': {
+      id: '/sessions/$id'
+      path: '/sessions/$id'
+      fullPath: '/sessions/$id'
+      preLoaderRoute: typeof SessionsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/goals/$id': {
       id: '/goals/$id'
       path: '/goals/$id'
@@ -143,8 +178,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
-  GoalsIdRoute: GoalsIdRoute,
   SignupRoute: SignupRoute,
+  GoalsIdRoute: GoalsIdRoute,
+  SessionsIdRoute: SessionsIdRoute,
   GoalsIndexRoute: GoalsIndexRoute,
   StatisticsIndexRoute: StatisticsIndexRoute,
 }
