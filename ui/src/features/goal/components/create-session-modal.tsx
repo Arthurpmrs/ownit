@@ -15,7 +15,6 @@ import { showNotification } from '@mantine/notifications';
 import { CalendarBlankIcon, ClockIcon, PlusIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useCreateStudySession } from '../hooks';
-import { showNotification } from '@mantine/notifications';
 import type { CreateStudySessionData } from '../models';
 import { durationToIso } from '@/shared/utils';
 
