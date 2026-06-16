@@ -13,41 +13,14 @@ import {
 import { BookOpenIcon, CalendarIcon, TagIcon } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
-import { useState } from 'react';
 import SessionKanban from './session-kanban';
 import SessionPerformance from './session-performance';
 
-import { getGoalByIdOptions } from '../api';
-import type { Session } from '../models';
-import type { SessionFormValues } from '@/features/goal/components/create-session-modal';
-
-const parseTimeToMinutes = (time: string): number => {
-  if (!time) {
-    return 0;
-  }
-  const [hours, minutes] = time.split(':').map(Number);
-  return (hours || 0) * 60 + (minutes || 0);
-};
+import { getGoalOptions } from '@/features/goal/api';
 
 export default function Plan() {
   const { id } = useParams({ from: '/goals/$id' });
-  const { data: goal, isLoading, error } = useQuery(getGoalByIdOptions(id));
-  const [sessions, setSessions] = useState<Session[]>([]);
-
-  const handleSessionCreate = (sessionData: SessionFormValues) => {
-    const newSession: Session = {
-      id: crypto.randomUUID(),
-      goalId: id,
-      title: sessionData.title,
-      description: sessionData.description,
-      status: 'pending',
-      date_range: [sessionData.planned_date, goal?.end_date ?? null],
-      duration: parseTimeToMinutes(sessionData.session_duration),
-      duration_focused: parseTimeToMinutes(sessionData.focus_duration),
-      duration_paused: parseTimeToMinutes(sessionData.pause_duration),
-    };
-    setSessions((prev) => [...prev, newSession]);
-  };
+  const { data, isLoading, error } = useQuery(getGoalOptions(id));
 
   if (isLoading) {
     return (
@@ -67,7 +40,7 @@ export default function Plan() {
     );
   }
 
-  if (!goal) {
+  if (!data) {
     return (
       <Container py="xl">
         <Alert title="Plano não encontrado" color="yellow">
@@ -77,10 +50,10 @@ export default function Plan() {
     );
   }
 
+  const { goal, sessions } = data;
+
   const totalSessions = sessions.length;
-  const completedSessions = sessions.filter(
-    (s) => s.status === 'completed',
-  ).length;
+  const completedSessions = sessions.filter((s) => s.status === 'done').length;
   const progressPercentage =
     totalSessions === 0
       ? 0
@@ -157,10 +130,7 @@ export default function Plan() {
 
       <Grid py="xl" px="xl" gap="xl">
         <Grid.Col span={{ base: 12, md: 4 }}>
-          <SessionKanban
-            sessions={sessions}
-            onSessionCreate={handleSessionCreate}
-          />
+          <SessionKanban sessions={sessions} goalId={id} />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 8 }}>
           <SessionPerformance />

@@ -27,11 +27,14 @@ export interface SessionFormValues {
   break_duration: string;
 }
 
-export default function CreateSessionModal() {
+interface CreateSessionModalProps {
+  goalId: string;
+}
+
+export default function CreateSessionModal({ goalId }: CreateSessionModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [moreSession, setMoreSession] = useState(false);
   const openModal = () => setIsModalOpen(true);
-  const goalId = '6af2702a-84b2-4cd7-8913-c31cd83e8a1a';
 
   const form = useForm<SessionFormValues>({
     initialValues: {

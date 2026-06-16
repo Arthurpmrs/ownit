@@ -21,18 +21,3 @@ export type CreateGoalData = {
   start_date: Date | null;
   end_date: Date | null;
 };
-
-export type SessionStatus = 'active' | 'pending' | 'completed';
-
-export type Session = {
-  id: string;
-  goalId: string;
-  title: string;
-  description: string;
-  status: SessionStatus;
-  date_range: [Date | null, Date | null];
-  duration: number; // em minutos
-  duration_focused: number; // em minutos
-  duration_paused: number; // em minutos
-};
-export type Status = 'to_do' | 'doing' | 'done' | 'canceled';

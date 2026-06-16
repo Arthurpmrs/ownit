@@ -1,63 +1,153 @@
-import { Group, Stack, Text, Title, Box } from '@mantine/core';
-import type { Session } from '../models';
-import CreateSessionModal, {
-  type SessionFormValues,
-} from '@/features/goal/components/create-session-modal';
-import SessionCard from './session-card';
+import { useCallback, useState } from 'react';
+import { Box, Button, Group, Modal, Stack, Text, Title } from '@mantine/core';
+import { DragDropProvider, useDroppable, type DragEndEvent } from '@dnd-kit/react';
 import {
-  PencilSimpleIcon,
-  HourglassMediumIcon,
   CheckCircleIcon,
+  HourglassMediumIcon,
+  PencilSimpleIcon,
 } from '@phosphor-icons/react';
+import CreateSessionModal from '@/features/goal/components/create-session-modal';
+import type { StudySessionShort } from '@/features/goal/models';
+import type { Status } from '@/shared/models';
+import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
+import SessionCard from './session-card';
 
 interface SessionKanbanProps {
-  sessions: Session[];
-  onSessionCreate: (session: SessionFormValues) => void;
+  sessions: StudySessionShort[];
+  goalId: string;
 }
 
-export default function SessionKanban({
-  sessions,
-  onSessionCreate,
-}: SessionKanbanProps) {
-  const activeSessions = sessions.filter((s) => s.status === 'active');
-  const pendingSessions = sessions.filter((s) => s.status === 'pending');
-  const completedSessions = sessions.filter((s) => s.status === 'completed');
+const STATUS_LABEL: Record<Status, string> = {
+  to_do: 'Pendente',
+  doing: 'Ativa',
+  done: 'Concluída',
+  canceled: 'Cancelada',
+};
+
+export default function SessionKanban({ sessions, goalId }: SessionKanbanProps) {
+  const [pendingTransition, setPendingTransition] = useState<{
+    sessionId: string;
+    currentStatus: Status;
+    newStatus: Status;
+  } | null>(null);
+
+  const updateStatus = useUpdateStudySessionStatus(goalId);
+
+  const handleDragEnd = useCallback(
+    ({ operation, canceled }: Parameters<DragEndEvent>[0]) => {
+      if (canceled || !operation.source || !operation.target) {
+        return;
+      }
+
+      const sessionId = operation.source.data.sessionId as string;
+      const currentStatus = operation.source.data.currentStatus as Status;
+      const newStatus = operation.target.data.status as Status;
+
+      if (currentStatus === newStatus) {
+        return;
+      }
+
+      if (
+        newStatus === 'doing' &&
+        sessions.some((s) => s.status === 'doing' && s.id !== sessionId)
+      ) {
+        return;
+      }
+
+      if (currentStatus === 'to_do' && newStatus === 'doing') {
+        updateStatus.mutate({ sessionId, currentStatus, newStatus });
+        return;
+      }
+
+      setPendingTransition({ sessionId, currentStatus, newStatus });
+    },
+    [sessions, updateStatus],
+  );
+
+  const handleConfirm = () => {
+    if (!pendingTransition) {
+      return;
+    }
+    updateStatus.mutate(pendingTransition);
+    setPendingTransition(null);
+  };
+
+  const activeSessions = sessions.filter((s) => s.status === 'doing');
+  const pendingSessions = sessions.filter((s) => s.status === 'to_do');
+  const completedSessions = sessions.filter((s) => s.status === 'done');
 
   return (
-    <Stack gap="lg">
-      <Group justify="space-between" align="center">
-        <Title order={3}>Sessões</Title>
-        <CreateSessionModal onSessionCreate={onSessionCreate} />
-      </Group>
+    <>
+      <DragDropProvider onDragEnd={handleDragEnd}>
+        <Stack gap="lg">
+          <Group justify="space-between" align="center">
+            <Title order={3}>Sessões</Title>
+            <CreateSessionModal goalId={goalId} />
+          </Group>
 
-      <Stack gap="md">
-        <SessionColumn
-          title="Ativa"
-          sessions={activeSessions}
-          icon={<PencilSimpleIcon size={16} color="#000" />}
-        />
-        <SessionColumn
-          title="Pendentes"
-          sessions={pendingSessions}
-          icon={<HourglassMediumIcon size={16} color="#000" />}
-        />
-        <SessionColumn
-          title="Concluídas"
-          sessions={completedSessions}
-          icon={<CheckCircleIcon size={16} color="#000" />}
-        />
-      </Stack>
-    </Stack>
+          <Stack gap="md">
+            <SessionColumn
+              status="doing"
+              title="Ativa"
+              sessions={activeSessions}
+              icon={<PencilSimpleIcon size={16} color="#000" />}
+            />
+            <SessionColumn
+              status="to_do"
+              title="Pendentes"
+              sessions={pendingSessions}
+              icon={<HourglassMediumIcon size={16} color="#000" />}
+            />
+            <SessionColumn
+              status="done"
+              title="Concluídas"
+              sessions={completedSessions}
+              icon={<CheckCircleIcon size={16} color="#000" />}
+            />
+          </Stack>
+        </Stack>
+      </DragDropProvider>
+
+      <Modal
+        opened={!!pendingTransition}
+        onClose={() => setPendingTransition(null)}
+        title="Confirmar mudança de status"
+        centered
+        size="sm"
+      >
+        <Text size="sm">
+          Tem certeza que deseja mover esta sessão para{' '}
+          <strong>
+            {pendingTransition ? STATUS_LABEL[pendingTransition.newStatus] : ''}
+          </strong>
+          ?
+        </Text>
+        <Group justify="flex-end" mt="lg">
+          <Button variant="light" onClick={() => setPendingTransition(null)}>
+            Cancelar
+          </Button>
+          <Button onClick={handleConfirm} loading={updateStatus.isPending}>
+            Confirmar
+          </Button>
+        </Group>
+      </Modal>
+    </>
   );
 }
 
 interface SessionColumnProps {
+  status: Status;
   title: string;
-  sessions: Session[];
+  sessions: StudySessionShort[];
   icon: React.ReactNode;
 }
 
-function SessionColumn({ title, sessions, icon }: SessionColumnProps) {
+function SessionColumn({ status, title, sessions, icon }: SessionColumnProps) {
+  const { ref, isDropTarget } = useDroppable({
+    id: `column-${status}`,
+    data: { status },
+  });
+
   return (
     <Stack gap="xs">
       <Group gap="xs">
@@ -70,15 +160,28 @@ function SessionColumn({ title, sessions, icon }: SessionColumnProps) {
           style={{ borderBottom: '2px solid #EAE1D7', alignSelf: 'center' }}
         />
       </Group>
-      {sessions.length > 0 ? (
-        sessions.map((session) => (
-          <SessionCard key={session.id} session={session} />
-        ))
-      ) : (
-        <Text size="xs" c="dimmed">
-          Nenhuma sessão
-        </Text>
-      )}
+      <Box
+        ref={ref}
+        style={{
+          minHeight: 48,
+          borderRadius: 8,
+          transition: 'background 150ms ease',
+          background: isDropTarget ? 'rgba(0,0,0,0.04)' : 'transparent',
+          padding: isDropTarget ? 4 : 0,
+        }}
+      >
+        {sessions.length > 0 ? (
+          <Stack gap="xs">
+            {sessions.map((session) => (
+              <SessionCard key={session.id} session={session} />
+            ))}
+          </Stack>
+        ) : (
+          <Text size="xs" c="dimmed" p="xs">
+            Nenhuma sessão
+          </Text>
+        )}
+      </Box>
     </Stack>
   );
 }
