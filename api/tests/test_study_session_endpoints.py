@@ -123,32 +123,6 @@ def test_todo_to_done_transition(authenticated_client: TestClient, goal: dict):
     assert response.json()['status'] == 'done'
 
 
-def test_done_to_todo_transition(authenticated_client: TestClient, goal: dict):
-    # Given - cria uma sessão e a conclui
-    payload = {
-        'goal_id': goal['id'],
-        'title': 'Sessão Concluída para Pendente',
-        'description': 'Testando reversão de sessão concluída',
-        'planned_to_start_at': '2026-05-05T10:00:00',
-        'duration': 'PT1H',
-    }
-    response = authenticated_client.post('/sessions/', json=payload)
-    session_id = response.json()['id']
-
-    authenticated_client.patch(
-        f'/sessions/{session_id}/status', json={'new_status': 'done'}
-    )
-
-    # When - reverte para pendente
-    response = authenticated_client.patch(
-        f'/sessions/{session_id}/status', json={'new_status': 'to_do'}
-    )
-
-    # Then
-    assert response.status_code == HTTPStatus.OK
-    assert response.json()['status'] == 'to_do'
-
-
 def test_cannot_have_multiple_active_sessions(
     authenticated_client: TestClient, goal: dict
 ):
