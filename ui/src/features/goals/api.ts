@@ -104,6 +104,6 @@ export async function fetchGoalById(goalId: string): Promise<Goal> {
     );
   }
 
-  const dto: GoalDTO = await response.json();
-  return goalMapper.fromDTO(dto);
+  const data: { goal: GoalDTO; sessions: unknown[] } = await response.json();
+  return goalMapper.fromDTO(data.goal);
 }
