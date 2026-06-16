@@ -104,11 +104,11 @@ export default function Plan() {
       >
         <Group gap="lg">
           <Stack gap={0} align="center">
-            <Flex align="center">
+            <Flex align="baseline">
               <Text fw={500} size="xl">
                 {completedSessions}
               </Text>
-              <Text size="sm" c="#868E96">
+              <Text size="xs" c="#868E96">
                 {' '}
                 /{totalSessions}
               </Text>

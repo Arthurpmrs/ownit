@@ -1,6 +1,19 @@
 import { useCallback, useState } from 'react';
-import { Box, Button, Group, Modal, Stack, Text, Title } from '@mantine/core';
-import { DragDropProvider, useDroppable, type DragEndEvent } from '@dnd-kit/react';
+import {
+  Box,
+  Button,
+  Center,
+  Group,
+  Modal,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
+import {
+  DragDropProvider,
+  useDroppable,
+  type DragEndEvent,
+} from '@dnd-kit/react';
 import {
   CheckCircleIcon,
   HourglassMediumIcon,
@@ -24,7 +37,10 @@ const STATUS_LABEL: Record<Status, string> = {
   canceled: 'Cancelada',
 };
 
-export default function SessionKanban({ sessions, goalId }: SessionKanbanProps) {
+export default function SessionKanban({
+  sessions,
+  goalId,
+}: SessionKanbanProps) {
   const [pendingTransition, setPendingTransition] = useState<{
     sessionId: string;
     currentStatus: Status;
@@ -177,9 +193,11 @@ function SessionColumn({ status, title, sessions, icon }: SessionColumnProps) {
             ))}
           </Stack>
         ) : (
-          <Text size="xs" c="dimmed" p="xs">
-            Nenhuma sessão
-          </Text>
+          <Center>
+            <Text size="xs" c="dimmed" p="xs">
+              Nenhuma sessão
+            </Text>
+          </Center>
         )}
       </Box>
     </Stack>

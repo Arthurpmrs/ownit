@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { showNotification } from '@mantine/notifications';
-import { createStudySession, getGoalOptions, updateStudySessionStatus } from './api';
+import {
+  createStudySession,
+  getGoalOptions,
+  updateStudySessionStatus,
+} from './api';
 import type { Status } from '@/shared/models';
 
 /**
@@ -25,7 +29,9 @@ type UpdateStatusVariables = {
   newStatus: Status;
 };
 
-const TRANSITION_ERROR_MESSAGES: Partial<Record<`${Status}->${Status}`, string>> = {
+const TRANSITION_ERROR_MESSAGES: Partial<
+  Record<`${Status}->${Status}`, string>
+> = {
   'doing->to_do': 'Não foi possível mover a sessão de volta para pendente.',
   'done->to_do': 'Não foi possível mover a sessão concluída para pendente.',
   'done->doing': 'Não foi possível reativar a sessão concluída.',
@@ -50,7 +56,9 @@ export function useUpdateStudySessionStatus(goalId: string) {
 
       const message = raw.includes('Active session exists')
         ? ACTIVE_SESSION_EXISTS_MESSAGE
-        : (TRANSITION_ERROR_MESSAGES[`${currentStatus}->${newStatus}`] ?? raw ?? 'Erro desconhecido');
+        : (TRANSITION_ERROR_MESSAGES[`${currentStatus}->${newStatus}`] ??
+          raw ??
+          'Erro desconhecido');
 
       showNotification({
         title: 'Erro ao atualizar status',

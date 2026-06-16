@@ -31,7 +31,9 @@ interface CreateSessionModalProps {
   goalId: string;
 }
 
-export default function CreateSessionModal({ goalId }: CreateSessionModalProps) {
+export default function CreateSessionModal({
+  goalId,
+}: CreateSessionModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [moreSession, setMoreSession] = useState(false);
   const openModal = () => setIsModalOpen(true);
@@ -98,7 +100,7 @@ export default function CreateSessionModal({ goalId }: CreateSessionModalProps) 
       <Button
         variant="subtle"
         radius="sm"
-        size="sm"
+        size="xs"
         leftSection={<PlusIcon weight="bold" size={14} />}
         onClick={openModal}
       >
