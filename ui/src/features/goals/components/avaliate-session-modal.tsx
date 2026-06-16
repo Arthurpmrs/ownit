@@ -189,6 +189,12 @@ export default function AvaliateSessionModal() {
     validate: {
       planning: (value) =>
         value === 0 ? 'A avaliação do planejamento é obrigatória' : null,
+      domain_perception: (value) =>
+        value === 0 ? 'A percepção de domínio é obrigatória' : null,
+      difficulty: (value) =>
+        value === 0 ? 'A avaliação de dificuldade é obrigatória' : null,
+      strategies: (value) =>
+        value.length === 0 ? 'Selecione pelo menos uma estratégia' : null,
     },
   });
 
@@ -337,7 +343,13 @@ export default function AvaliateSessionModal() {
               />
 
               <Group justify="flex-end" mt="xl">
-                <Button type="submit" color="orange.6" size="md" radius="md">
+                <Button
+                  type="submit"
+                  color="orange.6"
+                  size="md"
+                  radius="md"
+                  disabled={!form.isValid()}
+                >
                   Enviar
                 </Button>
               </Group>
