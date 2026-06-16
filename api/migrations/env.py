@@ -9,6 +9,8 @@ from src.core.db import metadata
 from src.core.config import get_settings
 from src.features.auth import tables  # noqa
 from src.features.goal import tables  # noqa
+from src.features.study_session import tables  # noqa
+from src.features.analytics import tables  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

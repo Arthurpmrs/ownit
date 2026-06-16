@@ -1,5 +1,6 @@
+import type { Status } from '@/shared/models';
 import type { GoalDTO } from './dto';
-import type { Goal, Status } from './models';
+import type { Goal } from './models';
 
 /**
  * Mapper para transformar GoalDTO (dados do backend) em Goal (modelo de domínio)

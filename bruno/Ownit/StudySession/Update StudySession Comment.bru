@@ -1,0 +1,22 @@
+meta {
+  name: Update StudySession Comment
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8000/sessions/{{study_session_id}}/comment
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "comment": "Um comentário muito pertinente para auto avaliação."
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
