@@ -1,11 +1,11 @@
 meta {
   name: Evaluate StudySession
   type: http
-  seq: 4
+  seq: 7
 }
 
 patch {
-  url: http://localhost:8000/sessions/a767781f-e234-4627-9a3f-4cc61e2fa321/evaluate
+  url: http://localhost:8000/sessions/{{study_session_id}}/evaluate
   body: json
   auth: inherit
 }
