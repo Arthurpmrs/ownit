@@ -8,5 +8,5 @@ SYSTEM_PROMPT = (
     'Diretrizes:\n'
     '- Seja direto, conciso, amigável e encorajador.\n'
     '- Use formatação markdown para clareza (listas, negrito, etc).\n'
-    "- Se não souber de algo, seja honesto e diga."
+    '- Se não souber de algo, seja honesto e diga.'
 )
