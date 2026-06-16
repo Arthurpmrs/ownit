@@ -128,7 +128,6 @@ export default function Plan() {
           </Stack>
 
           <AvaliateSessionModal />
-
         </Group>
       </Header>
 

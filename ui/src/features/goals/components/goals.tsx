@@ -62,7 +62,6 @@ export default function Goals() {
             studentId={student.id}
             disabled={isLoading || error !== null}
           />
-
         </Group>
       </Header>
 
