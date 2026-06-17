@@ -1,4 +1,6 @@
 import Header from '@/features/appshell/header';
+import { getStudySessionOptions } from '@/features/goal/api';
+import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
 import {
   ActionIcon,
   Alert,
@@ -17,27 +19,24 @@ import {
   Title,
 } from '@mantine/core';
 import { RichTextEditor } from '@mantine/tiptap';
-import Link from '@tiptap/extension-link';
 import {
-  CalendarIcon,
-  CheckSquareIcon,
-  ClockIcon,
-  GraduationCapIcon,
-  PencilSimpleIcon,
-  SmileyIcon,
-  TargetIcon,
-} from '@phosphor-icons/react';
-import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import TextAlign from '@tiptap/extension-text-align';
-import Color from '@tiptap/extension-color';
-import { TextStyle } from '@tiptap/extension-text-style';
+  IconCalendar,
+  IconClock,
+  IconPencil,
+  IconSchool,
+  IconSquareCheck,
+  IconTarget,
+} from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
-import { getStudySessionOptions } from '@/features/goal/api';
-import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
-import { useState, useEffect } from 'react';
+import Color from '@tiptap/extension-color';
+import Link from '@tiptap/extension-link';
+import TextAlign from '@tiptap/extension-text-align';
+import { TextStyle } from '@tiptap/extension-text-style';
+import Underline from '@tiptap/extension-underline';
+import { useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { useEffect, useState } from 'react';
 
 const INITIAL_CHECKLIST = [
   { id: 1, label: 'Text here', checked: true },
@@ -46,7 +45,7 @@ const INITIAL_CHECKLIST = [
   { id: 4, label: 'Text here', checked: false },
 ];
 
-const INITIAL_NOTES = `<p>Use este espaço para anotar insights, dificuldades ou qualquer coisa que achar relevante durante a execução da sessão. Essas anotações podem ajudar no seu planejamento futuro!</p>`;
+const INITIAL_NOTES = `<p>Use este espaço para fazer as anotações durante a execução da sessão.</p>`;
 
 export default function SessionExecution() {
   const { id } = useParams({ from: '/sessions/$id' });
@@ -161,26 +160,26 @@ export default function SessionExecution() {
         description={
           <Group gap="lg" mt={4}>
             <Flex align="center" gap={6}>
-              <TargetIcon size={14} color="#868E96" weight="bold" />
+              <IconTarget size={14} color="#868E96" stroke={2} />
               <Text component="span" size="xs" c="dimmed">
                 {studySession.goalTitle}
               </Text>
             </Flex>
             <Flex align="center" gap={6}>
-              <CalendarIcon size={14} color="#868E96" weight="bold" />
+              <IconCalendar size={14} color="#868E96" stroke={2} />
               <Text component="span" size="xs" c="dimmed">
                 {dateRange}
               </Text>
             </Flex>
             <Flex align="center" gap={6}>
-              <ClockIcon size={14} color="#868E96" weight="bold" />
+              <IconClock size={14} color="#868E96" stroke={2} />
               <Text component="span" size="xs" c="dimmed">
                 {studySession.duration}
               </Text>
             </Flex>
           </Group>
         }
-        icon={<GraduationCapIcon weight="bold" color="white" size={32} />}
+        icon={<IconSchool stroke={2} color="white" size={32} />}
       >
         <Button
           variant="outline"
@@ -296,10 +295,9 @@ export default function SessionExecution() {
             <Card radius="md" withBorder padding="lg">
               <Group justify="space-between" mb="md">
                 <Group gap="xs">
-                  <CheckSquareIcon
+                  <IconSquareCheck
                     size={20}
                     color="var(--mantine-color-orange-6)"
-                    weight="fill"
                   />
                   <Title order={5}>Checklist</Title>
                 </Group>
@@ -309,7 +307,7 @@ export default function SessionExecution() {
                   size="sm"
                   disabled={isFinished}
                 >
-                  <PencilSimpleIcon size={16} />
+                  <IconPencil size={16} />
                 </ActionIcon>
               </Group>
 
@@ -333,22 +331,6 @@ export default function SessionExecution() {
           </Stack>
         </Grid.Col>
       </Grid>
-
-      {/* james */}
-      <ActionIcon
-        size={56}
-        radius="xl"
-        color="orange"
-        variant="filled"
-        style={{
-          position: 'fixed',
-          bottom: 32,
-          right: 32,
-          zIndex: 100,
-        }}
-      >
-        <SmileyIcon size={28} weight="fill" color="white" />
-      </ActionIcon>
     </>
   );
 }
