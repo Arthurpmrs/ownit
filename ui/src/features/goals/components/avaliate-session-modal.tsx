@@ -152,10 +152,7 @@ export default function AvaliateSessionModal() {
       case 4:
         return 'Entendi bem';
       case 5:
-        return 'Conseguiria ensinar';
-        {
-          /* Talvez algo como "Dominei o assunto" seja mais legal, mas deixei como tava no figma */
-        }
+        return 'Dominei o assunto';
       default:
         return '';
     }
@@ -209,7 +206,7 @@ export default function AvaliateSessionModal() {
       <Button
         variant="outline"
         radius="sm"
-        size="md"
+        size="sm"
         fw={400}
         onClick={openModal}
       >

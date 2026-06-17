@@ -15,7 +15,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
 import SessionKanban from './session-kanban';
 import SessionPerformance from './session-performance';
-import AvaliateSessionModal from './avaliate-session-modal';
 
 import { getGoalOptions } from '@/features/goal/api';
 
@@ -126,8 +125,6 @@ export default function Plan() {
               Progresso
             </Text>
           </Stack>
-
-          <AvaliateSessionModal />
         </Group>
       </Header>
 
