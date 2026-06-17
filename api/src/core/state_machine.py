@@ -6,8 +6,8 @@ class StudySessionStateMachine:
     TRANSITIONS = {
         Status.todo: {Status.doing, Status.done, Status.canceled},
         Status.doing: {Status.done, Status.todo, Status.canceled},
-        Status.done: {Status.todo},
-        Status.canceled: set(),
+        Status.done: set(),
+        Status.canceled: {Status.todo},
     }
 
     @staticmethod

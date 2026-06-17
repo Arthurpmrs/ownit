@@ -178,16 +178,18 @@ def _get_study_session_status(
     return status
 
 
-def _get_event_type_based_on_status(status: Status) -> EventType:
-    match status:
-        case Status.doing:
+def _get_event_type_based_on_status(old: Status, new: Status) -> EventType:
+    match old, new:
+        case _, Status.doing:
             event_type = EventType.STUDY_SESSION_STARTED
-        case Status.done:
+        case Status.doing, Status.todo:
+            event_type = EventType.STUDY_SESSION_UNDO_STARTED
+        case _, Status.done:
             event_type = EventType.STUDY_SESSION_FINISHED
-        case Status.canceled:
+        case _, Status.canceled:
             event_type = EventType.STUDY_SESSION_CANCELED
-        case _:
-            raise RuntimeError(f'Cannot generate event for {status}.')
+        case Status.canceled, Status.todo:
+            event_type = EventType.STUDY_SESSION_UNDO_CANCELED
 
     return event_type
 
