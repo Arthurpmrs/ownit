@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { showNotification } from '@mantine/notifications';
 import {
   createStudySession,
+  evaluateStudySession,
   getGoalOptions,
   updateStudySessionStatus,
 } from './api';
@@ -63,6 +64,26 @@ export function useUpdateStudySessionStatus(goalId: string) {
       showNotification({
         title: 'Erro ao atualizar status',
         message,
+        color: 'red',
+      });
+    },
+  });
+}
+
+export function useEvaluateStudySession(goalId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: evaluateStudySession,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getGoalOptions(goalId).queryKey,
+      });
+    },
+    onError: () => {
+      showNotification({
+        title: 'Erro ao finalizar sessão.',
+        message: 'Não foi possível finalizar a sessão.',
         color: 'red',
       });
     },

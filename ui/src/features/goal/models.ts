@@ -67,3 +67,12 @@ export type PomodoroStatus =
   | 'break_mode'
   | 'break_pause'
   | 'done';
+
+export type EvaluateSessionData = {
+  sessionId: string;
+  rating: number;
+  domain_perception_level: number;
+  learning_difficulty_level: number;
+  strategies: string[];
+  final_comment: string;
+};
