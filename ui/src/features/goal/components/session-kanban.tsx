@@ -24,7 +24,7 @@ import type { StudySessionShort } from '@/features/goal/models';
 import type { Status } from '@/shared/models';
 import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
 import SessionCard from './session-card';
-import EvaluateSessionModal from '../../goal/components/evaluate-session-modal';
+import EvaluateSessionModal from './evaluate-session-modal';
 
 interface SessionKanbanProps {
   sessions: StudySessionShort[];
