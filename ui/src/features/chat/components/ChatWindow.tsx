@@ -11,7 +11,7 @@ import {
   Paper,
   ScrollArea,
   Text,
-  TextInput,
+  Textarea,
 } from '@mantine/core';
 import {
   ArrowsClockwiseIcon,
@@ -141,11 +141,13 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
           }}
         >
           <form onSubmit={handleSend}>
-            <TextInput
+            <Textarea
               placeholder="Pergunte algo ao James..."
               value={input}
               onChange={(e) => setInput(e.currentTarget.value)}
               disabled={isPending}
+              maxRows={2}
+              autosize
               rightSection={
                 <ActionIcon
                   type="submit"

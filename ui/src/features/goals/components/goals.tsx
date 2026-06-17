@@ -201,8 +201,8 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
           );
         })
       ) : (
-        <Center py="lg">
-          <Text c="dimmed">Nenhum plano criado ainda</Text>
+        <Center py="lg" w="100%">
+          <Text c="dimmed">Nenhum plano criado</Text>
         </Center>
       )}
     </Grid>
