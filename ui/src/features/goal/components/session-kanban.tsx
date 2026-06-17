@@ -1,4 +1,12 @@
-import { useCallback, useState } from 'react';
+import CreateSessionModal from '@/features/goal/components/create-session-modal';
+import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
+import type { StudySessionShort } from '@/features/goal/models';
+import type { Status } from '@/shared/models';
+import {
+  DragDropProvider,
+  useDroppable,
+  type DragEndEvent,
+} from '@dnd-kit/react';
 import {
   Box,
   Button,
@@ -10,19 +18,11 @@ import {
   Title,
 } from '@mantine/core';
 import {
-  DragDropProvider,
-  useDroppable,
-  type DragEndEvent,
-} from '@dnd-kit/react';
-import {
-  CheckCircleIcon,
-  HourglassMediumIcon,
-  PencilSimpleIcon,
-} from '@phosphor-icons/react';
-import CreateSessionModal from '@/features/goal/components/create-session-modal';
-import type { StudySessionShort } from '@/features/goal/models';
-import type { Status } from '@/shared/models';
-import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
+  IconCircleCheck,
+  IconHourglass,
+  IconPencil,
+} from '@tabler/icons-react';
+import { useCallback, useState } from 'react';
 import SessionCard from './session-card';
 import EvaluateSessionModal from './evaluate-session-modal';
 
@@ -118,19 +118,19 @@ export default function SessionKanban({
               status="doing"
               title="Ativa"
               sessions={activeSessions}
-              icon={<PencilSimpleIcon size={16} color="#000" />}
+              icon={<IconPencil size={16} color="#000" />}
             />
             <SessionColumn
               status="to_do"
               title="Pendentes"
               sessions={pendingSessions}
-              icon={<HourglassMediumIcon size={16} color="#000" />}
+              icon={<IconHourglass size={16} color="#000" />}
             />
             <SessionColumn
               status="done"
               title="Concluídas"
               sessions={completedSessions}
-              icon={<CheckCircleIcon size={16} color="#000" />}
+              icon={<IconCircleCheck size={16} color="#000" />}
             />
           </Stack>
         </Stack>

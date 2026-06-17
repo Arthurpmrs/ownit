@@ -13,7 +13,7 @@ import {
 import { DatePickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
-import { CalendarBlankIcon, PlusIcon } from '@phosphor-icons/react';
+import { IconCalendar, IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useCreateGoal } from '../hooks';
 import type { CreateGoalData } from '../models';
@@ -94,7 +94,7 @@ export default function CreateGoalModal({
     <>
       <Button
         radius="sm"
-        leftSection={<PlusIcon weight="bold" size={14} />}
+        leftSection={<IconPlus stroke={2} size={14} />}
         disabled={disabled}
         onClick={openModal}
         visibleFrom="sm"
@@ -109,7 +109,7 @@ export default function CreateGoalModal({
         hiddenFrom="sm"
         aria-label="Novo Plano"
       >
-        <PlusIcon weight="bold" size={18} />
+        <IconPlus stroke={2} size={18} />
       </ActionIcon>
 
       <Modal.Root
@@ -158,7 +158,7 @@ export default function CreateGoalModal({
                 />
 
                 <DatePickerInput
-                  leftSection={<CalendarBlankIcon size={18} />}
+                  leftSection={<IconCalendar size={18} />}
                   type="range"
                   label="Período"
                   placeholder="Insira o período em que deve ser conculuído"

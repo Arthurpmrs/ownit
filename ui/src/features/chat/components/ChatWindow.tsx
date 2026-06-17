@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
 import {
   ActionIcon,
   Avatar,
@@ -13,10 +12,8 @@ import {
   Text,
   Textarea,
 } from '@mantine/core';
-import {
-  ArrowsClockwiseIcon,
-  PaperPlaneRightIcon,
-} from '@phosphor-icons/react';
+import { IconRefresh, IconSend } from '@tabler/icons-react';
+import { useEffect, useRef, useState } from 'react';
 import { useChat } from '../hooks';
 import ChatBubble from './ChatBubble';
 
@@ -103,7 +100,7 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
                 onClick={onNewSession}
                 title="Nova sessão de chat"
               >
-                <ArrowsClockwiseIcon size={20} />
+                <IconRefresh size={20} />
               </ActionIcon>
               <CloseButton
                 variant="transparent"
@@ -155,7 +152,7 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
                   color="orange"
                   disabled={!input.trim() || isPending}
                 >
-                  <PaperPlaneRightIcon size={18} />
+                  <IconSend size={18} />
                 </ActionIcon>
               }
             />
