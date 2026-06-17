@@ -24,7 +24,7 @@ import {
 } from '@tabler/icons-react';
 import { useCallback, useState } from 'react';
 import SessionCard from './session-card';
-import EvaluateSessionModal from '../../goal/components/evaluate-session-modal';
+import EvaluateSessionModal from './evaluate-session-modal';
 
 interface SessionKanbanProps {
   sessions: StudySessionShort[];
