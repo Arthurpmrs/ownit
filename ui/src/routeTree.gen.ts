@@ -50,45 +50,54 @@ const GoalsIdRoute = GoalsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/goals/$id': typeof GoalsIdRoute
   '/signup': typeof SignupRoute
+  '/goals/$id': typeof GoalsIdRoute
   '/goals/': typeof GoalsIndexRoute
   '/statistics/': typeof StatisticsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/goals/$id': typeof GoalsIdRoute
   '/signup': typeof SignupRoute
+  '/goals/$id': typeof GoalsIdRoute
   '/goals': typeof GoalsIndexRoute
   '/statistics': typeof StatisticsIndexRoute
 }
 export interface FileRoutesById {
-  _root_: typeof rootRouteImport
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/goals/$id': typeof GoalsIdRoute
   '/signup': typeof SignupRoute
+  '/goals/$id': typeof GoalsIdRoute
   '/goals/': typeof GoalsIndexRoute
   '/statistics/': typeof StatisticsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/goals/$id' | '/goals/' | '/statistics/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/goals/$id'
+    | '/goals/'
+    | '/statistics/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/goals/$id' | '/goals' | '/statistics'
-  id: '_root_' | '/' | '/login' | '/goals/$id' | '/goals/' | '/statistics/'
-  fullPaths: '/' | '/login' | '/signup' | '/goals/' | '/statistics/'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/goals' | '/statistics'
-  id: '__root__' | '/' | '/login' | '/signup' | '/goals/' | '/statistics/'
+  to: '/' | '/login' | '/signup' | '/goals/$id' | '/goals' | '/statistics'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/goals/$id'
+    | '/goals/'
+    | '/statistics/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
-  GoalsIdRoute: typeof GoalsIdRoute
   SignupRoute: typeof SignupRoute
+  GoalsIdRoute: typeof GoalsIdRoute
   GoalsIndexRoute: typeof GoalsIndexRoute
   StatisticsIndexRoute: typeof StatisticsIndexRoute
 }
@@ -143,8 +152,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
-  GoalsIdRoute: GoalsIdRoute,
   SignupRoute: SignupRoute,
+  GoalsIdRoute: GoalsIdRoute,
   GoalsIndexRoute: GoalsIndexRoute,
   StatisticsIndexRoute: StatisticsIndexRoute,
 }
