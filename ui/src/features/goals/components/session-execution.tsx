@@ -33,9 +33,10 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import Color from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
 import { getStudySessionOptions } from '@/features/goal/api';
+import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
 import { useState, useEffect } from 'react';
 
 const INITIAL_CHECKLIST = [
@@ -68,6 +69,18 @@ export default function SessionExecution() {
   const [checklist, setChecklist] = useState(INITIAL_CHECKLIST);
 
   const isFinished = data?.studySession.status === 'done';
+
+  const queryClient = useQueryClient();
+  const updateStatus = useUpdateStudySessionStatus(data?.studySession.goalId ?? '');
+
+  const handleFinishSession = () => {
+    if (!data) { return; }
+    const { studySession } = data;
+    updateStatus.mutate(
+      { sessionId: studySession.id, currentStatus: studySession.status, newStatus: 'done' },
+      { onSuccess: () => queryClient.invalidateQueries({ queryKey: getStudySessionOptions(id).queryKey }) },
+    );
+  };
 
   useEffect(() => {
     if (editor) {
@@ -143,7 +156,13 @@ if (isLoading) {
         }
         icon={<GraduationCapIcon weight="bold" color="white" size={32} />}
       >
-        <Button variant="outline" color="orange" disabled={isFinished}>
+        <Button
+          variant="outline"
+          color="orange"
+          disabled={isFinished}
+          loading={updateStatus.isPending}
+          onClick={handleFinishSession}
+        >
           Finalizar Sessão
         </Button>
       </Header>
