@@ -24,6 +24,7 @@ import type { StudySessionShort } from '@/features/goal/models';
 import type { Status } from '@/shared/models';
 import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
 import SessionCard from './session-card';
+import EvaluateSessionModal from '../../goal/components/evaluate-session-modal';
 
 interface SessionKanbanProps {
   sessions: StudySessionShort[];
@@ -46,6 +47,11 @@ export default function SessionKanban({
     currentStatus: Status;
     newStatus: Status;
   } | null>(null);
+  const [selectedSessionToFinish, setSelectedSessionToFinish] = useState<
+    string | null
+  >(null);
+  const [isEvaluateModalOpen, setIsEvaluateModalOpen] =
+    useState<boolean>(false);
 
   const updateStatus = useUpdateStudySessionStatus(goalId);
 
@@ -72,6 +78,12 @@ export default function SessionKanban({
 
       if (currentStatus === 'to_do' && newStatus === 'doing') {
         updateStatus.mutate({ sessionId, currentStatus, newStatus });
+        return;
+      }
+
+      if (newStatus === 'done') {
+        setSelectedSessionToFinish(sessionId);
+        setIsEvaluateModalOpen(true);
         return;
       }
 
@@ -147,6 +159,13 @@ export default function SessionKanban({
           </Button>
         </Group>
       </Modal>
+
+      <EvaluateSessionModal
+        goalId={goalId}
+        sessionId={selectedSessionToFinish}
+        isOpen={isEvaluateModalOpen}
+        setIsOpen={setIsEvaluateModalOpen}
+      />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import type {
   CreateStudySessionData,
+  EvaluateSessionData,
   GoalWithSessions,
   StudySession,
 } from './models';
@@ -83,6 +84,31 @@ export async function updateStudySessionStatus(
     },
     credentials: 'include',
     body: JSON.stringify({ new_status: newStatus }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const detail = body?.detail ?? `${response.status} ${response.statusText}`;
+    throw new Error(detail);
+  }
+
+  const dto: StudySessionDTO = await response.json();
+  return studySessionMapper.fromDTO(dto);
+}
+
+export async function evaluateStudySession(
+  data: EvaluateSessionData,
+): Promise<StudySession> {
+  const { sessionId, ...payload } = data;
+
+  const url = `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/evaluate`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
