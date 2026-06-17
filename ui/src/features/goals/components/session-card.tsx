@@ -1,7 +1,7 @@
-import { Card, Group, Text, Title } from '@mantine/core';
-import { useDraggable } from '@dnd-kit/react';
-import { CalendarIcon, ClockIcon } from '@phosphor-icons/react';
 import type { StudySessionShort } from '@/features/goal/models';
+import { useDraggable } from '@dnd-kit/react';
+import { Card, Group, Text, Title } from '@mantine/core';
+import { IconCalendar, IconClock } from '@tabler/icons-react';
 
 interface SessionCardProps {
   session: StudySessionShort;
@@ -36,14 +36,14 @@ export default function SessionCard({ session }: SessionCardProps) {
       </Text>
       <Group gap="lg">
         <Group gap={4}>
-          <CalendarIcon size={16} color="#868E96" />
+          <IconCalendar size={16} color="#868E96" />
           <Text size="xs" c="dimmed">
             {formatDate(session.plannedToStartAt)} -{' '}
             {formatDate(session.plannedToEndAt)}
           </Text>
         </Group>
         <Group gap={4}>
-          <ClockIcon size={16} color="#868E96" />
+          <IconClock size={16} color="#868E96" />
           <Text size="xs" c="dimmed">
             {session.duration}
           </Text>
