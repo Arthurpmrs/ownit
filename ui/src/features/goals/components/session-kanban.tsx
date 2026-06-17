@@ -14,6 +14,7 @@ import {
   useDroppable,
   type DragEndEvent,
 } from '@dnd-kit/react';
+import { PointerSensor, PointerActivationConstraints } from '@dnd-kit/dom';
 import {
   CheckCircleIcon,
   HourglassMediumIcon,
@@ -29,6 +30,14 @@ interface SessionKanbanProps {
   sessions: StudySessionShort[];
   goalId: string;
 }
+
+const sensors = [
+  PointerSensor.configure({
+    activationConstraints: [
+      new PointerActivationConstraints.Distance({ value: 5 }),
+    ],
+  }),
+];
 
 const STATUS_LABEL: Record<Status, string> = {
   to_do: 'Pendente',
@@ -94,7 +103,7 @@ export default function SessionKanban({
 
   return (
     <>
-      <DragDropProvider onDragEnd={handleDragEnd}>
+      <DragDropProvider sensors={sensors} onDragEnd={handleDragEnd}>
         <Stack gap="lg">
           <Group justify="space-between" align="center">
             <Title order={3}>Sessões</Title>

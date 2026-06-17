@@ -16,7 +16,8 @@ import {
   Textarea,
   Title,
 } from '@mantine/core';
-import { Link, RichTextEditor } from '@mantine/tiptap';
+import { RichTextEditor } from '@mantine/tiptap';
+import Link from '@tiptap/extension-link';
 import {
   CalendarIcon,
   CheckSquareIcon,
@@ -35,7 +36,7 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
 import { getStudySessionOptions } from '@/features/goal/api';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const INITIAL_CHECKLIST = [
   { id: 1, label: 'Text here', checked: true },
@@ -49,7 +50,8 @@ const INITIAL_NOTES = `<p>Use este espaço para anotar insights, dificuldades ou
 export default function SessionExecution() {
   const { id } = useParams({ from: '/sessions/$id' });
   const { data, isLoading, error } = useQuery(getStudySessionOptions(id));
-
+  
+  
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -65,25 +67,33 @@ export default function SessionExecution() {
   const [comment, setComment] = useState('');
   const [checklist, setChecklist] = useState(INITIAL_CHECKLIST);
 
+  const isFinished = data?.studySession.status === 'done';
+
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!isFinished);
+    }
+  }, [editor, isFinished]);
+
   const toggleChecklistItem = (itemId: number) => {
     setChecklist((prev) =>
       prev.map((item) => (item.id === itemId ? { ...item, checked: !item.checked } : item)),
-    );
-  };
+  );
+};
 
-  const handleAddComment = () => {
-    if (!comment.trim()) { return; }
-    setComment('');
-  };
+const handleAddComment = () => {
+  if (!comment.trim()) { return; }
+  setComment('');
+};
 
-  if (isLoading) {
-    return (
-      <Center h="100vh">
+if (isLoading) {
+  return (
+    <Center h="100vh">
         <Loader />
       </Center>
     );
   }
-
+  
   if (error) {
     return (
       <Container py="xl">
@@ -93,7 +103,7 @@ export default function SessionExecution() {
       </Container>
     );
   }
-
+  
   if (!data) {
     return (
       <Container py="xl">
@@ -103,7 +113,7 @@ export default function SessionExecution() {
       </Container>
     );
   }
-
+  
   const { studySession } = data;
 
   const formatDate = (date: Date) =>
@@ -133,7 +143,7 @@ export default function SessionExecution() {
         }
         icon={<GraduationCapIcon weight="bold" color="white" size={32} />}
       >
-        <Button variant="outline" color="orange">
+        <Button variant="outline" color="orange" disabled={isFinished}>
           Finalizar Sessão
         </Button>
       </Header>
@@ -146,51 +156,54 @@ export default function SessionExecution() {
             <Stack gap="sm">
               <Title order={4}>Anotações</Title>
               <RichTextEditor editor={editor}>
-                <RichTextEditor.Toolbar>
-                  <RichTextEditor.ControlsGroup>
-                    <RichTextEditor.Bold />
-                    <RichTextEditor.Italic />
-                    <RichTextEditor.Strikethrough />
-                    <RichTextEditor.Underline />
-                    <RichTextEditor.Link />
-                  </RichTextEditor.ControlsGroup>
-                  <RichTextEditor.ControlsGroup>
-                    <RichTextEditor.H1 />
-                    <RichTextEditor.H2 />
-                    <RichTextEditor.H3 />
-                    <RichTextEditor.H4 />
-                  </RichTextEditor.ControlsGroup>
-                  <RichTextEditor.ControlsGroup>
-                    <RichTextEditor.BulletList />
-                    <RichTextEditor.OrderedList />
-                  </RichTextEditor.ControlsGroup>
-                  <RichTextEditor.ControlsGroup>
-                    <RichTextEditor.AlignLeft />
-                    <RichTextEditor.AlignCenter />
-                    <RichTextEditor.AlignRight />
-                  </RichTextEditor.ControlsGroup>
-                  <RichTextEditor.ControlsGroup>
-                    <RichTextEditor.ColorPicker
-                      colors={[
-                        '#000000', '#868E96', '#FA5252', '#E64980',
-                        '#BE4BDB', '#7950F2', '#4C6EF5', '#228BE6',
-                        '#15AABF', '#12B886', '#40C057', '#82C91E',
-                        '#FAB005', '#FD7E14',
-                      ]}
-                    />
-                  </RichTextEditor.ControlsGroup>
-                </RichTextEditor.Toolbar>
+                {!isFinished && (
+                    <RichTextEditor.Toolbar>
+                      <RichTextEditor.ControlsGroup>
+                        <RichTextEditor.Bold />
+                        <RichTextEditor.Italic />
+                        <RichTextEditor.Strikethrough />
+                        <RichTextEditor.Underline />
+                        <RichTextEditor.Link />
+                      </RichTextEditor.ControlsGroup>
+                      <RichTextEditor.ControlsGroup>
+                        <RichTextEditor.H1 />
+                        <RichTextEditor.H2 />
+                        <RichTextEditor.H3 />
+                        <RichTextEditor.H4 />
+                      </RichTextEditor.ControlsGroup>
+                      <RichTextEditor.ControlsGroup>
+                        <RichTextEditor.BulletList />
+                        <RichTextEditor.OrderedList />
+                      </RichTextEditor.ControlsGroup>
+                      <RichTextEditor.ControlsGroup>
+                        <RichTextEditor.AlignLeft />
+                        <RichTextEditor.AlignCenter />
+                        <RichTextEditor.AlignRight />
+                      </RichTextEditor.ControlsGroup>
+                      <RichTextEditor.ControlsGroup>
+                        <RichTextEditor.ColorPicker
+                          colors={[
+                            '#000000', '#868E96', '#FA5252', '#E64980',
+                            '#BE4BDB', '#7950F2', '#4C6EF5', '#228BE6',
+                            '#15AABF', '#12B886', '#40C057', '#82C91E',
+                            '#FAB005', '#FD7E14',
+                          ]}
+                        />
+                      </RichTextEditor.ControlsGroup>
+                    </RichTextEditor.Toolbar>
+                  )
+                }
                 <RichTextEditor.Content />
               </RichTextEditor>
             </Stack>
 
-            {/* Event history section */}
+            {/* histórico */}
             <Stack gap="sm">
               <Title order={4}>Histórico de eventos</Title>
               <p>historico de eventos</p>
             </Stack>
 
-            {/* Comment area */}
+            {/* Comentários */}
             <Stack gap="sm">
               <Textarea
                 value={comment}
@@ -198,10 +211,11 @@ export default function SessionExecution() {
                 placeholder="Escreva comentários para ajuda nos seus próximos planejamentos"
                 minRows={3}
                 autosize
+                disabled={isFinished}
                 styles={{ input: { backgroundColor: 'white' } }}
               />
               <Flex justify="flex-end">
-                <Button color="orange" onClick={handleAddComment}>
+                <Button color="orange" onClick={handleAddComment} disabled={isFinished}>
                   Adicionar comentário
                 </Button>
               </Flex>
@@ -231,7 +245,7 @@ export default function SessionExecution() {
                   />
                   <Title order={5}>Checklist</Title>
                 </Group>
-                <ActionIcon variant="subtle" color="gray" size="sm">
+                <ActionIcon variant="subtle" color="gray" size="sm" disabled={isFinished}>
                   <PencilSimpleIcon size={16} />
                 </ActionIcon>
               </Group>
@@ -243,6 +257,7 @@ export default function SessionExecution() {
                     checked={item.checked}
                     onChange={() => toggleChecklistItem(item.id)}
                     label={item.label}
+                    disabled={isFinished}
                     color="orange"
                     styles={{
                       input: { cursor: 'pointer' },
@@ -256,7 +271,7 @@ export default function SessionExecution() {
         </Grid.Col>
       </Grid>
 
-      {/* FAB — mascot chatbot button */}
+      {/* james */}
       <ActionIcon
         size={56}
         radius="xl"

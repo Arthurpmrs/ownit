@@ -3,17 +3,12 @@ import { useDraggable } from '@dnd-kit/react';
 import { CalendarIcon, ClockIcon } from '@phosphor-icons/react';
 import type { StudySessionShort } from '@/features/goal/models';
 import { useNavigate } from '@tanstack/react-router';
-import { useRef } from 'react';
-
 interface SessionCardProps {
   session: StudySessionShort;
 }
 
-const DRAG_THRESHOLD_PX = 5;
-
 export default function SessionCard({ session }: SessionCardProps) {
   const navigate = useNavigate();
-  const pointerStart = useRef<{ x: number; y: number } | null>(null);
 
   const { ref, isDragging } = useDraggable({
     id: session.id,
@@ -27,18 +22,8 @@ export default function SessionCard({ session }: SessionCardProps) {
     return `${day}/${month}/${year}`;
   };
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    pointerStart.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!pointerStart.current) { return; }
-    const dx = Math.abs(e.clientX - pointerStart.current.x);
-    const dy = Math.abs(e.clientY - pointerStart.current.y);
-    if (dx < DRAG_THRESHOLD_PX && dy < DRAG_THRESHOLD_PX) {
-      navigate({ to: '/sessions/$id', params: { id: session.id } });
-    }
-    pointerStart.current = null;
+  const handleClick = () => {
+    navigate({ to: '/sessions/$id', params: { id: session.id } });
   };
 
   return (
@@ -47,9 +32,8 @@ export default function SessionCard({ session }: SessionCardProps) {
       padding="md"
       radius="lg"
       withBorder
-      style={{ opacity: isDragging ? 0.4 : 1, cursor: 'grab' }}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
+      style={{ opacity: isDragging ? 0.4 : 1, cursor: isDragging ? 'grabbing' : 'pointer' }}
+      onClick={handleClick}
     >
       <Title order={5} mb={4}>
         {session.title}
