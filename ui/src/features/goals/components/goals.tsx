@@ -102,7 +102,11 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
 
   return (
     <Grid gap="md" align="stretch">
-      <Pomodoro />
+      <Pomodoro
+        breakDuration="00:05"
+        focusDuration="00:10"
+        sessionDuration="00:30"
+      />
       {goals && goals.length > 0 ? (
         goals.map((goal) => {
           // TODO: Calcular o progresso quando tivermos as sessões
