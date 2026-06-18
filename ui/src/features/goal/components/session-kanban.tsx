@@ -47,9 +47,8 @@ export default function SessionKanban({
     currentStatus: Status;
     newStatus: Status;
   } | null>(null);
-  const [selectedSessionToFinish, setSelectedSessionToFinish] = useState<
-    string | null
-  >(null);
+  const [selectedSessionToFinish, setSelectedSessionToFinish] =
+    useState<StudySessionShort | null>(null);
   const [isEvaluateModalOpen, setIsEvaluateModalOpen] =
     useState<boolean>(false);
 
@@ -82,7 +81,9 @@ export default function SessionKanban({
       }
 
       if (newStatus === 'done') {
-        setSelectedSessionToFinish(sessionId);
+        setSelectedSessionToFinish(
+          sessions.find((s) => s.id === sessionId) ?? null,
+        );
         setIsEvaluateModalOpen(true);
         return;
       }
@@ -162,7 +163,7 @@ export default function SessionKanban({
 
       <EvaluateSessionModal
         goalId={goalId}
-        sessionId={selectedSessionToFinish}
+        session={selectedSessionToFinish}
         isOpen={isEvaluateModalOpen}
         setIsOpen={setIsEvaluateModalOpen}
       />
