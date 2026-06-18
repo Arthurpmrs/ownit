@@ -19,6 +19,7 @@ import {
 } from '@mantine/core';
 import {
   IconCircleCheck,
+  IconCircleX,
   IconHourglass,
   IconPencil,
 } from '@tabler/icons-react';
@@ -75,6 +76,10 @@ export default function SessionKanban({
         return;
       }
 
+      if (currentStatus === 'canceled' && newStatus !== 'to_do') {
+        return;
+      }
+
       if (currentStatus === 'to_do' && newStatus === 'doing') {
         updateStatus.mutate({ sessionId, currentStatus, newStatus });
         return;
@@ -104,6 +109,7 @@ export default function SessionKanban({
   const activeSessions = sessions.filter((s) => s.status === 'doing');
   const pendingSessions = sessions.filter((s) => s.status === 'to_do');
   const completedSessions = sessions.filter((s) => s.status === 'done');
+  const canceledSessions = sessions.filter((s) => s.status === 'canceled');
 
   return (
     <>
@@ -132,6 +138,12 @@ export default function SessionKanban({
               title="Concluídas"
               sessions={completedSessions}
               icon={<IconCircleCheck size={16} color="#000" />}
+            />
+            <SessionColumn
+              status="canceled"
+              title="Canceladas"
+              sessions={canceledSessions}
+              icon={<IconCircleX size={16} color="#000" />}
             />
           </Stack>
         </Stack>
