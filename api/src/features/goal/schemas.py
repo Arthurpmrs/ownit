@@ -32,6 +32,7 @@ class GoalResponse(BaseModel):
     end_date: datetime | None = None
     created_at: datetime
     updated_at: datetime
+    progress: float | None = None
 
 
 class GoalWithSessionsResponse(BaseModel):
