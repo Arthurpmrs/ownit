@@ -51,8 +51,7 @@ const INITIAL_NOTES = `<p>Use este espaço para anotar insights, dificuldades ou
 export default function SessionExecution() {
   const { id } = useParams({ from: '/sessions/$id' });
   const { data, isLoading, error } = useQuery(getStudySessionOptions(id));
-  
-  
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -71,14 +70,27 @@ export default function SessionExecution() {
   const isFinished = data?.studySession.status === 'done';
 
   const queryClient = useQueryClient();
-  const updateStatus = useUpdateStudySessionStatus(data?.studySession.goalId ?? '');
+  const updateStatus = useUpdateStudySessionStatus(
+    data?.studySession.goalId ?? '',
+  );
 
   const handleFinishSession = () => {
-    if (!data) { return; }
+    if (!data) {
+      return;
+    }
     const { studySession } = data;
     updateStatus.mutate(
-      { sessionId: studySession.id, currentStatus: studySession.status, newStatus: 'done' },
-      { onSuccess: () => queryClient.invalidateQueries({ queryKey: getStudySessionOptions(id).queryKey }) },
+      {
+        sessionId: studySession.id,
+        currentStatus: studySession.status,
+        newStatus: 'done',
+      },
+      {
+        onSuccess: () =>
+          queryClient.invalidateQueries({
+            queryKey: getStudySessionOptions(id).queryKey,
+          }),
+      },
     );
   };
 
@@ -90,23 +102,27 @@ export default function SessionExecution() {
 
   const toggleChecklistItem = (itemId: number) => {
     setChecklist((prev) =>
-      prev.map((item) => (item.id === itemId ? { ...item, checked: !item.checked } : item)),
-  );
-};
+      prev.map((item) =>
+        item.id === itemId ? { ...item, checked: !item.checked } : item,
+      ),
+    );
+  };
 
-const handleAddComment = () => {
-  if (!comment.trim()) { return; }
-  setComment('');
-};
+  const handleAddComment = () => {
+    if (!comment.trim()) {
+      return;
+    }
+    setComment('');
+  };
 
-if (isLoading) {
-  return (
-    <Center h="100vh">
+  if (isLoading) {
+    return (
+      <Center h="100vh">
         <Loader />
       </Center>
     );
   }
-  
+
   if (error) {
     return (
       <Container py="xl">
@@ -116,7 +132,7 @@ if (isLoading) {
       </Container>
     );
   }
-  
+
   if (!data) {
     return (
       <Container py="xl">
@@ -126,11 +142,15 @@ if (isLoading) {
       </Container>
     );
   }
-  
+
   const { studySession } = data;
 
   const formatDate = (date: Date) =>
-    date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
 
   const dateRange = `${formatDate(studySession.plannedToStartAt)} - ${formatDate(studySession.plannedToEndAt)}`;
 
@@ -142,15 +162,21 @@ if (isLoading) {
           <Group gap="lg" mt={4}>
             <Flex align="center" gap={6}>
               <TargetIcon size={14} color="#868E96" weight="bold" />
-              <Text component="span" size="xs" c="dimmed">{studySession.goalTitle}</Text>
+              <Text component="span" size="xs" c="dimmed">
+                {studySession.goalTitle}
+              </Text>
             </Flex>
             <Flex align="center" gap={6}>
               <CalendarIcon size={14} color="#868E96" weight="bold" />
-              <Text component="span" size="xs" c="dimmed">{dateRange}</Text>
+              <Text component="span" size="xs" c="dimmed">
+                {dateRange}
+              </Text>
             </Flex>
             <Flex align="center" gap={6}>
               <ClockIcon size={14} color="#868E96" weight="bold" />
-              <Text component="span" size="xs" c="dimmed">{studySession.duration}</Text>
+              <Text component="span" size="xs" c="dimmed">
+                {studySession.duration}
+              </Text>
             </Flex>
           </Group>
         }
@@ -176,42 +202,51 @@ if (isLoading) {
               <Title order={4}>Anotações</Title>
               <RichTextEditor editor={editor}>
                 {!isFinished && (
-                    <RichTextEditor.Toolbar>
-                      <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.Bold />
-                        <RichTextEditor.Italic />
-                        <RichTextEditor.Strikethrough />
-                        <RichTextEditor.Underline />
-                        <RichTextEditor.Link />
-                      </RichTextEditor.ControlsGroup>
-                      <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.H1 />
-                        <RichTextEditor.H2 />
-                        <RichTextEditor.H3 />
-                        <RichTextEditor.H4 />
-                      </RichTextEditor.ControlsGroup>
-                      <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.BulletList />
-                        <RichTextEditor.OrderedList />
-                      </RichTextEditor.ControlsGroup>
-                      <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.AlignLeft />
-                        <RichTextEditor.AlignCenter />
-                        <RichTextEditor.AlignRight />
-                      </RichTextEditor.ControlsGroup>
-                      <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.ColorPicker
-                          colors={[
-                            '#000000', '#868E96', '#FA5252', '#E64980',
-                            '#BE4BDB', '#7950F2', '#4C6EF5', '#228BE6',
-                            '#15AABF', '#12B886', '#40C057', '#82C91E',
-                            '#FAB005', '#FD7E14',
-                          ]}
-                        />
-                      </RichTextEditor.ControlsGroup>
-                    </RichTextEditor.Toolbar>
-                  )
-                }
+                  <RichTextEditor.Toolbar>
+                    <RichTextEditor.ControlsGroup>
+                      <RichTextEditor.Bold />
+                      <RichTextEditor.Italic />
+                      <RichTextEditor.Strikethrough />
+                      <RichTextEditor.Underline />
+                      <RichTextEditor.Link />
+                    </RichTextEditor.ControlsGroup>
+                    <RichTextEditor.ControlsGroup>
+                      <RichTextEditor.H1 />
+                      <RichTextEditor.H2 />
+                      <RichTextEditor.H3 />
+                      <RichTextEditor.H4 />
+                    </RichTextEditor.ControlsGroup>
+                    <RichTextEditor.ControlsGroup>
+                      <RichTextEditor.BulletList />
+                      <RichTextEditor.OrderedList />
+                    </RichTextEditor.ControlsGroup>
+                    <RichTextEditor.ControlsGroup>
+                      <RichTextEditor.AlignLeft />
+                      <RichTextEditor.AlignCenter />
+                      <RichTextEditor.AlignRight />
+                    </RichTextEditor.ControlsGroup>
+                    <RichTextEditor.ControlsGroup>
+                      <RichTextEditor.ColorPicker
+                        colors={[
+                          '#000000',
+                          '#868E96',
+                          '#FA5252',
+                          '#E64980',
+                          '#BE4BDB',
+                          '#7950F2',
+                          '#4C6EF5',
+                          '#228BE6',
+                          '#15AABF',
+                          '#12B886',
+                          '#40C057',
+                          '#82C91E',
+                          '#FAB005',
+                          '#FD7E14',
+                        ]}
+                      />
+                    </RichTextEditor.ControlsGroup>
+                  </RichTextEditor.Toolbar>
+                )}
                 <RichTextEditor.Content />
               </RichTextEditor>
             </Stack>
@@ -234,7 +269,11 @@ if (isLoading) {
                 styles={{ input: { backgroundColor: 'white' } }}
               />
               <Flex justify="flex-end">
-                <Button color="orange" onClick={handleAddComment} disabled={isFinished}>
+                <Button
+                  color="orange"
+                  onClick={handleAddComment}
+                  disabled={isFinished}
+                >
                   Adicionar comentário
                 </Button>
               </Flex>
@@ -264,7 +303,12 @@ if (isLoading) {
                   />
                   <Title order={5}>Checklist</Title>
                 </Group>
-                <ActionIcon variant="subtle" color="gray" size="sm" disabled={isFinished}>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size="sm"
+                  disabled={isFinished}
+                >
                   <PencilSimpleIcon size={16} />
                 </ActionIcon>
               </Group>

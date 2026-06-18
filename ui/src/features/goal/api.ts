@@ -5,8 +5,16 @@ import type {
   StudySession,
   StudySessionWithHistory,
 } from './models';
-import type { GoalWithSessionsDTO, StudySessionDTO, StudySessionWithHistoryDTO } from './dto';
-import { goalWithSessionsMapper, studySessionMapper, studySessionWithHistoryMapper } from './mappers';
+import type {
+  GoalWithSessionsDTO,
+  StudySessionDTO,
+  StudySessionWithHistoryDTO,
+} from './dto';
+import {
+  goalWithSessionsMapper,
+  studySessionMapper,
+  studySessionWithHistoryMapper,
+} from './mappers';
 import type { Status } from '@/shared/models';
 
 export function getStudySessionOptions(sessionId: string) {
@@ -17,12 +25,16 @@ export function getStudySessionOptions(sessionId: string) {
   });
 }
 
-export async function fetchStudySession(sessionId: string): Promise<StudySessionWithHistory> {
+export async function fetchStudySession(
+  sessionId: string,
+): Promise<StudySessionWithHistory> {
   const url = `${import.meta.env.VITE_API_URL}/sessions/${sessionId}`;
   const response = await fetch(url, { credentials: 'include' });
 
   if (!response.ok) {
-    throw new Error(`Falha ao buscar sessão: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Falha ao buscar sessão: ${response.status} ${response.statusText}`,
+    );
   }
 
   const dto: StudySessionWithHistoryDTO = await response.json();

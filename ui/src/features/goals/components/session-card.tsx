@@ -33,7 +33,10 @@ export default function SessionCard({ session }: SessionCardProps) {
       padding="md"
       radius="lg"
       withBorder
-      style={{ opacity: isDragging ? 0.4 : 1, cursor: isDragging ? 'grabbing' : 'pointer' }}
+      style={{
+        opacity: isDragging ? 0.4 : 1,
+        cursor: isDragging ? 'grabbing' : 'pointer',
+      }}
       onClick={handleClick}
     >
       <Title order={5} mb={4}>
