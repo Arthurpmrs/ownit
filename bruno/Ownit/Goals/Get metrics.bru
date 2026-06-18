@@ -1,0 +1,16 @@
+meta {
+  name: Get metrics
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:8000/goals/{{goal_id}}/strategy-metrics
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
