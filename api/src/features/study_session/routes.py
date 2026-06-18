@@ -26,6 +26,7 @@ from .schemas import (
     StudySessionNotesUpdate,
     StudySessionResponse,
     StudySessionStatusUpdate,
+    StudySessionUpdate,
     StudySessionWithHistory,
 )
 
@@ -54,6 +55,16 @@ def get_study_session(
             conn, student_id, study_session_id
         ),
     )
+
+
+@router.put(path='/{study_session_id}', response_model=StudySessionResponse)
+def update_study_session(
+    study_session_id: str,
+    payload: StudySessionUpdate,
+    conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
+):
+    return service.update_study_session(conn, student_id, study_session_id, payload)
 
 
 @router.patch(path='/{study_session_id}/status', response_model=StudySessionResponse)

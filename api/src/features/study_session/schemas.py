@@ -45,6 +45,15 @@ class StudySessionNotesUpdate(BaseModel):
     new_notes: str
 
 
+class StudySessionUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    planned_to_start_at: datetime | None = None
+    duration: timedelta | None = None
+    focus_duration: timedelta | None = None
+    break_duration: timedelta | None = None
+
+
 class StudySessionEvaluate(BaseModel):
     rating: float = Field(ge=0.0, le=5.0)
     domain_perception_level: int = Field(ge=1, le=5)
