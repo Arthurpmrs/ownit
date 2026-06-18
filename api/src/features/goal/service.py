@@ -123,6 +123,7 @@ def list_goals(
         .outerjoin(stats, goals.c.id == stats.c.goal_id)
         .where(goals.c.is_deleted.is_(False))
         .where(goals.c.student_id == student_id)
+        .order_by(goals.c.updated_at.desc())
     )
 
     if status is not None:
