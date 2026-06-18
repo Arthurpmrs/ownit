@@ -16,7 +16,6 @@ from .exceptions import (
     InvalidPomodoroTransitionError,
     InvalidTransitionError,
     PomodoroNotFoundError,
-    WrongStudySessionStateError,
 )
 from .schemas import (
     CommentCreate,
@@ -81,7 +80,7 @@ def evaluate_study_session(
 ):
     try:
         return service.evaluate_study_session(conn, student_id, study_session_id, payload)
-    except WrongStudySessionStateError as e:
+    except InvalidTransitionError as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
 
 

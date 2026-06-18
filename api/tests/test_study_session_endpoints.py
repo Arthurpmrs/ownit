@@ -206,16 +206,6 @@ def test_evaluate_study_session(authenticated_client: TestClient, goal: dict):
     response = authenticated_client.post('/sessions/', json=payload)
     session_id = response.json()['id']
 
-    # Transiciona para 'done'
-    status_payload = {'new_status': 'doing'}
-    authenticated_client.patch(f'/sessions/{session_id}/status', json=status_payload)
-
-    status_payload = {'new_status': 'done'}
-    response = authenticated_client.patch(
-        f'/sessions/{session_id}/status', json=status_payload
-    )
-    assert response.status_code == HTTPStatus.OK
-
     # When - avalia a sessão
     evaluate_payload = {
         'rating': 4.5,
@@ -238,34 +228,7 @@ def test_evaluate_study_session(authenticated_client: TestClient, goal: dict):
     )
     assert data['strategies'] == evaluate_payload['strategies']
     assert data['final_comment'] == evaluate_payload['final_comment']
-
-
-def test_evaluate_study_session_not_done(authenticated_client: TestClient, goal: dict):
-    # Given - cria uma sessão de estudo mas NÃO a marca como 'done'
-    payload = {
-        'goal_id': goal['id'],
-        'title': 'Sessão não finalizada',
-        'description': 'Testando avaliação de sessão não finalizada',
-        'planned_to_start_at': '2026-05-05T10:00:00',
-        'duration': 'PT1H',
-    }
-    response = authenticated_client.post('/sessions/', json=payload)
-    session_id = response.json()['id']
-
-    # When - tenta avaliar uma sessão que ainda está em 'todo'
-    evaluate_payload = {
-        'rating': 4.5,
-        'domain_perception_level': 4,
-        'learning_difficulty_level': 2,
-        'strategies': ['Active Recall'],
-        'final_comment': 'Não deveria ser possível avaliar',
-    }
-    response = authenticated_client.patch(
-        f'/sessions/{session_id}/evaluate', json=evaluate_payload
-    )
-
-    # Then - deve falhar pois a sessão não está em 'done'
-    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert data['status'] == 'done'
 
 
 def test_get_nonexistent_study_session(authenticated_client: TestClient):
