@@ -33,15 +33,6 @@ class ActiveSessionExistsError(Exception):
         self.study_session_id = study_session_id
 
 
-class WrongStudySessionStateError(Exception):
-    def __init__(self, study_session_id: str):
-        super().__init__(
-            f'StudySession({study_session_id}): '
-            'Cannot evaluate a study session that is not done!'
-        )
-        self.study_session_id = study_session_id
-
-
 class PomodoroNotFoundError(Exception):
     def __init__(self, study_session_id: str):
         super().__init__(f'StudySession(id={study_session_id}) pomodoro not enabled.')

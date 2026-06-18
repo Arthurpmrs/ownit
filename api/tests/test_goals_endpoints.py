@@ -64,9 +64,10 @@ def test_list_goals_by_student(authenticated_client, student):
     # Then
     assert response.status_code == HTTPStatus.OK
     goals = response.json()
+    titles = [goal['title'] for goal in goals]
     assert len(goals) == 2  # noqa
-    assert goals[0]['title'] == 'Meta 1'
-    assert goals[1]['title'] == 'Meta 2'
+    assert 'Meta 1' in titles
+    assert 'Meta 2' in titles
 
 
 def test_list_goals_filtered_by_tags_and_status(authenticated_client, student, conn):

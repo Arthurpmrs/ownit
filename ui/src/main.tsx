@@ -2,6 +2,8 @@ import '@mantine/core/styles.css';
 import '@mantine/charts/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
+import '@mantine/tiptap/styles.css';
+import '@fontsource/roboto';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -23,6 +25,7 @@ declare module '@tanstack/react-router' {
 }
 
 const theme = createTheme({
+  fontFamily: 'Roboto, sans-serif',
   colors: {
     bgLight: colorsTuple('#FFF6E9'),
     borderLight: colorsTuple('#E8DFD6'),

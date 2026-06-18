@@ -1,12 +1,46 @@
 import { queryOptions } from '@tanstack/react-query';
 import type {
   CreateStudySessionData,
+  EvaluateSessionData,
   GoalWithSessions,
   StudySession,
+  StudySessionWithHistory,
 } from './models';
-import type { GoalWithSessionsDTO, StudySessionDTO } from './dto';
-import { goalWithSessionsMapper, studySessionMapper } from './mappers';
+import type {
+  GoalWithSessionsDTO,
+  StudySessionDTO,
+  StudySessionWithHistoryDTO,
+} from './dto';
+import {
+  goalWithSessionsMapper,
+  studySessionMapper,
+  studySessionWithHistoryMapper,
+} from './mappers';
 import type { Status } from '@/shared/models';
+
+export function getStudySessionOptions(sessionId: string) {
+  return queryOptions({
+    queryKey: ['session', sessionId],
+    queryFn: () => fetchStudySession(sessionId),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export async function fetchStudySession(
+  sessionId: string,
+): Promise<StudySessionWithHistory> {
+  const url = `${import.meta.env.VITE_API_URL}/sessions/${sessionId}`;
+  const response = await fetch(url, { credentials: 'include' });
+
+  if (!response.ok) {
+    throw new Error(
+      `Falha ao buscar sessão: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const dto: StudySessionWithHistoryDTO = await response.json();
+  return studySessionWithHistoryMapper.fromDTO(dto);
+}
 
 export function getGoalOptions(goalId: string) {
   return queryOptions({
@@ -83,6 +117,31 @@ export async function updateStudySessionStatus(
     },
     credentials: 'include',
     body: JSON.stringify({ new_status: newStatus }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const detail = body?.detail ?? `${response.status} ${response.statusText}`;
+    throw new Error(detail);
+  }
+
+  const dto: StudySessionDTO = await response.json();
+  return studySessionMapper.fromDTO(dto);
+}
+
+export async function evaluateStudySession(
+  data: EvaluateSessionData,
+): Promise<StudySession> {
+  const { sessionId, ...payload } = data;
+
+  const url = `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/evaluate`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
