@@ -1,5 +1,8 @@
 import { useEvaluateStudySession } from '@/features/goal/hooks';
-import type { EvaluateSessionData } from '@/features/goal/models';
+import type {
+  EvaluateSessionData,
+  StudySessionShort,
+} from '@/features/goal/models';
 import {
   Button,
   Center,
@@ -33,14 +36,14 @@ interface EvaluateSessionFormValues {
 
 interface EvaluateSessionModalProps {
   goalId: string;
-  sessionId: string | null;
+  session: StudySessionShort | null;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }
 
 export default function EvaluateSessionModal({
   goalId,
-  sessionId,
+  session,
   isOpen,
   setIsOpen,
 }: EvaluateSessionModalProps) {
@@ -208,12 +211,12 @@ export default function EvaluateSessionModal({
   const evaluateMutation = useEvaluateStudySession(goalId);
 
   function handleSubmit(values: EvaluateSessionFormValues) {
-    if (sessionId === null) {
+    if (session === null) {
       return;
     }
 
     const data: EvaluateSessionData = {
-      sessionId,
+      sessionId: session.id,
       rating: values.planning,
       domain_perception_level: values.domain_perception,
       learning_difficulty_level: values.difficulty,
@@ -227,8 +230,17 @@ export default function EvaluateSessionModal({
     setIsOpen(false);
   }
 
+  function handleClose() {
+    form.reset();
+    setIsOpen(false);
+  }
+
+  if (session === null) {
+    return <p>Algo deu errado.</p>;
+  }
+
   return (
-    <Modal.Root opened={isOpen} onClose={() => setIsOpen(false)} size="500px">
+    <Modal.Root opened={isOpen} onClose={handleClose} size="500px">
       <Modal.Overlay />
       <Modal.Content>
         <Modal.Header>
@@ -257,7 +269,7 @@ export default function EvaluateSessionModal({
                 Como foi a Sessão de Estudos?
               </Modal.Title>
               <Text c="dimmed" size="sm">
-                Reflita sobre Princípios de Design: Tipografia
+                Reflita sobre {session.title}
               </Text>
             </Stack>
             <Modal.CloseButton />
