@@ -29,7 +29,7 @@ export default function SessionCard({ session }: SessionCardProps) {
       withBorder
       style={{
         opacity: isDragging ? 0.4 : 1,
-        cursor: session.status === 'done' ? 'default' : 'grab'
+        cursor: session.status === 'done' ? 'default' : 'grab',
       }}
     >
       <Title order={5} mb={4}>
