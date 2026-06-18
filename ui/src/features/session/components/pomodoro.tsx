@@ -134,7 +134,7 @@ export function Pomodoro({
       const percentage = (block.durationInSeconds / totalSessionSeconds) * 100;
       return {
         value: percentage,
-        color: block.mode === 'focus' ? 'orange.5' : 'orange.1',
+        color: block.mode === 'focus' ? 'orange.5' : 'orange.2',
         tooltip: `${block.mode === 'focus' ? 'Foco' : 'Pausa'}: ${formatSeconds(block.durationInSeconds)}`,
       };
     });
@@ -143,7 +143,7 @@ export function Pomodoro({
   const chartSections = generateChartSections();
 
   return (
-    <Card withBorder padding="lg" w={'302px'} radius="md">
+    <Card withBorder padding="lg" radius="md">
       <Card.Section inheritPadding py="md">
         <Stack gap={'xs'}>
           <Group justify="space-between">
@@ -153,6 +153,7 @@ export function Pomodoro({
             </Group>
             <ActionIcon variant="subtle" color="gray">
               <IconPencil size={16} stroke={1.7} />
+              // TODO: fazer o modal de config do pomodoro
             </ActionIcon>
           </Group>
 
