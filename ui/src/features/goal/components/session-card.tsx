@@ -18,10 +18,12 @@ export default function SessionCard({ session }: SessionCardProps) {
   });
 
   const formatDate = (date: Date) => {
+    const hour = String(date.getUTCHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
     const day = String(date.getUTCDate()).padStart(2, '0');
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const year = date.getUTCFullYear();
-    return `${day}/${month}/${year}`;
+    return `${day}/${month}/${year} às ${hour}:${minute}`;
   };
 
   const handleClick = () => {
@@ -50,8 +52,7 @@ export default function SessionCard({ session }: SessionCardProps) {
         <Group gap={4}>
           <IconCalendar size={16} color="#868E96" />
           <Text size="xs" c="dimmed">
-            {formatDate(session.plannedToStartAt)} -{' '}
-            {formatDate(session.plannedToEndAt)}
+            {formatDate(session.plannedToStartAt)}
           </Text>
         </Group>
         <Group gap={4}>
