@@ -88,3 +88,14 @@ export type EvaluateSessionData = {
   strategies: string[];
   final_comment: string;
 };
+
+export type StrategyMetric = {
+  strategy: string;
+  adherence: number;
+  sessionsCount: number;
+};
+
+export type StrategyMetricsData = {
+  goalId: string;
+  metrics: StrategyMetric[];
+};

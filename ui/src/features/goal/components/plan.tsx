@@ -133,7 +133,7 @@ export default function Plan() {
           <SessionKanban sessions={sessions} goalId={id} />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 8 }}>
-          <SessionPerformance />
+          <SessionPerformance goalId={id} />
         </Grid.Col>
       </Grid>
     </>

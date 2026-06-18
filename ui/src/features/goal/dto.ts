@@ -55,3 +55,14 @@ export type PomodoroDTO = {
   created_at: string;
   updated_at: string;
 };
+
+export type StrategyMetricDTO = {
+  strategy: string;
+  adherence: number;
+  sessions_count: number;
+};
+
+export type StrategyMetricsResponseDTO = {
+  goal_id: string;
+  strategy_metrics: StrategyMetricDTO[];
+};

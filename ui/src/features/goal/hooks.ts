@@ -1,9 +1,14 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { showNotification } from '@mantine/notifications';
 import {
   createStudySession,
   evaluateStudySession,
   getGoalOptions,
+  getStrategyMetricsOptions,
   updateStudySessionStatus,
 } from './api';
 import type { Status } from '@/shared/models';
@@ -88,4 +93,8 @@ export function useEvaluateStudySession(goalId: string) {
       });
     },
   });
+}
+
+export function useStrategyMetrics(goalId: string) {
+  return useSuspenseQuery(getStrategyMetricsOptions(goalId));
 }

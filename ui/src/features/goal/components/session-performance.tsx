@@ -1,5 +1,7 @@
 import { BarChart, LineChart } from '@mantine/charts';
 import { Card, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { StrategyAdherenceChart } from './metrics/strategy-adherence-chart';
+import { useStrategyMetrics } from '../hooks';
 
 const weeklyStudyData = [
   { day: 'Domingo', minutos: 200 },
@@ -41,7 +43,15 @@ function MetricCard({ label, value }: MetricCardProps) {
   );
 }
 
-export default function SessionPerformance() {
+interface SessionPerformanceProps {
+  goalId: string;
+}
+
+export default function SessionPerformance({
+  goalId,
+}: SessionPerformanceProps) {
+  const { data } = useStrategyMetrics(goalId);
+
   return (
     <Stack gap="lg">
       <Title order={3}>Desempenho</Title>
@@ -51,6 +61,8 @@ export default function SessionPerformance() {
         <MetricCard label="Tempo Médio por Sessão" value="3.2h" />
         <MetricCard label="Estratégia Favorita" value="Vídeos" />
       </SimpleGrid>
+
+      <StrategyAdherenceChart data={data.metrics} />
 
       <Card p="lg" radius="md" withBorder shadow="xs">
         <Stack gap="md">

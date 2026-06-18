@@ -3,6 +3,8 @@ import type {
   EventDTO,
   GoalWithSessionsDTO,
   PomodoroDTO,
+  StrategyMetricDTO,
+  StrategyMetricsResponseDTO,
   StudySessionDTO,
   StudySessionShortDTO,
   StudySessionWithHistoryDTO,
@@ -10,6 +12,8 @@ import type {
 import type {
   GoalWithSessions,
   Pomodoro,
+  StrategyMetric,
+  StrategyMetricsData,
   StudySession,
   StudySessionShort,
 } from './models';
@@ -112,4 +116,33 @@ export const pomodoroMapper = {
       updatedAt: parseDate(dto.updated_at),
     };
   },
+};
+
+export const strategyMetricMapper = {
+  fromDTO(dto: StrategyMetricDTO): StrategyMetric {
+    return {
+      strategy: dto.strategy,
+      adherence: dto.adherence,
+      sessionsCount: dto.sessions_count,
+    };
+  },
+};
+
+export const strategyMetricsMapper = {
+  fromDTO(dto: StrategyMetricsResponseDTO): StrategyMetricsData {
+    return {
+      goalId: dto.goal_id,
+      metrics: dto.strategy_metrics.map((m) => strategyMetricMapper.fromDTO(m)),
+    };
+  },
+};
+
+export const studySessionStrategyMap = {
+  VIDEO: 'Vídeos',
+  READING: 'Leitura',
+  PRACTICE: 'Prática',
+  FLASHCARDS: 'Flashcards',
+  MIND_MAP: 'Mapa Mental',
+  FEYNMAN: 'Técnica de Feynman',
+  SELF_EXPLANATION: 'Autoexplicação',
 };

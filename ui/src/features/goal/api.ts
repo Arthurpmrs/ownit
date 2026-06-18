@@ -3,16 +3,19 @@ import type {
   CreateStudySessionData,
   EvaluateSessionData,
   GoalWithSessions,
+  StrategyMetricsData,
   StudySession,
   StudySessionWithHistory,
 } from './models';
 import type {
   GoalWithSessionsDTO,
+  StrategyMetricsResponseDTO,
   StudySessionDTO,
   StudySessionWithHistoryDTO,
 } from './dto';
 import {
   goalWithSessionsMapper,
+  strategyMetricsMapper,
   studySessionMapper,
   studySessionWithHistoryMapper,
 } from './mappers';
@@ -152,4 +155,28 @@ export async function evaluateStudySession(
 
   const dto: StudySessionDTO = await response.json();
   return studySessionMapper.fromDTO(dto);
+}
+
+export function getStrategyMetricsOptions(goalId: string) {
+  return queryOptions({
+    queryKey: ['strategy-metrics', goalId],
+    queryFn: () => fetchStrategyMetrics(goalId),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export async function fetchStrategyMetrics(
+  goalId: string,
+): Promise<StrategyMetricsData> {
+  const url = `${import.meta.env.VITE_API_URL}/goals/${goalId}/strategy-metrics`;
+  const response = await fetch(url, { credentials: 'include' });
+
+  if (!response.ok) {
+    throw new Error(
+      `Falha ao buscar métricas: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const dto: StrategyMetricsResponseDTO = await response.json();
+  return strategyMetricsMapper.fromDTO(dto);
 }
