@@ -66,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/signup': typeof SignupRoute
   '/goals/$id': typeof GoalsIdRoute
   '/sessions/$id': typeof SessionsIdRoute
   '/goals': typeof GoalsIndexRoute
@@ -73,8 +74,10 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/signup': typeof SignupRoute
   '/goals/$id': typeof GoalsIdRoute
   '/sessions/$id': typeof SessionsIdRoute
@@ -114,6 +117,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
   SignupRoute: typeof SignupRoute
   GoalsIdRoute: typeof GoalsIdRoute
   SessionsIdRoute: typeof SessionsIdRoute
@@ -179,6 +183,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  SignupRoute: SignupRoute,
   GoalsIdRoute: GoalsIdRoute,
   SessionsIdRoute: SessionsIdRoute,
   GoalsIndexRoute: GoalsIndexRoute,
@@ -187,3 +192,4 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+

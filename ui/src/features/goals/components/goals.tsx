@@ -14,20 +14,18 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import {
-  BookOpenIcon,
-  CaretRightIcon,
-  TargetIcon,
-} from '@phosphor-icons/react';
-import { useQuery } from '@tanstack/react-query';
-import { useRouteContext, useNavigate } from '@tanstack/react-router';
 
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate, useRouteContext } from '@tanstack/react-router';
+
+import { Pomodoro } from '@/features/session/components/pomodoro';
+import { IconBook, IconChevronRight, IconTarget } from '@tabler/icons-react';
+import { useState } from 'react';
 import { getStudentGoalsOptions } from '../api';
 import { statusMapper } from '../mappers';
 import type { Goal } from '../models';
 import CreateGoalModal from './create-goal-modal';
 import FilterGoalsModal, { type FilterGoalsValues } from './filter-goals-modal';
-import { useState } from 'react';
 
 export default function Goals() {
   const { student } = useRouteContext({ from: '/goals/' });
@@ -50,7 +48,7 @@ export default function Goals() {
       <Header
         title="Meus Planos"
         description="Visualize e organize seus planos de estudo"
-        icon={<TargetIcon weight="bold" color="white" size={32} />}
+        icon={<IconTarget stroke={2} color="white" size={32} />}
       >
         <Group gap="sm">
           <FilterGoalsModal
@@ -104,6 +102,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
 
   return (
     <Grid gap="md" align="stretch">
+      <Pomodoro />
       {goals && goals.length > 0 ? (
         goals.map((goal) => {
           // TODO: Calcular o progresso quando tivermos as sessões
@@ -127,7 +126,6 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
 
           return (
             <Grid.Col span={{ base: 12, md: 3 }} key={goal.id}>
-              {/* <Link key={goal.id} to="/goals/$id" params={{ id: goal.id }} style={{ textDecoration: 'none' }}> */}
               <Card
                 key={goal.id}
                 withBorder
@@ -155,7 +153,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
                   <Stack gap="md" justify="space-between" h="100%">
                     <Stack gap="sm">
                       <Group justify="space-between">
-                        <BookOpenIcon size={32} color="orange" weight="bold" />
+                        <IconBook size={32} color="orange" stroke={2} />
                         <Badge variant="light">
                           {statusMapper(goal.status)}
                         </Badge>
@@ -190,19 +188,18 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
                         <Text c="dimmed" size="sm" fw={600}>
                           {leftDays} dias
                         </Text>
-                        <CaretRightIcon />
+                        <IconChevronRight />
                       </Group>
                     </Stack>
                   </Stack>
                 </Card.Section>
               </Card>
-              {/* </Link> */}
             </Grid.Col>
           );
         })
       ) : (
-        <Center py="lg">
-          <Text c="dimmed">Nenhum plano criado ainda</Text>
+        <Center py="lg" w="100%">
+          <Text c="dimmed">Nenhum plano criado</Text>
         </Center>
       )}
     </Grid>

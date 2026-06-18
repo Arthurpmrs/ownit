@@ -2,8 +2,12 @@ import { Box, Flex } from '@mantine/core';
 import { Outlet, useLocation } from '@tanstack/react-router';
 import Navbar from './appshell/navbar';
 
+import ChatPopup from './chat/components/ChatPopup';
+import { useMe } from './auth/hooks';
+
 export default function RootLayout() {
   const location = useLocation();
+  const me = useMe();
   const isAuthPage = ['/login', '/signup'].includes(location.pathname);
 
   return (
@@ -12,6 +16,7 @@ export default function RootLayout() {
       <Box bg="bgLight.0" flex={1}>
         <Outlet />
       </Box>
+      {me.isAuthenticated && <ChatPopup />}
     </Flex>
   );
 }
