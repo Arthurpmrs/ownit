@@ -16,7 +16,7 @@ import SessionKanban from './session-kanban';
 import SessionPerformance from './session-performance';
 
 import { getGoalOptions } from '@/features/goal/api';
-import { BookIcon, CalendarIcon, TagIcon } from '@phosphor-icons/react';
+import { IconBook, IconCalendar, IconTag } from '@tabler/icons-react';
 
 export default function Plan() {
   const { id } = useParams({ from: '/goals/$id' });
@@ -87,20 +87,20 @@ export default function Plan() {
             <Group gap="lg" mt={8}>
               {dateRangeText && (
                 <Flex align="center" gap={6}>
-                  <CalendarIcon size={16} color="#868E96" weight="bold" />
+                  <IconCalendar size={16} color="#868E96" stroke={2} />
                   <Text component="span" size="xs" c="dimmed" fw={400}>
                     {dateRangeText}
                   </Text>
                 </Flex>
               )}
               <Flex align="center" gap={6}>
-                <TagIcon size={16} color="#868E96" weight="bold" />
+                <IconTag size={16} color="#868E96" stroke={2} />
                 <Text>{tags.join(', ')}</Text>
               </Flex>
             </Group>
           </>
         }
-        icon={<BookIcon weight="bold" color="white" size={32} />}
+        icon={<IconBook stroke={2} color="white" size={32} />}
       >
         <Group gap="lg">
           <Stack gap={0} align="center">

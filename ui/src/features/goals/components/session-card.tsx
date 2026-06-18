@@ -1,16 +1,13 @@
 import type { StudySessionShort } from '@/features/goal/models';
-import { useNavigate } from '@tanstack/react-router';
 import { useDraggable } from '@dnd-kit/react';
 import { Card, Group, Text, Title } from '@mantine/core';
-import { CalendarIcon, ClockIcon } from '@phosphor-icons/react';
+import { IconCalendar, IconClock } from '@tabler/icons-react';
 
 interface SessionCardProps {
   session: StudySessionShort;
 }
 
 export default function SessionCard({ session }: SessionCardProps) {
-  const navigate = useNavigate();
-
   const { ref, isDragging } = useDraggable({
     id: session.id,
     data: { sessionId: session.id, currentStatus: session.status },
@@ -23,21 +20,13 @@ export default function SessionCard({ session }: SessionCardProps) {
     return `${day}/${month}/${year}`;
   };
 
-  const handleClick = () => {
-    navigate({ to: '/sessions/$id', params: { id: session.id } });
-  };
-
   return (
     <Card
       ref={ref}
       padding="md"
       radius="lg"
       withBorder
-      style={{
-        opacity: isDragging ? 0.4 : 1,
-        cursor: isDragging ? 'grabbing' : 'pointer',
-      }}
-      onClick={handleClick}
+      style={{ opacity: isDragging ? 0.4 : 1, cursor: 'grab' }}
     >
       <Title order={5} mb={4}>
         {session.title}
@@ -47,14 +36,14 @@ export default function SessionCard({ session }: SessionCardProps) {
       </Text>
       <Group gap="lg">
         <Group gap={4}>
-          <CalendarIcon size={16} color="#868E96" />
+          <IconCalendar size={16} color="#868E96" />
           <Text size="xs" c="dimmed">
             {formatDate(session.plannedToStartAt)} -{' '}
             {formatDate(session.plannedToEndAt)}
           </Text>
         </Group>
         <Group gap={4}>
-          <ClockIcon size={16} color="#868E96" />
+          <IconClock size={16} color="#868E96" />
           <Text size="xs" c="dimmed">
             {session.duration}
           </Text>
