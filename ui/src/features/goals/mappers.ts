@@ -23,6 +23,7 @@ export const goalMapper = {
       updated_at: new Date(dto.updated_at),
       start_date: dto.start_date ? new Date(dto.start_date) : null,
       end_date: dto.end_date ? new Date(dto.end_date) : null,
+      progress: dto.progress,
     };
   },
   fromDTOList(dtos: GoalDTO[]): Goal[] {
