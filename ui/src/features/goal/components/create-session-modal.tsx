@@ -13,7 +13,7 @@ import {
 import { DateTimePicker, TimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
-import { IconCalendar, IconClock, IconPlus } from '@tabler/icons-react';
+import { CalendarIcon, ClockIcon, PlusIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useCreateStudySession } from '../hooks';
 import type { CreateStudySessionData } from '../models';
@@ -101,7 +101,7 @@ export default function CreateSessionModal({
         variant="subtle"
         radius="sm"
         size="xs"
-        leftSection={<IconPlus stroke={2} size={14} />}
+        leftSection={<PlusIcon weight="bold" size={14} />}
         onClick={openModal}
       >
         Adicionar
@@ -145,7 +145,7 @@ export default function CreateSessionModal({
                 />
 
                 <DateTimePicker
-                  leftSection={<IconCalendar size={18} />}
+                  leftSection={<CalendarIcon size={18} />}
                   label="Data Planejada"
                   placeholder="Insira a data que planeja executar essa sessão"
                   valueFormat="DD MMM YYYY hh:mm"
@@ -155,7 +155,7 @@ export default function CreateSessionModal({
                 />
 
                 <TimePicker
-                  leftSection={<IconClock size={16} />}
+                  leftSection={<ClockIcon size={16} />}
                   label="Duração da Sessão"
                   required
                   {...form.getInputProps('session_duration')}
@@ -163,14 +163,14 @@ export default function CreateSessionModal({
 
                 <Group>
                   <TimePicker
-                    leftSection={<IconClock size={16} />}
+                    leftSection={<ClockIcon size={16} />}
                     label="Duração do Modo Foco"
                     defaultValue="00:50"
                     flex={1}
                     {...form.getInputProps('focus_duration')}
                   />
                   <TimePicker
-                    leftSection={<IconClock size={16} />}
+                    leftSection={<ClockIcon size={16} />}
                     label="Duração do Modo Pause"
                     defaultValue="00:15"
                     flex={1}

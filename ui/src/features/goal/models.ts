@@ -48,6 +48,18 @@ export type StudySession = {
   updatedAt: Date;
 };
 
+export type SessionEvent = {
+  studentId: number;
+  timestamp: Date;
+  context: Record<string, unknown>;
+  type: string;
+};
+
+export type StudySessionWithHistory = {
+  studySession: StudySession;
+  history: SessionEvent[];
+};
+
 export type Pomodoro = {
   id: number;
   studySessionId: string;

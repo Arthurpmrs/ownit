@@ -32,6 +32,18 @@ export type StudySessionDTO = StudySessionShortDTO & {
   updated_at: string;
 };
 
+export type EventDTO = {
+  student_id: number;
+  timestamp: string;
+  context: Record<string, unknown>;
+  type: string;
+};
+
+export type StudySessionWithHistoryDTO = {
+  study_session: StudySessionDTO;
+  history: EventDTO[];
+};
+
 export type PomodoroDTO = {
   id: number;
   study_session_id: string;

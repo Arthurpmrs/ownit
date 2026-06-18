@@ -1,9 +1,11 @@
 import { parseDate, parseDuration } from '@/shared/utils';
 import type {
+  EventDTO,
   GoalWithSessionsDTO,
   PomodoroDTO,
   StudySessionDTO,
   StudySessionShortDTO,
+  StudySessionWithHistoryDTO,
 } from './dto';
 import type {
   GoalWithSessions,
@@ -72,6 +74,26 @@ export const studySessionMapper = {
 
       createdAt: parseDate(dto.created_at),
       updatedAt: parseDate(dto.updated_at),
+    };
+  },
+};
+
+export const sessionEventMapper = {
+  fromDTO(dto: EventDTO) {
+    return {
+      studentId: dto.student_id,
+      timestamp: parseDate(dto.timestamp),
+      context: dto.context,
+      type: dto.type,
+    };
+  },
+};
+
+export const studySessionWithHistoryMapper = {
+  fromDTO(dto: StudySessionWithHistoryDTO) {
+    return {
+      studySession: studySessionMapper.fromDTO(dto.study_session),
+      history: dto.history.map((e) => sessionEventMapper.fromDTO(e)),
     };
   },
 };
