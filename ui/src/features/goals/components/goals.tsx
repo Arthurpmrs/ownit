@@ -18,7 +18,6 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useRouteContext } from '@tanstack/react-router';
 
-import { Pomodoro } from '@/features/session/components/pomodoro';
 import { IconBook, IconChevronRight, IconTarget } from '@tabler/icons-react';
 import { useState } from 'react';
 import { getStudentGoalsOptions } from '../api';
@@ -102,7 +101,6 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
 
   return (
     <Grid gap="md" align="stretch">
-      <Pomodoro />
       {goals && goals.length > 0 ? (
         goals.map((goal) => {
           // TODO: Calcular o progresso quando tivermos as sessões
