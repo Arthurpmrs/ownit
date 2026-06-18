@@ -18,13 +18,13 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import {
-  CaretDownIcon,
-  SmileyIcon,
-  SmileyMehIcon,
-  SmileyNervousIcon,
-  SmileyWinkIcon,
-  SmileyXEyesIcon,
-} from '@phosphor-icons/react';
+  IconChevronDown,
+  IconMoodEmpty,
+  IconMoodSick,
+  IconMoodSmile,
+  IconMoodWink,
+  IconMoodWrrr,
+} from '@tabler/icons-react';
 
 interface EvaluateSessionFormValues {
   planning: number;
@@ -68,15 +68,15 @@ export default function EvaluateSessionModal({
 
     switch (value) {
       case 1:
-        return <SmileyXEyesIcon style={iconStyle} />;
+        return <IconMoodWrrr style={iconStyle} />;
       case 2:
-        return <SmileyNervousIcon style={iconStyle} />;
+        return <IconMoodSick style={iconStyle} />;
       case 3:
-        return <SmileyMehIcon style={iconStyle} />;
+        return <IconMoodEmpty style={iconStyle} />;
       case 4:
-        return <SmileyIcon style={iconStyle} />;
+        return <IconMoodSmile style={iconStyle} />;
       case 5:
-        return <SmileyWinkIcon style={iconStyle} />;
+        return <IconMoodWink style={iconStyle} />;
       default:
         return null;
     }
@@ -87,19 +87,19 @@ export default function EvaluateSessionModal({
 
     switch (value) {
       case 1:
-        icon = <SmileyXEyesIcon style={getIconStyle('red')} />;
+        icon = <IconMoodWrrr style={getIconStyle('red')} />;
         break;
       case 2:
-        icon = <SmileyNervousIcon style={getIconStyle('orange')} />;
+        icon = <IconMoodSick style={getIconStyle('orange')} />;
         break;
       case 3:
-        icon = <SmileyMehIcon style={getIconStyle('yellow')} />;
+        icon = <IconMoodEmpty style={getIconStyle('yellow')} />;
         break;
       case 4:
-        icon = <SmileyIcon style={getIconStyle('lime')} />;
+        icon = <IconMoodWink style={getIconStyle('lime')} />;
         break;
       case 5:
-        icon = <SmileyWinkIcon style={getIconStyle('green')} />;
+        icon = <IconMoodWink style={getIconStyle('green')} />;
         break;
       default:
         return null;
@@ -123,19 +123,19 @@ export default function EvaluateSessionModal({
 
     switch (value) {
       case 1:
-        icon = <SmileyWinkIcon style={getIconStyle('red', 5)} />;
+        icon = <IconMoodWink style={getIconStyle('red', 5)} />;
         break;
       case 2:
-        icon = <SmileyIcon style={getIconStyle('red', 6)} />;
+        icon = <IconMoodSmile style={getIconStyle('red', 6)} />;
         break;
       case 3:
-        icon = <SmileyMehIcon style={getIconStyle('red', 7)} />;
+        icon = <IconMoodEmpty style={getIconStyle('red', 7)} />;
         break;
       case 4:
-        icon = <SmileyNervousIcon style={getIconStyle('red', 8)} />;
+        icon = <IconMoodSick style={getIconStyle('red', 8)} />;
         break;
       case 5:
-        icon = <SmileyXEyesIcon style={getIconStyle('red', 9)} />;
+        icon = <IconMoodWrrr style={getIconStyle('red', 9)} />;
         break;
       default:
         return null;
@@ -343,7 +343,7 @@ export default function EvaluateSessionModal({
               labelProps={{ fw: 600, fz: 'md' }}
               descriptionProps={{ size: 'sm' }}
               mt="md"
-              rightSection={<CaretDownIcon size={16} color="gray" />}
+              rightSection={<IconChevronDown size={16} color="gray" />}
               {...form.getInputProps('strategies')}
             />
 
