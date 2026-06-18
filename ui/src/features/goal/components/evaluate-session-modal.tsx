@@ -235,10 +235,6 @@ export default function EvaluateSessionModal({
     setIsOpen(false);
   }
 
-  if (session === null) {
-    return <p>Algo deu errado.</p>;
-  }
-
   return (
     <Modal.Root opened={isOpen} onClose={handleClose} size="500px">
       <Modal.Overlay />
@@ -269,7 +265,7 @@ export default function EvaluateSessionModal({
                 Como foi a Sessão de Estudos?
               </Modal.Title>
               <Text c="dimmed" size="sm">
-                Reflita sobre {session.title}
+                Reflita sobre {session?.title ?? 'sua sessão de estudos'}
               </Text>
             </Stack>
             <Modal.CloseButton />
