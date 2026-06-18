@@ -21,7 +21,6 @@ from .exceptions import (
     InvalidTransitionError,
     PomodoroNotFoundError,
     StudySessionNotFoundError,
-    WrongStudySessionStateError,
 )
 from .schemas import (
     PomodoroResponse,
@@ -178,16 +177,18 @@ def _get_study_session_status(
     return status
 
 
-def _get_event_type_based_on_status(status: Status) -> EventType:
-    match status:
-        case Status.doing:
+def _get_event_type_based_on_status(old: Status, new: Status) -> EventType:
+    match old, new:
+        case _, Status.doing:
             event_type = EventType.STUDY_SESSION_STARTED
-        case Status.done:
+        case Status.doing, Status.todo:
+            event_type = EventType.STUDY_SESSION_UNDO_STARTED
+        case _, Status.done:
             event_type = EventType.STUDY_SESSION_FINISHED
-        case Status.canceled:
+        case _, Status.canceled:
             event_type = EventType.STUDY_SESSION_CANCELED
-        case _:
-            raise RuntimeError(f'Cannot generate event for {status}.')
+        case Status.canceled, Status.todo:
+            event_type = EventType.STUDY_SESSION_UNDO_CANCELED
 
     return event_type
 
@@ -251,7 +252,7 @@ def update_study_session_status(
     create_event(
         conn,
         EventCreate(
-            type=_get_event_type_based_on_status(new_status),
+            type=_get_event_type_based_on_status(current_status, new_status),
             student_id=student_id,
             goal_id=study_session.goal_id,
             study_session_id=study_session.id,
@@ -270,8 +271,8 @@ def evaluate_study_session(
 ) -> StudySessionResponse:
     status = _get_study_session_status(conn, study_session_id, student_id)
 
-    if status != Status.done:
-        raise WrongStudySessionStateError(study_session_id)
+    if not StudySessionStateMachine.can_transition(status, Status.done):
+        raise InvalidTransitionError(study_session_id, status, Status.done)
 
     final_comment = payload.final_comment if payload.final_comment is not None else ''
 
@@ -279,6 +280,7 @@ def evaluate_study_session(
         update(study_sessions)
         .where(*_get_study_session_predicate(study_session_id, student_id))
         .values(
+            status=Status.done,
             rating=payload.rating,
             domain_perception_level=payload.domain_perception_level,
             learning_difficulty_level=payload.learning_difficulty_level,
@@ -295,7 +297,7 @@ def evaluate_study_session(
     create_event(
         conn,
         EventCreate(
-            type=EventType.STUDY_SESSION_EVALUATED,
+            type=EventType.STUDY_SESSION_FINISHED,
             student_id=student_id,
             goal_id=study_session.goal_id,
             study_session_id=study_session.id,

@@ -94,8 +94,8 @@ export default function Plan() {
                 </Flex>
               )}
               <Flex align="center" gap={6}>
-                <TagIcon size={16} color="#868E96" weight="bold" />
-                <Text>{tags.join(', ')}</Text>
+                <IconTag size={16} color="#868E96" stroke={2} />
+                <Text>{tags.length > 0 ? tags.join(', ') : 'Não há tags'}</Text>
               </Flex>
             </Group>
           </>

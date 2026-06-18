@@ -10,21 +10,14 @@ import {
   Title,
 } from '@mantine/core';
 import {
-  DragDropProvider,
-  useDroppable,
-  type DragEndEvent,
-} from '@dnd-kit/react';
-import { PointerSensor, PointerActivationConstraints } from '@dnd-kit/dom';
-import {
-  CheckCircleIcon,
-  HourglassMediumIcon,
-  PencilSimpleIcon,
-} from '@phosphor-icons/react';
-import CreateSessionModal from '@/features/goal/components/create-session-modal';
-import type { StudySessionShort } from '@/features/goal/models';
-import type { Status } from '@/shared/models';
-import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
+  IconCircleCheck,
+  IconCircleX,
+  IconHourglass,
+  IconPencil,
+} from '@tabler/icons-react';
+import { useCallback, useState } from 'react';
 import SessionCard from './session-card';
+import EvaluateSessionModal from './evaluate-session-modal';
 
 interface SessionKanbanProps {
   sessions: StudySessionShort[];
@@ -55,6 +48,10 @@ export default function SessionKanban({
     currentStatus: Status;
     newStatus: Status;
   } | null>(null);
+  const [selectedSessionToFinish, setSelectedSessionToFinish] =
+    useState<StudySessionShort | null>(null);
+  const [isEvaluateModalOpen, setIsEvaluateModalOpen] =
+    useState<boolean>(false);
 
   const updateStatus = useUpdateStudySessionStatus(goalId);
 
@@ -79,8 +76,20 @@ export default function SessionKanban({
         return;
       }
 
+      if (currentStatus === 'canceled' && newStatus !== 'to_do') {
+        return;
+      }
+
       if (currentStatus === 'to_do' && newStatus === 'doing') {
         updateStatus.mutate({ sessionId, currentStatus, newStatus });
+        return;
+      }
+
+      if (newStatus === 'done') {
+        setSelectedSessionToFinish(
+          sessions.find((s) => s.id === sessionId) ?? null,
+        );
+        setIsEvaluateModalOpen(true);
         return;
       }
 
@@ -100,6 +109,7 @@ export default function SessionKanban({
   const activeSessions = sessions.filter((s) => s.status === 'doing');
   const pendingSessions = sessions.filter((s) => s.status === 'to_do');
   const completedSessions = sessions.filter((s) => s.status === 'done');
+  const canceledSessions = sessions.filter((s) => s.status === 'canceled');
 
   return (
     <>
@@ -127,7 +137,13 @@ export default function SessionKanban({
               status="done"
               title="Concluídas"
               sessions={completedSessions}
-              icon={<CheckCircleIcon size={16} color="#000" />}
+              icon={<IconCircleCheck size={16} color="#000" />}
+            />
+            <SessionColumn
+              status="canceled"
+              title="Canceladas"
+              sessions={canceledSessions}
+              icon={<IconCircleX size={16} color="#000" />}
             />
           </Stack>
         </Stack>
@@ -156,6 +172,13 @@ export default function SessionKanban({
           </Button>
         </Group>
       </Modal>
+
+      <EvaluateSessionModal
+        goalId={goalId}
+        session={selectedSessionToFinish}
+        isOpen={isEvaluateModalOpen}
+        setIsOpen={setIsEvaluateModalOpen}
+      />
     </>
   );
 }

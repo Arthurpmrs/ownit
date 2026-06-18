@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from sqlalchemy import func, insert, select, update
+from sqlalchemy import case, func, insert, select, update
 from sqlalchemy.engine import Connection
 
 from src.core.logger import get_logger
@@ -8,6 +8,7 @@ from src.features.analytics.schemas import EventCreate
 from src.features.analytics.service import create_event
 from src.features.analytics.tables import EventType
 from src.features.auth.tables import students
+from src.features.study_session.tables import study_sessions
 from src.shared.schemas import Status
 
 from .schemas import (
@@ -92,10 +93,37 @@ def get_goal(conn: Connection, student_id: int, goal_id: str) -> GoalResponse | 
 def list_goals(
     conn: Connection, student_id: int, status: Status | None, tags: list[str] | None
 ) -> list[GoalResponse]:
+    stats = (
+        select(
+            study_sessions.c.goal_id,
+            func.sum(
+                case(
+                    (study_sessions.c.status == 'done', 1),
+                    else_=0,
+                )
+            ).label('done'),
+            func.sum(
+                case(
+                    (study_sessions.c.status != 'canceled', 1),
+                    else_=0,
+                )
+            ).label('total'),
+        )
+        .group_by(study_sessions.c.goal_id)
+        .subquery()
+    )
+
     stmt = (
-        select(goals)
+        select(
+            goals,
+            func.coalesce(stats.c.done * 1.0 / func.nullif(stats.c.total, 0), 0).label(
+                'progress'
+            ),
+        )
+        .outerjoin(stats, goals.c.id == stats.c.goal_id)
         .where(goals.c.is_deleted.is_(False))
         .where(goals.c.student_id == student_id)
+        .order_by(goals.c.updated_at.desc())
     )
 
     if status is not None:
