@@ -11,6 +11,7 @@ export default function SessionCard({ session }: SessionCardProps) {
   const { ref, isDragging } = useDraggable({
     id: session.id,
     data: { sessionId: session.id, currentStatus: session.status },
+    disabled: session.status === 'done',
   });
 
   const formatDate = (date: Date) => {
@@ -26,7 +27,10 @@ export default function SessionCard({ session }: SessionCardProps) {
       padding="md"
       radius="lg"
       withBorder
-      style={{ opacity: isDragging ? 0.4 : 1, cursor: 'grab' }}
+      style={{
+        opacity: isDragging ? 0.4 : 1,
+        cursor: session.status === 'done' ? 'default' : 'grab'
+      }}
     >
       <Title order={5} mb={4}>
         {session.title}
