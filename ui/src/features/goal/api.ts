@@ -1,22 +1,21 @@
+import type { Status } from '@/shared/models';
 import { queryOptions } from '@tanstack/react-query';
 import type {
-  CreateStudySessionData,
-  EvaluateSessionData,
-  GoalWithSessions,
-  StudySession,
-  StudySessionWithHistory,
-} from './models';
-import type {
-  GoalWithSessionsDTO,
   StudySessionDTO,
   StudySessionWithHistoryDTO,
-} from './dto';
+} from '../session/dto';
 import {
-  goalWithSessionsMapper,
   studySessionMapper,
   studySessionWithHistoryMapper,
-} from './mappers';
-import type { Status } from '@/shared/models';
+} from '../session/mapper';
+import type {
+  EvaluateSessionData,
+  StudySession,
+  StudySessionWithHistory,
+} from '../session/models';
+import type { GoalWithSessionsDTO } from './dto';
+import { goalWithSessionsMapper } from './mappers';
+import type { CreateStudySessionData, GoalWithSessions } from './models';
 
 export function getStudySessionOptions(sessionId: string) {
   return queryOptions({

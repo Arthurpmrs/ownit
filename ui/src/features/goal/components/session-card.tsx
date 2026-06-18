@@ -1,4 +1,4 @@
-import type { StudySessionShort } from '@/features/goal/models';
+import type { StudySessionShort } from '@/features/session/models';
 import { useDraggable } from '@dnd-kit/react';
 import { Card, Group, Text, Title } from '@mantine/core';
 import { IconCalendar, IconClock } from '@tabler/icons-react';

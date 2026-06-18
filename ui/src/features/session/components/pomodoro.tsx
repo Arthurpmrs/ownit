@@ -13,17 +13,16 @@ import {
   IconBrain,
   IconCoffee,
   IconHourglassEmpty,
-  IconPencil,
   IconPlayerPause,
   IconPlayerPlay,
   IconRefresh,
 } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
+import type { Pomodoro } from '../models';
 
-interface PomodoroConfig {
+interface PomodoroProps {
   sessionDuration: string;
-  focusDuration: string;
-  breakDuration: string;
+  pomodoro: Pomodoro;
 }
 
 interface TimeBlock {
@@ -51,13 +50,9 @@ function formatSeconds(totalSeconds: number): string {
   return `${pad(minutes)}:${pad(seconds)}`;
 }
 
-export function Pomodoro({
-  sessionDuration,
-  focusDuration,
-  breakDuration,
-}: PomodoroConfig) {
+export function Pomodoro({ sessionDuration, pomodoro }: PomodoroProps) {
   const [mode, setMode] = useState<'focus' | 'break'>('focus');
-  const [timeLeft, setTimeLeft] = useState(toSeconds(focusDuration));
+  const [timeLeft, setTimeLeft] = useState(toSeconds(pomodoro.focusDuration));
   const [isActive, setIsActive] = useState(false);
   const [history, setHistory] = useState<TimeBlock[]>([]);
   const [currentBlockSeconds, setCurrentBlockSeconds] = useState(0);
@@ -86,7 +81,11 @@ export function Pomodoro({
 
   useEffect(() => {
     if (currentBlockSeconds === 0 && history.length === 0) {
-      setTimeLeft(toSeconds(mode === 'focus' ? focusDuration : breakDuration));
+      setTimeLeft(
+        toSeconds(
+          mode === 'focus' ? pomodoro.focusDuration : pomodoro.breakDuration,
+        ),
+      );
       return;
     }
 
@@ -94,7 +93,11 @@ export function Pomodoro({
       isChangingModeManually.current = false;
     }
 
-    setTimeLeft(toSeconds(mode === 'focus' ? focusDuration : breakDuration));
+    setTimeLeft(
+      toSeconds(
+        mode === 'focus' ? pomodoro.focusDuration : pomodoro.breakDuration,
+      ),
+    );
   }, [mode]);
 
   const archiveCurrentBlock = (forcedMode?: 'focus' | 'break') => {
@@ -119,7 +122,11 @@ export function Pomodoro({
 
   const handleReset = () => {
     setIsActive(false);
-    setTimeLeft(toSeconds(mode === 'focus' ? focusDuration : breakDuration));
+    setTimeLeft(
+      toSeconds(
+        mode === 'focus' ? pomodoro.focusDuration : pomodoro.breakDuration,
+      ),
+    );
   };
 
   const generateChartSections = () => {
@@ -149,12 +156,12 @@ export function Pomodoro({
           <Group justify="space-between">
             <Group gap={'xs'}>
               <IconHourglassEmpty size={16} color="orange" />
-              <Title order={5}>Pomodoro</Title>
+              <Title order={5}>Pomodoro - {pomodoro.status}</Title>
             </Group>
-            <ActionIcon variant="subtle" color="gray">
+            {/* <ActionIcon variant="subtle" color="gray">
               <IconPencil size={16} stroke={1.7} />
               // TODO: fazer o modal de config do pomodoro
-            </ActionIcon>
+            </ActionIcon> */}
           </Group>
 
           <SegmentedControl
@@ -215,7 +222,7 @@ export function Pomodoro({
           <Center my="sm">
             <RingProgress
               roundCaps
-              size={220}
+              size={270}
               thickness={16}
               sections={chartSections}
               label={
@@ -224,7 +231,7 @@ export function Pomodoro({
                     <Text
                       style={{
                         fontWeight: 'bold',
-                        fontSize: '42px',
+                        fontSize: '44px',
                         lineHeight: 1,
                       }}
                     >
