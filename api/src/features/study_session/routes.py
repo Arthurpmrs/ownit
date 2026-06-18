@@ -8,6 +8,7 @@ from src.core.db import get_connection
 from src.core.logger import get_logger
 from src.features.analytics import service as analytics_service
 from src.features.analytics.exceptions import EventNotFountError
+from src.features.analytics.schemas import StrategyMetric, StrategyMetricsResponse
 from src.shared.schemas import EventResponse
 
 from . import service
@@ -128,3 +129,24 @@ def update_pomodoro_status(
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=str(e))
     except InvalidPomodoroTransitionError as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
+
+
+@router.get('/{goal_id}/strategy-metrics', response_model=StrategyMetricsResponse)
+def get_goal_strategy_metrics(
+    goal_id: str,
+    conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
+):
+    strategy_metrics = analytics_service.get_strategy_metrics(conn, student_id, goal_id)
+
+    return StrategyMetricsResponse(
+        goal_id=goal_id,
+        strategy_metrics=[
+            StrategyMetric(
+                strategy=strategy,
+                adherence=data['adherence'],
+                sessions_count=data['sessions_count'],
+            )
+            for strategy, data in strategy_metrics.items()
+        ],
+    )
