@@ -127,7 +127,7 @@ def _create_study_session(
             goal_id=goal_id,
             study_session_id=data['session_id'],
             timestamp=data['to_be_created_at'],
-            context={'goal_status': 'to_do'},
+            context={'goal_status': 'doing'},
         )
     )
 
