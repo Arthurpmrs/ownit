@@ -101,6 +101,8 @@ export type SRWeeklyMetric = {
   weekEnd: Date;
   srCount: number;
   finishedCount: number;
+  avgRating: number;
+  avgDomainPerception: number;
   frequency: number;
 };
 

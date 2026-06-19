@@ -137,6 +137,8 @@ export const srWeeklyMapper = {
       weekStart: parseDate(dto.week_start),
       weekEnd: parseDate(dto.week_end),
       srCount: dto.sr_count,
+      avgRating: dto.avg_rating,
+      avgDomainPerception: dto.avg_domain_perception,
       finishedCount: dto.finished_count,
       frequency: dto.frequency,
     };

@@ -208,7 +208,7 @@ def get_week_number(
     return floor(delta_seconds / (7 * 24 * 60 * 60)) + 1
 
 
-def get_self_regulation_metrics(
+def get_self_regulation_metrics(  # noqa
     conn: Connection,
     student_id: int,
     goal_id: str,
@@ -242,7 +242,13 @@ def get_self_regulation_metrics(
     ).fetchall()
 
     finished_event_rows = conn.execute(
-        select(events.c.timestamp).where(
+        select(
+            events.c.timestamp,
+            study_sessions.c.domain_perception_level,
+            study_sessions.c.rating,
+        )
+        .join(study_sessions, events.c.study_session_id == study_sessions.c.id)
+        .where(
             events.c.student_id == student_id,
             events.c.goal_id == goal_id,
             events.c.type == EventType.STUDY_SESSION_FINISHED,
@@ -260,6 +266,8 @@ def get_self_regulation_metrics(
         sr_events_per_week[week] += 1
 
     finished_sessions_per_week = defaultdict(int)
+    domain_perception_sum_per_week = defaultdict(int)
+    rating_sum_per_week = defaultdict(int)
 
     for row in finished_event_rows:
         week = get_week_number(
@@ -268,6 +276,8 @@ def get_self_regulation_metrics(
         )
 
         finished_sessions_per_week[week] += 1
+        domain_perception_sum_per_week[week] += row.domain_perception_level
+        rating_sum_per_week[week] += row.rating
 
     weeks = sorted(set(sr_events_per_week) | set(finished_sessions_per_week))
 
@@ -276,8 +286,14 @@ def get_self_regulation_metrics(
     for week in weeks:
         sr_count = sr_events_per_week[week]
         finished_count = finished_sessions_per_week[week]
+        domain_perception_sum = domain_perception_sum_per_week[week]
+        rating_sum = rating_sum_per_week[week]
 
-        frequency = sr_count / finished_count if finished_count > 0 else 0
+        avg_domain_perception = (
+            float(domain_perception_sum / finished_count) if finished_count > 0.0 else 0.0
+        )
+        avg_rating = float(rating_sum / finished_count) if finished_count > 0.0 else 0.0
+        frequency = float(sr_count / finished_count) if finished_count > 0.0 else 0.0
 
         week_start = goal_started_timestamp + timedelta(days=(week - 1) * 7)
         week_end = week_start + timedelta(days=7)
@@ -289,6 +305,8 @@ def get_self_regulation_metrics(
             'sr_count': sr_count,
             'finished_count': finished_count,
             'frequency': frequency,
+            'avg_rating': avg_rating,
+            'avg_domain_perception': avg_domain_perception,
         })
 
     return frequency_per_week

@@ -1,13 +1,5 @@
 import { LineChart } from '@mantine/charts';
-import {
-  Card,
-  Stack,
-  Text,
-  Group,
-  Paper,
-  SimpleGrid,
-  Tooltip,
-} from '@mantine/core';
+import { Card, Stack, Text, Group, Paper, Tooltip } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import type { SRWeeklyMetric } from '../../models';
 
@@ -36,20 +28,14 @@ export function SRWeeklyChart({ data }: SRWeeklyChartProps) {
     );
   }
 
-  // Transformar dados para o formato esperado pelo Mantine Charts
   const chartData = data.map((item) => ({
     semana: formatWeekRange(item.weekStart, item.weekEnd),
     'Eventos SRL': item.srCount,
     'Sessões Finalizadas': item.finishedCount,
     Frequência: Math.round(item.frequency * 100) / 100,
+    'Média do Grau de Percepção de Domínio': item.avgDomainPerception,
+    'Nota média das sessões': item.avgRating,
   }));
-
-  const frequencyStats = {
-    avg: (data.reduce((sum, d) => sum + d.frequency, 0) / data.length).toFixed(
-      2,
-    ),
-    max: Math.max(...data.map((d) => d.frequency)).toFixed(2),
-  };
 
   return (
     <Stack gap="lg">
@@ -61,7 +47,11 @@ export function SRWeeklyChart({ data }: SRWeeklyChartProps) {
                 <Text fw={600} size="lg">
                   Autorregulação Semanal
                 </Text>
-                <Tooltip label="Frequência = Eventos SRL / Sessões Finalizadas">
+                <Tooltip
+                  w={600}
+                  multiline
+                  label="Consideram-se Eventos de Autorregulação o ajuste de sessões existentes, criação de novas sessões e cancelamento de sessões, durante a execução do plano."
+                >
                   <IconInfoCircle
                     size={16}
                     color="#868E96"
@@ -71,18 +61,18 @@ export function SRWeeklyChart({ data }: SRWeeklyChartProps) {
                 </Tooltip>
               </Group>
               <Text size="sm" c="dimmed">
-                Relação entre eventos de autorregulação e sessões concluídas
+                Relação entre eventos de autorregulação, sessões concluídas,
+                percepção de domínio e avaliação das sessões.
               </Text>
             </div>
           </Group>
 
-          {/* LineChart com 2 séries */}
           <LineChart
             h={280}
             data={chartData}
             dataKey="semana"
             series={[
-              { name: 'Eventos SRL', color: '#FD7E14' },
+              { name: 'Eventos SRL', color: '#e22732' },
               { name: 'Sessões Finalizadas', color: '#12B886' },
             ]}
             tickLine="none"
@@ -102,33 +92,33 @@ export function SRWeeklyChart({ data }: SRWeeklyChartProps) {
               ],
             }}
             xAxisProps={{ tick: { fill: '#ADB5BD', fontSize: 12 } }}
+            lineChartProps={{ syncId: 'srl' }}
+          />
+          <LineChart
+            h={280}
+            data={chartData}
+            dataKey="semana"
+            series={[
+              {
+                name: 'Média do Grau de Percepção de Domínio',
+                color: '#FD7E14',
+              },
+              { name: 'Nota média das sessões', color: '#9354e0' },
+            ]}
+            tickLine="none"
+            gridAxis="y"
+            withLegend
+            strokeDasharray="4 4"
+            curveType="natural"
+            withDots
+            yAxisProps={{
+              domain: [0, 5],
+            }}
+            xAxisProps={{ tick: { fill: '#ADB5BD', fontSize: 12 } }}
+            lineChartProps={{ syncId: 'srl' }}
           />
         </Stack>
       </Card>
-
-      {/* Métricas de frequência */}
-      <SimpleGrid cols={2} spacing="md">
-        <Paper p="md" radius="md" withBorder shadow="xs">
-          <Stack gap={4}>
-            <Text size="xs" c="dimmed" fw={500}>
-              Frequência de Autorregulação Média
-            </Text>
-            <Text size="xl" fw={700} c="orange.6">
-              {frequencyStats.avg}x
-            </Text>
-          </Stack>
-        </Paper>
-        <Paper p="md" radius="md" withBorder shadow="xs">
-          <Stack gap={4}>
-            <Text size="xs" c="dimmed" fw={500}>
-              Frequência de Autorregulação Máxima
-            </Text>
-            <Text size="xl" fw={700} c="orange.6">
-              {frequencyStats.max}x
-            </Text>
-          </Stack>
-        </Paper>
-      </SimpleGrid>
     </Stack>
   );
 }

@@ -68,6 +68,8 @@ export type SRWeeklyMetricDTO = {
   week_end: string;
   sr_count: number;
   finished_count: number;
+  avg_rating: number;
+  avg_domain_perception: number;
   frequency: number;
 };
 

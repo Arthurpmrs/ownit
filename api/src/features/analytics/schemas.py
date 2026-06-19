@@ -26,6 +26,8 @@ class SelfRegulationWeeklyMetric(BaseModel):
     week_end: datetime
     sr_count: int
     finished_count: int
+    avg_rating: float
+    avg_domain_perception: float
     frequency: float
 
 
