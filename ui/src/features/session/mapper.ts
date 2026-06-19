@@ -43,7 +43,7 @@ export const studySessionMapper = {
 
       notes: dto.notes,
 
-      pomodoro: dto.pomodoro ? pomodoroMapper.fromDTO(dto.pomodoro) : null,
+      pomodoro: pomodoroMapper.fromDTO(dto.pomodoro),
 
       rating: dto.rating,
       domainPerceptionLevel: dto.domain_perception_level,

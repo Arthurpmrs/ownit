@@ -35,10 +35,11 @@ interface TimeBlock {
 
 function toSeconds(timeStr: string): number {
   if (!timeStr) return 0;
-  const [hourStr, minutesStr] = timeStr.split(':');
+  const [hourStr, minutesStr, secStr] = timeStr.split(':');
   const hour = parseInt(hourStr, 10) || 0;
   const minutes = parseInt(minutesStr, 10) || 0;
-  return hour * 3600 + minutes * 60;
+  const sec = parseInt(secStr, 10) || 0;
+  return hour * 3600 + minutes * 60 + sec;
 }
 
 function formatSeconds(totalSeconds: number): string {

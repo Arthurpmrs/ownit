@@ -17,7 +17,7 @@ export type StudySessionDTO = StudySessionShortDTO & {
   goal_id: string;
   goal_title: string;
   notes: string;
-  pomodoro: PomodoroDTO | null;
+  pomodoro: PomodoroDTO;
   rating: number | null;
   domain_perception_level: number | null;
   learning_difficulty_level: number | null;
