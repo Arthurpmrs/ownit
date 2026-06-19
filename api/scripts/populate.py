@@ -20,6 +20,7 @@ DemoSession = TypedDict(
         'planned_duration': timedelta,
         'real_duration': timedelta,
         'rating': float,
+        'domain_perception_level': int,
         'to_be_created_at': datetime,
     },
 )
@@ -50,7 +51,7 @@ def _create_study_sessions(
                 planned_to_start_at=planned_to_start,
                 duration=session_data['planned_duration'],
                 rating=session_data['rating'],
-                domain_perception_level=4,
+                domain_perception_level=session_data['domain_perception_level'],
                 learning_difficulty_level=3,
                 strategies=session_data['strategies'],
                 final_comment='',
@@ -113,7 +114,7 @@ def _create_study_session(
             planned_to_start_at=planned_to_start,
             duration=data['planned_duration'],
             rating=data['rating'],
-            domain_perception_level=4,
+            domain_perception_level=data['domain_perception_level'],
             learning_difficulty_level=3,
             strategies=data['strategies'],
             final_comment='',
@@ -220,7 +221,7 @@ def _populate_demo_goal():
         student_id = student.id
 
         # Cria o goal de demo para SRL
-        goal_id = 'DemoSRLGoalID2'
+        goal_id = 'DemoSRLGoalID'
 
         stmt = select(exists().where(goals.c.id == goal_id))
         if bool(conn.scalar(stmt)):
@@ -250,7 +251,8 @@ def _populate_demo_goal():
                 'strategies': ['VIDEO', 'READING'],
                 'planned_duration': timedelta(hours=2),
                 'real_duration': timedelta(hours=2, minutes=5),
-                'rating': 5.0,
+                'domain_perception_level': 1,
+                'rating': 3.0,
                 'to_be_created_at': now + timedelta(minutes=5),
             },
             {
@@ -259,7 +261,8 @@ def _populate_demo_goal():
                 'strategies': ['PRACTICE'],
                 'planned_duration': timedelta(minutes=90),
                 'real_duration': timedelta(minutes=75),
-                'rating': 4.5,
+                'domain_perception_level': 2,
+                'rating': 2.5,
                 'to_be_created_at': now + timedelta(minutes=8),
             },
             {
@@ -268,34 +271,38 @@ def _populate_demo_goal():
                 'strategies': ['VIDEO', 'PRACTICE'],
                 'planned_duration': timedelta(hours=1, minutes=30),
                 'real_duration': timedelta(minutes=60),
+                'domain_perception_level': 1,
                 'rating': 3.5,
                 'to_be_created_at': now + timedelta(minutes=9),
             },
             {
                 'session_id': 'session_demo_4',
                 'name': 'Session 4 - Aprofundamento',
-                'strategies': ['READING'],
+                'strategies': ['READING', 'FLASHCARDS'],
                 'planned_duration': timedelta(hours=2),
                 'real_duration': timedelta(minutes=45),
+                'domain_perception_level': 2,
                 'rating': 2.5,
                 'to_be_created_at': now + timedelta(minutes=10),
             },
             {
                 'session_id': 'session_demo_5',
                 'name': 'Session 5 - Consolidação',
-                'strategies': ['VIDEO'],
+                'strategies': ['VIDEO', 'PRACTICE'],
                 'planned_duration': timedelta(hours=1),
                 'real_duration': timedelta(hours=1, minutes=2),
-                'rating': 5.0,
+                'domain_perception_level': 3,
+                'rating': 4.25,
                 'to_be_created_at': now + timedelta(minutes=12),
             },
             {
                 'session_id': 'session_demo_6',
                 'name': 'Session 6 - Síntese Final',
-                'strategies': ['VIDEO', 'READING', 'PRACTICE'],
+                'strategies': ['SELF_EXPLANATION', 'PRACTICE', 'FLASHCARDS'],
                 'planned_duration': timedelta(hours=1, minutes=30),
                 'real_duration': timedelta(hours=1, minutes=25),
-                'rating': 4.0,
+                'domain_perception_level': 5,
+                'rating': 3.75,
                 'to_be_created_at': now + timedelta(minutes=15),
             },
         ]
@@ -389,10 +396,11 @@ def _populate_demo_goal():
         new_study_session: DemoSession = {
             'session_id': 'session_demo_7',
             'name': 'Session 7 - Síntese Final',
-            'strategies': ['SELF_EXPLANATION'],
+            'strategies': ['VIDEO', 'READING'],
             'planned_duration': timedelta(hours=1, minutes=10),
             'real_duration': timedelta(minutes=34),
-            'rating': 1.0,
+            'domain_perception_level': 5,
+            'rating': 4.75,
             'to_be_created_at': week_2 + timedelta(days=5, hours=3),
         }
 
