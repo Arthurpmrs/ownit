@@ -84,11 +84,13 @@ export function SRWeeklyChart({ data }: SRWeeklyChartProps) {
             yAxisProps={{
               domain: [
                 0,
-                Math.max(
-                  ...chartData.map((d) =>
-                    Math.max(d['Eventos SRL'], d['Sessões Finalizadas']),
-                  ),
-                ) * 1.1,
+                (
+                  Math.max(
+                    ...chartData.map((d) =>
+                      Math.max(d['Eventos SRL'], d['Sessões Finalizadas']),
+                    ),
+                  ) * 1.1
+                ).toFixed(2),
               ],
             }}
             xAxisProps={{ tick: { fill: '#ADB5BD', fontSize: 12 } }}
@@ -105,6 +107,7 @@ export function SRWeeklyChart({ data }: SRWeeklyChartProps) {
               },
               { name: 'Nota média das sessões', color: '#9354e0' },
             ]}
+            valueFormatter={(value) => value.toFixed(2)}
             tickLine="none"
             gridAxis="y"
             withLegend
@@ -112,7 +115,7 @@ export function SRWeeklyChart({ data }: SRWeeklyChartProps) {
             curveType="natural"
             withDots
             yAxisProps={{
-              domain: [0, 5],
+              domain: [0, 6],
             }}
             xAxisProps={{ tick: { fill: '#ADB5BD', fontSize: 12 } }}
             lineChartProps={{ syncId: 'srl' }}
