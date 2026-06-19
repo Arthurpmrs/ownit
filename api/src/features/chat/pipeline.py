@@ -10,6 +10,7 @@ from src.core.db import get_engine
 from src.core.logger import get_logger
 from src.features.chat import service
 from src.features.chat.prompts import SYSTEM_PROMPT
+from src.features.chat.retrieval import format_context, retrieve_context
 
 logger = get_logger(__name__)
 
@@ -32,9 +33,24 @@ def create_chat_generator(
 
 def build_haystack_messages(
     history: list[dict[str, str]],
+    context: str | None = None,
 ) -> list[ChatMessage]:
     """Convert DB history to Haystack ChatMessage objects."""
-    messages = [ChatMessage.from_system(SYSTEM_PROMPT)]
+    if context is None:
+        context = ''
+        try:
+            if history and history[-1]['role'] == 'user':
+                user_query = history[-1]['content']
+                docs = retrieve_context(user_query)
+                context = format_context(docs)
+        except Exception:
+            logger.exception('Failed to retrieve context for RAG')
+
+    system_prompt = SYSTEM_PROMPT
+    if context:
+        system_prompt = f'{system_prompt}\n\n{context}'
+
+    messages = [ChatMessage.from_system(system_prompt)]
     for msg in history:
         if msg['role'] == 'user':
             messages.append(ChatMessage.from_user(msg['content']))

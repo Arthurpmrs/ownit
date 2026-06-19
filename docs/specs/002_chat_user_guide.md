@@ -116,41 +116,31 @@ CREATE EXTENSION IF NOT EXISTS vector;
 
 Stores the chunked and embedded documents from the user guide.
 
-```python
-from pgvector.sqlalchemy import Vector
+Unlike other tables in the application, this table is **managed entirely by Haystack's `PgvectorDocumentStore`** rather than Alembic. This simplifies the architecture by letting the vector store component handle its own schema (which includes columns like `id`, `content`, `embedding`, and `meta` for metadata).
 
-user_guide_documents = Table(
-    'user_guide_documents',
-    metadata,
-    Column('id', UUID, primary_key=True, server_default=func.gen_random_uuid()),
-    Column('content', String, nullable=False),           # Chunk text content
-    Column('embedding', Vector(), nullable=False),       # Dimensionless vector (supports any model dimension)
-    Column('source_file', String, nullable=False),       # e.g. "features/study-plan.md"
-    Column('title', String, nullable=True),              # Extracted from frontmatter or H1
-    Column('section', String, nullable=True),            # Section heading (H2/H3)
-    Column('chunk_index', Integer, nullable=False),      # Order within the source file
-    Column('metadata_', JSONB, nullable=True),           # Additional metadata (frontmatter, etc.)
-    *timestamp_columns(),
+Alembic must be configured to ignore this table during autogeneration so it doesn't attempt to drop it. This can be done by modifying `api/migrations/env.py`:
+
+```python
+def include_object(object, name, type_, reflected, compare_to):
+    if type_ == "table" and name == "user_guide_documents":
+        return False
+    return True
+
+context.configure(
+    # ...
+    include_object=include_object
 )
 ```
 
-> **Note on `Vector` dimension**: We define the column as a dimensionless `Vector()` rather than hardcoding `Vector(1536)`. This provides flexibility to switch embedding models with different output dimensions (e.g., from `1536` to `384`) simply by updating `EMBEDDING_DIMENSION` in settings and re-running the indexing script, without needing database schema migrations.
-
 #### Index for Vector Similarity Search
 
-```sql
-CREATE INDEX ON user_guide_documents 
-USING ivfflat (embedding vector_cosine_ops) 
-WITH (lists = 10);
-```
-
-> `lists = 10` is appropriate for small datasets (< 1000 rows). The user guide currently has ~10 documents, yielding ~50-80 chunks.
+The `PgvectorDocumentStore` handles the creation of the HNSW or IVFFlat indexes based on configuration, avoiding the need for manual SQL index creation.
 
 #### Key Design Decisions
 - **pgvector over a dedicated vector DB (Qdrant, Pinecone, etc.)**: The user guide is small (< 100 chunks). pgvector avoids adding infrastructure complexity. The existing PostgreSQL container is reused.
 - **Separate table (not in `chat_messages`)**: Document embeddings are independent of chat data and have a different lifecycle (re-indexed when the user guide changes).
-- **`source_file` + `chunk_index` as logical key**: Allows idempotent re-indexing (delete + re-insert by `source_file`).
-- **`metadata_` column name**: Underscore suffix avoids conflict with SQLAlchemy's internal `metadata` attribute.
+- **Haystack-managed Table**: The table schema is managed by `PgvectorDocumentStore`. Alembic ignores it. This avoids dual-schema management.
+- **Idempotent indexing**: The indexing script can simply drop and recreate the table (`recreate_table=True`) or clear the existing documents since it's a standalone batch job.
 
 ### API Endpoints
 
@@ -187,18 +177,18 @@ from haystack import Document
 from haystack.components.embedders import OpenAIDocumentEmbedder
 from haystack_integrations.document_stores.pgvector import PgvectorDocumentStore
 
-def create_document_store() -> PgvectorDocumentStore:
+def create_document_store(recreate_table: bool = False) -> PgvectorDocumentStore:
     settings = get_settings()
     return PgvectorDocumentStore(
         connection_string=settings.DATABASE_URL,
         table_name='user_guide_documents',
         embedding_dimension=settings.EMBEDDING_DIMENSION,
         vector_function='cosine_similarity',
-        recreate_table=False,  # Table managed by Alembic
+        recreate_table=recreate_table,  # Table managed by Haystack
     )
 
 def create_indexing_pipeline():
-    doc_store = create_document_store()
+    doc_store = create_document_store(recreate_table=True)
     embedder = OpenAIDocumentEmbedder(
         api_key=Secret.from_token(settings.EMBEDDING_API_KEY),
         api_base_url=settings.EMBEDDING_BASE_URL,
@@ -313,7 +303,7 @@ The only frontend consideration is that James's responses may now include refere
 
 1. **`api/pyproject.toml`** — Add dependencies: `pgvector`, `haystack-ai-integrations-pgvector` (for `PgvectorDocumentStore`).
 2. **`api/src/core/config.py`** — Add new settings: `EMBEDDING_API_KEY`, `EMBEDDING_BASE_URL`, `EMBEDDING_MODEL`, `EMBEDDING_DIMENSION`, `RAG_TOP_K`, `RAG_SIMILARITY_THRESHOLD`, `USER_GUIDE_PATH`.
-3. **`api/src/features/chat/tables.py`** — Add `user_guide_documents` table definition with `Vector` column.
+3. **`api/migrations/env.py`** — Configure `include_object` to ignore `user_guide_documents` table so Alembic doesn't drop it.
 4. **`api/scripts/index_user_guide.py`** — **[NEW]** Standalone indexing script:
    - `parse_markdown_file(path)` — Reads a markdown file, extracts frontmatter, splits into chunks by headings.
    - `scan_user_guide(directory)` — Recursively finds all `.md` files in the user-guide directory.
@@ -335,10 +325,9 @@ The only frontend consideration is that James's responses may now include refere
 
 1. Create migration for pgvector extension: `cd api && uv run alembic revision --autogenerate -m "enable pgvector extension"`
    - This migration must include `op.execute('CREATE EXTENSION IF NOT EXISTS vector')` in `upgrade()` and `op.execute('DROP EXTENSION IF EXISTS vector')` in `downgrade()`.
-2. Create migration for table: `cd api && uv run alembic revision --autogenerate -m "add user_guide_documents table"`
-3. Apply: `cd api && uv run alembic upgrade head`
+2. Apply: `cd api && uv run alembic upgrade head`
 
-> **Important**: Import `tables.py` in `api/migrations/env.py` to ensure Alembic detects the new table (already done for the chat tables from spec #001).
+> **Important**: Ensure `api/migrations/env.py` is configured to ignore the `user_guide_documents` table as it is managed by Haystack.
 
 ### Frontend
 

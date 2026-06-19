@@ -9,6 +9,8 @@ dependencies = [
     "bcrypt>=5.0.0",
     "fastapi[standard]>=0.135.3",
     "haystack-ai>=2.15.0",
+    "pgvector>=0.3.6",
+    "pgvector-haystack>=0.1.0",
     "psycopg[binary]>=3.3.3",
     "sqlalchemy>=2.0.48",
 ]

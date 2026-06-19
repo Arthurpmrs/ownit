@@ -55,6 +55,8 @@ dependencies = [
     { name = "bcrypt" },
     { name = "fastapi", extra = ["standard"] },
     { name = "haystack-ai" },
+    { name = "pgvector" },
+    { name = "pgvector-haystack" },
     { name = "psycopg", extra = ["binary"] },
     { name = "sqlalchemy" },
 ]
@@ -74,6 +76,8 @@ requires-dist = [
     { name = "bcrypt", specifier = ">=5.0.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.135.3" },
     { name = "haystack-ai", specifier = ">=2.15.0" },
+    { name = "pgvector", specifier = ">=0.3.6" },
+    { name = "pgvector-haystack", specifier = ">=0.1.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.3" },
     { name = "sqlalchemy", specifier = ">=2.0.48" },
 ]
@@ -790,6 +794,32 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/65/ee/299d360cdc32edc7d2cf530f3accf79c4fca01e96ffc950d8a52213bd8e4/packaging-26.0.tar.gz", hash = "sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4", size = 143416, upload-time = "2026-01-21T20:50:39.064Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/b9/c538f279a4e237a006a2c98387d081e9eb060d203d8ed34467cc0f0b9b53/packaging-26.0-py3-none-any.whl", hash = "sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529", size = 74366, upload-time = "2026-01-21T20:50:37.788Z" },
+]
+
+[[package]]
+name = "pgvector"
+version = "0.4.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/25/6c/6d8b4b03b958c02fa8687ec6063c49d952a189f8c91ebbe51e877dfab8f7/pgvector-0.4.2.tar.gz", hash = "sha256:322cac0c1dc5d41c9ecf782bd9991b7966685dee3a00bc873631391ed949513a", size = 31354, upload-time = "2025-12-05T01:07:17.87Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5a/26/6cee8a1ce8c43625ec561aff19df07f9776b7525d9002c86bceb3e0ac970/pgvector-0.4.2-py3-none-any.whl", hash = "sha256:549d45f7a18593783d5eec609ea1684a724ba8405c4cb182a0b2b08aeff04e08", size = 27441, upload-time = "2025-12-05T01:07:16.536Z" },
+]
+
+[[package]]
+name = "pgvector-haystack"
+version = "6.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "haystack-ai" },
+    { name = "pgvector" },
+    { name = "psycopg", extra = ["binary"] },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/97/cc/a5adac7b8297f7fc0db2d9a8930a9559c5407b7c90b801caea7100ed7609/pgvector_haystack-6.3.1.tar.gz", hash = "sha256:541d64a875e14a9a52df9522af949da92bdb0f638a531cd0dc130f906880c37f", size = 40815, upload-time = "2026-06-01T17:20:18.038Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/77/2f/81fef4ef971a7ba207fcf4f7cebbb0c7eebdf07fe414eab514c0991e6d4a/pgvector_haystack-6.3.1-py3-none-any.whl", hash = "sha256:6fd2f2e4c0d915310543468ef3d76d7ec7ffd1580f01bcba991ae3360f924c12", size = 28600, upload-time = "2026-06-01T17:20:16.219Z" },
 ]
 
 [[package]]

@@ -1,6 +1,6 @@
 services:
   pgsql:
-    image: postgres:18-alpine
+    image: pgvector/pgvector:pg18
     volumes:
       - pgdata:/var/lib/postgresql
     env_file:
