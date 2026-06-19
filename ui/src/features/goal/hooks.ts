@@ -1,12 +1,12 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Status } from '@/shared/models';
 import { showNotification } from '@mantine/notifications';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   createStudySession,
   evaluateStudySession,
-  getGoalOptions,
   updateStudySessionStatus,
-} from './api';
-import type { Status } from '@/shared/models';
+} from '../session/api';
+import { getGoalOptions } from './api';
 
 /**
  * Hook para criar uma nova study session.

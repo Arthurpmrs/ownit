@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
   Title,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconBrain,
@@ -18,9 +19,11 @@ import {
   IconRefresh,
 } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
-import type { Pomodoro } from '../models';
+import useUpdatePomodoroStatus from '../hook';
+import type { Pomodoro, PomodoroStatus } from '../models';
 
 interface PomodoroProps {
+  sessionId: string;
   sessionDuration: string;
   pomodoro: Pomodoro;
 }
@@ -39,27 +42,43 @@ function toSeconds(timeStr: string): number {
 }
 
 function formatSeconds(totalSeconds: number): string {
-  const hours = Math.floor(totalSeconds / 3600);
+  const hours = Math.floor(totalSeconds / 3600) * 60;
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   const pad = (num: number) => String(num).padStart(2, '0');
 
   if (hours > 0) {
-    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    return `${pad(minutes + hours)}:${pad(seconds)}`;
   }
   return `${pad(minutes)}:${pad(seconds)}`;
 }
 
-export function Pomodoro({ sessionDuration, pomodoro }: PomodoroProps) {
-  const [mode, setMode] = useState<'focus' | 'break'>('focus');
-  const [timeLeft, setTimeLeft] = useState(toSeconds(pomodoro.focusDuration));
-  const [isActive, setIsActive] = useState(false);
+export function Pomodoro({
+  sessionId,
+  sessionDuration,
+  pomodoro,
+}: PomodoroProps) {
+  const startMode =
+    pomodoro.status === 'not_started' || pomodoro.status.includes('focus')
+      ? 'focus'
+      : 'break';
+  const [mode, setMode] = useState<'focus' | 'break'>(startMode);
+
+  const [timeLeft, setTimeLeft] = useState(
+    toSeconds(pomodoro.currentRemainingDuration),
+  );
+  const totalSessionSeconds = toSeconds(sessionDuration);
+
+  const startActive = pomodoro.status.includes('mode') ? true : false;
+  const [isActive, setIsActive] = useState(startActive);
+
   const [history, setHistory] = useState<TimeBlock[]>([]);
   const [currentBlockSeconds, setCurrentBlockSeconds] = useState(0);
   const isChangingModeManually = useRef(false);
 
-  const totalSessionSeconds = toSeconds(sessionDuration);
+  const updatePomodoroStatusMutation = useUpdatePomodoroStatus(sessionId);
 
+  // Controla o intervalo do contador regressivo
   useEffect(() => {
     let interval: number | null = null;
 
@@ -71,7 +90,6 @@ export function Pomodoro({ sessionDuration, pomodoro }: PomodoroProps) {
     } else if (timeLeft === 0 && isActive) {
       setIsActive(false);
       archiveCurrentBlock(mode);
-      setMode((prev) => (prev === 'focus' ? 'break' : 'focus'));
     }
 
     return () => {
@@ -79,28 +97,7 @@ export function Pomodoro({ sessionDuration, pomodoro }: PomodoroProps) {
     };
   }, [isActive, timeLeft, mode]);
 
-  useEffect(() => {
-    if (currentBlockSeconds === 0 && history.length === 0) {
-      setTimeLeft(
-        toSeconds(
-          mode === 'focus' ? pomodoro.focusDuration : pomodoro.breakDuration,
-        ),
-      );
-      return;
-    }
-
-    if (isChangingModeManually.current) {
-      isChangingModeManually.current = false;
-    }
-
-    setTimeLeft(
-      toSeconds(
-        mode === 'focus' ? pomodoro.focusDuration : pomodoro.breakDuration,
-      ),
-    );
-  }, [mode]);
-
-  const archiveCurrentBlock = (forcedMode?: 'focus' | 'break') => {
+  function archiveCurrentBlock(forcedMode?: 'focus' | 'break') {
     if (currentBlockSeconds > 0) {
       const modeToArchive = forcedMode || mode;
       setHistory((prev) => [
@@ -109,27 +106,53 @@ export function Pomodoro({ sessionDuration, pomodoro }: PomodoroProps) {
       ]);
       setCurrentBlockSeconds(0);
     }
-  };
+  }
 
-  const handleModeChange = (newMode: string) => {
+  function handleModeChange(newMode: string) {
     if (newMode !== mode) {
       setIsActive(false);
       isChangingModeManually.current = true;
       archiveCurrentBlock(mode);
       setMode(newMode as 'focus' | 'break');
+      const new_status: PomodoroStatus =
+        newMode === 'focus' ? 'focus_pause' : 'break_pause';
+      updatePomodoroStatusMutation.mutate({ sessionId, new_status });
     }
-  };
+  }
 
-  const handleReset = () => {
+  function handleReset() {
     setIsActive(false);
     setTimeLeft(
       toSeconds(
         mode === 'focus' ? pomodoro.focusDuration : pomodoro.breakDuration,
       ),
     );
-  };
+  }
 
-  const generateChartSections = () => {
+  function getPlayPauseStatus(currentStatus: string) {
+    switch (currentStatus) {
+      case 'not_started':
+        return 'focus_mode';
+      case 'focus_mode':
+        return 'focus_pause';
+      case 'focus_pause':
+        return 'focus_mode';
+      case 'break_mode':
+        return 'break_pause';
+      case 'break_pause':
+        return 'break_mode';
+      default:
+        return currentStatus;
+    }
+  }
+
+  function handlePlayPause() {
+    setIsActive(!isActive);
+    const new_status = getPlayPauseStatus(pomodoro.status);
+    updatePomodoroStatusMutation.mutate({ sessionId, new_status });
+  }
+
+  function generateChartSections() {
     if (totalSessionSeconds <= 0) return [];
 
     const allBlocks = [...history];
@@ -145,7 +168,7 @@ export function Pomodoro({ sessionDuration, pomodoro }: PomodoroProps) {
         tooltip: `${block.mode === 'focus' ? 'Foco' : 'Pausa'}: ${formatSeconds(block.durationInSeconds)}`,
       };
     });
-  };
+  }
 
   const chartSections = generateChartSections();
 
@@ -156,17 +179,27 @@ export function Pomodoro({ sessionDuration, pomodoro }: PomodoroProps) {
           <Group justify="space-between">
             <Group gap={'xs'}>
               <IconHourglassEmpty size={16} color="orange" />
-              <Title order={5}>Pomodoro - {pomodoro.status}</Title>
+              <Title order={5}>
+                Pomodoro - {pomodoro.status} -{' '}
+                {pomodoro.currentRemainingDuration}
+              </Title>
             </Group>
             {/* <ActionIcon variant="subtle" color="gray">
               <IconPencil size={16} stroke={1.7} />
               // TODO: fazer o modal de config do pomodoro
             </ActionIcon> */}
           </Group>
-
+          {isActive && (
+            <Tooltip
+              target="#PomoTabs"
+              label="Pause o pomodoro para trocar de modo"
+            />
+          )}
           <SegmentedControl
+            id="PomoTabs"
             value={mode}
             onChange={handleModeChange}
+            disabled={isActive}
             radius="xl"
             size="md"
             color="orange"
@@ -252,7 +285,7 @@ export function Pomodoro({ sessionDuration, pomodoro }: PomodoroProps) {
               radius="md"
               color="orange"
               variant={isActive ? 'light' : 'filled'}
-              onClick={() => setIsActive(!isActive)}
+              onClick={handlePlayPause}
             >
               {isActive ? (
                 <IconPlayerPause size={24} />

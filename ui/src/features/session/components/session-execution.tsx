@@ -1,5 +1,4 @@
 import Header from '@/features/appshell/header';
-import { getStudySessionOptions } from '@/features/goal/api';
 import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
 import {
   ActionIcon,
@@ -37,6 +36,7 @@ import Underline from '@tiptap/extension-underline';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useEffect, useState } from 'react';
+import { getStudySessionOptions } from '../api';
 import { Pomodoro } from './pomodoro';
 
 const INITIAL_CHECKLIST = [
@@ -286,6 +286,7 @@ export default function SessionExecution() {
           <Stack gap="lg">
             {/* Pomodoro */}
             <Pomodoro
+              sessionId={studySession.id}
               sessionDuration={studySession.duration}
               pomodoro={studySession.pomodoro}
             />
