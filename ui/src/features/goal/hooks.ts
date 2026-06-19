@@ -25,6 +25,9 @@ export function useCreateStudySession(goalId: string) {
       queryClient.invalidateQueries({
         queryKey: getGoalOptions(goalId).queryKey,
       });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
+      });
     },
   });
 }
@@ -56,6 +59,9 @@ export function useUpdateStudySessionStatus(goalId: string) {
       queryClient.invalidateQueries({
         queryKey: getGoalOptions(goalId).queryKey,
       });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
+      });
     },
     onError: (error, { currentStatus, newStatus }) => {
       const raw = error instanceof Error ? error.message : '';
@@ -83,6 +89,9 @@ export function useEvaluateStudySession(goalId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: getGoalOptions(goalId).queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
       });
     },
     onError: () => {
