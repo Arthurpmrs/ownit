@@ -3,16 +3,18 @@ import type {
   EventDTO,
   GoalWithSessionsDTO,
   PomodoroDTO,
-  StrategyMetricDTO,
-  StrategyMetricsResponseDTO,
+  StrategyAdherenceMetricDTO,
+  MetricsDTO,
   StudySessionDTO,
   StudySessionShortDTO,
   StudySessionWithHistoryDTO,
+  SRWeeklyMetricDTO,
 } from './dto';
 import type {
   GoalWithSessions,
   Pomodoro,
-  StrategyMetric,
+  SRWeeklyMetric,
+  StrategyAdherenceMetric,
   StrategyMetricsData,
   StudySession,
   StudySessionShort,
@@ -118,8 +120,8 @@ export const pomodoroMapper = {
   },
 };
 
-export const strategyMetricMapper = {
-  fromDTO(dto: StrategyMetricDTO): StrategyMetric {
+export const strategyAdherenceMetricMapper = {
+  fromDTO(dto: StrategyAdherenceMetricDTO): StrategyAdherenceMetric {
     return {
       strategy: dto.strategy,
       adherence: dto.adherence,
@@ -128,11 +130,27 @@ export const strategyMetricMapper = {
   },
 };
 
-export const strategyMetricsMapper = {
-  fromDTO(dto: StrategyMetricsResponseDTO): StrategyMetricsData {
+export const srWeeklyMapper = {
+  fromDTO(dto: SRWeeklyMetricDTO): SRWeeklyMetric {
+    return {
+      week: dto.week,
+      weekStart: parseDate(dto.week_start),
+      weekEnd: parseDate(dto.week_end),
+      srCount: dto.sr_count,
+      finishedCount: dto.finished_count,
+      frequency: dto.frequency,
+    };
+  },
+};
+
+export const metricsMapper = {
+  fromDTO(dto: MetricsDTO): StrategyMetricsData {
     return {
       goalId: dto.goal_id,
-      metrics: dto.strategy_metrics.map((m) => strategyMetricMapper.fromDTO(m)),
+      strategyAdherence: dto.strategy_adherence.map((m) =>
+        strategyAdherenceMetricMapper.fromDTO(m),
+      ),
+      srWeekly: dto.sr_weekly.map((m) => srWeeklyMapper.fromDTO(m)),
     };
   },
 };
@@ -144,5 +162,5 @@ export const studySessionStrategyMap = {
   FLASHCARDS: 'Flashcards',
   MIND_MAP: 'Mapa Mental',
   FEYNMAN: 'Técnica de Feynman',
-  SELF_EXPLANATION: 'Autoexplicação',
+  SELF_EXPLANATION: 'Auto explicação',
 };

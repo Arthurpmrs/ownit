@@ -2,10 +2,10 @@ import { BarChart } from '@mantine/charts';
 import { Group, Paper, Text, Tooltip } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { studySessionStrategyMap } from '../../mappers';
-import type { StrategyMetric } from '../../models';
+import type { StrategyAdherenceMetric } from '../../models';
 
 interface StrategyAdherenceChartProps {
-  data: StrategyMetric[];
+  data: StrategyAdherenceMetric[];
 }
 
 export function StrategyAdherenceChart({ data }: StrategyAdherenceChartProps) {

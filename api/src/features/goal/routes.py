@@ -7,7 +7,11 @@ from src.core.auth import get_current_student_id
 from src.core.db import get_connection
 from src.core.logger import get_logger
 from src.features.analytics import service as analytics_service
-from src.features.analytics.schemas import MetricsResponse, StrategyMetric
+from src.features.analytics.schemas import (
+    MetricsResponse,
+    SelfRegulationWeeklyMetric,
+    StrategyAdherenceMetric,
+)
 from src.features.study_session import service as study_session_service
 from src.shared.schemas import Status
 
@@ -91,25 +95,17 @@ def get_goal_strategy_metrics(
     student_id: int = Depends(get_current_student_id),
 ):
     strategy_metrics = analytics_service.get_strategy_metrics(conn, student_id, goal_id)
-    srl_metrics = analytics_service.get_self_regulation_metrics(conn, student_id, goal_id)
-
-    for metric in srl_metrics:
-        print(
-            '############################################################-------------------------'
-        )
-        print(metric)
-        print(
-            '############################################################-------------------------'
-        )
+    sr_metrics = analytics_service.get_self_regulation_metrics(conn, student_id, goal_id)
 
     return MetricsResponse(
         goal_id=goal_id,
         strategy_adherence=[
-            StrategyMetric(
+            StrategyAdherenceMetric(
                 strategy=strategy,
                 adherence=data['adherence'],
                 sessions_count=data['sessions_count'],
             )
             for strategy, data in strategy_metrics.items()
         ],
+        sr_weekly=[SelfRegulationWeeklyMetric(**week_data) for week_data in sr_metrics],
     )

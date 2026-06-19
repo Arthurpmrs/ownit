@@ -56,13 +56,23 @@ export type PomodoroDTO = {
   updated_at: string;
 };
 
-export type StrategyMetricDTO = {
+export type StrategyAdherenceMetricDTO = {
   strategy: string;
   adherence: number;
   sessions_count: number;
 };
 
-export type StrategyMetricsResponseDTO = {
+export type SRWeeklyMetricDTO = {
+  week: number;
+  week_start: string;
+  week_end: string;
+  sr_count: number;
+  finished_count: number;
+  frequency: number;
+};
+
+export type MetricsDTO = {
   goal_id: string;
-  strategy_metrics: StrategyMetricDTO[];
+  strategy_adherence: StrategyAdherenceMetricDTO[];
+  sr_weekly: SRWeeklyMetricDTO[];
 };

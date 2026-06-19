@@ -1,7 +1,8 @@
-import { BarChart, LineChart } from '@mantine/charts';
+import { BarChart } from '@mantine/charts';
 import { Card, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
-import { StrategyAdherenceChart } from './metrics/strategy-adherence-chart';
+import { StrategyAdherenceChart } from './metric-charts/strategy-adherence-chart';
 import { useStrategyMetrics } from '../hooks';
+import { SRWeeklyChart } from './metric-charts/sr-weekly-chart';
 
 const weeklyStudyData = [
   { day: 'Domingo', minutos: 200 },
@@ -11,16 +12,6 @@ const weeklyStudyData = [
   { day: 'Quinta', minutos: 170 },
   { day: 'Sexta', minutos: 150 },
   { day: 'Sábado', minutos: 0 },
-];
-
-const weeklySessionsData = [
-  { week: 'Apr 26 - May 2', sessoes: 0 },
-  { week: 'May 3 - May 9', sessoes: 4 },
-  { week: 'May 10 - May 16', sessoes: 3 },
-  { week: 'May 17 - May 23', sessoes: 2 },
-  { week: 'May 24 - May 30', sessoes: 8 },
-  { week: 'May 31 - Jun 6', sessoes: 0 },
-  { week: 'Jun 7 - Jun 9', sessoes: 0 },
 ];
 
 interface MetricCardProps {
@@ -62,7 +53,8 @@ export default function SessionPerformance({
         <MetricCard label="Estratégia Favorita" value="Vídeos" />
       </SimpleGrid>
 
-      <StrategyAdherenceChart data={data.metrics} />
+      <StrategyAdherenceChart data={data.strategyAdherence} />
+      <SRWeeklyChart data={data.srWeekly} />
 
       <Card p="lg" radius="md" withBorder shadow="xs">
         <Stack gap="md">
@@ -82,26 +74,6 @@ export default function SessionPerformance({
             }}
             barProps={{ radius: 0 }}
             xAxisProps={{ tick: { fill: '#ADB5BD', fontSize: 12 } }}
-          />
-        </Stack>
-      </Card>
-
-      <Card p="lg" radius="md" withBorder shadow="xs">
-        <Stack gap="md">
-          <Text fw={700}>Sessões Concluídas por Semana</Text>
-          <LineChart
-            h={260}
-            data={weeklySessionsData}
-            dataKey="week"
-            series={[{ name: 'sessoes', color: '#12B886' }]}
-            tickLine="none"
-            gridAxis="y"
-            withLegend={false}
-            strokeDasharray="4 4"
-            curveType="natural"
-            withDots
-            yAxisProps={{ domain: [0, 10], ticks: [0, 2, 4, 6, 8, 10] }}
-            xAxisProps={{ tick: { fill: '#ADB5BD', fontSize: 11 } }}
           />
         </Stack>
       </Card>

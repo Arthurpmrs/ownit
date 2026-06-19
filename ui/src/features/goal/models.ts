@@ -89,13 +89,23 @@ export type EvaluateSessionData = {
   final_comment: string;
 };
 
-export type StrategyMetric = {
+export type StrategyAdherenceMetric = {
   strategy: string;
   adherence: number;
   sessionsCount: number;
 };
 
+export type SRWeeklyMetric = {
+  week: number;
+  weekStart: Date;
+  weekEnd: Date;
+  srCount: number;
+  finishedCount: number;
+  frequency: number;
+};
+
 export type StrategyMetricsData = {
   goalId: string;
-  metrics: StrategyMetric[];
+  strategyAdherence: StrategyAdherenceMetric[];
+  srWeekly: SRWeeklyMetric[];
 };

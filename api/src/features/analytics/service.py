@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from math import floor
 
 from sqlalchemy import Connection, insert, select
@@ -279,8 +279,13 @@ def get_self_regulation_metrics(
 
         frequency = sr_count / finished_count if finished_count > 0 else 0
 
+        week_start = goal_started_timestamp + timedelta(days=(week - 1) * 7)
+        week_end = week_start + timedelta(days=7)
+
         frequency_per_week.append({
             'week': week,
+            'week_start': week_start,
+            'week_end': week_end,
             'sr_count': sr_count,
             'finished_count': finished_count,
             'frequency': frequency,

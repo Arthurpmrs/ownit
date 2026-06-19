@@ -9,13 +9,13 @@ import type {
 } from './models';
 import type {
   GoalWithSessionsDTO,
-  StrategyMetricsResponseDTO,
+  MetricsDTO,
   StudySessionDTO,
   StudySessionWithHistoryDTO,
 } from './dto';
 import {
   goalWithSessionsMapper,
-  strategyMetricsMapper,
+  metricsMapper,
   studySessionMapper,
   studySessionWithHistoryMapper,
 } from './mappers';
@@ -157,18 +157,18 @@ export async function evaluateStudySession(
   return studySessionMapper.fromDTO(dto);
 }
 
-export function getStrategyMetricsOptions(goalId: string) {
+export function getMetricsOptions(goalId: string) {
   return queryOptions({
-    queryKey: ['strategy-metrics', goalId],
-    queryFn: () => fetchStrategyMetrics(goalId),
+    queryKey: ['metrics', goalId],
+    queryFn: () => fetchMetrics(goalId),
     staleTime: 5 * 60 * 1000,
   });
 }
 
-export async function fetchStrategyMetrics(
+export async function fetchMetrics(
   goalId: string,
 ): Promise<StrategyMetricsData> {
-  const url = `${import.meta.env.VITE_API_URL}/goals/${goalId}/strategy-metrics`;
+  const url = `${import.meta.env.VITE_API_URL}/goals/${goalId}/metrics`;
   const response = await fetch(url, { credentials: 'include' });
 
   if (!response.ok) {
@@ -177,6 +177,6 @@ export async function fetchStrategyMetrics(
     );
   }
 
-  const dto: StrategyMetricsResponseDTO = await response.json();
-  return strategyMetricsMapper.fromDTO(dto);
+  const dto: MetricsDTO = await response.json();
+  return metricsMapper.fromDTO(dto);
 }

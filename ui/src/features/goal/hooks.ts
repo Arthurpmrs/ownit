@@ -8,7 +8,7 @@ import {
   createStudySession,
   evaluateStudySession,
   getGoalOptions,
-  getStrategyMetricsOptions,
+  getMetricsOptions,
   updateStudySessionStatus,
 } from './api';
 import type { Status } from '@/shared/models';
@@ -96,5 +96,5 @@ export function useEvaluateStudySession(goalId: string) {
 }
 
 export function useStrategyMetrics(goalId: string) {
-  return useSuspenseQuery(getStrategyMetricsOptions(goalId));
+  return useSuspenseQuery(getMetricsOptions(goalId));
 }
