@@ -54,7 +54,8 @@ export function StrategyAdherenceChart({ data }: StrategyAdherenceChartProps) {
       </Group>
 
       <BarChart
-        h={260}
+        px="md"
+        h={320}
         data={chartData}
         dataKey="Estratégia"
         gridAxis="xy"

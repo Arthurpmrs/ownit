@@ -31,7 +31,15 @@ class SelfRegulationWeeklyMetric(BaseModel):
     frequency: float
 
 
+class PerformanceSummary(BaseModel):
+    total_duration: int
+    avg_session_duration: int
+    avg_rating: float
+    sessions_count: int
+
+
 class MetricsResponse(BaseModel):
     goal_id: str
+    performance_summary: PerformanceSummary
     strategy_adherence: list[StrategyAdherenceMetric]
     sr_weekly: list[SelfRegulationWeeklyMetric]

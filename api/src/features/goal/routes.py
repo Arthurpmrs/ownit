@@ -9,6 +9,7 @@ from src.core.logger import get_logger
 from src.features.analytics import service as analytics_service
 from src.features.analytics.schemas import (
     MetricsResponse,
+    PerformanceSummary,
     SelfRegulationWeeklyMetric,
     StrategyAdherenceMetric,
 )
@@ -96,6 +97,7 @@ def get_goal_strategy_metrics(
 ):
     strategy_metrics = analytics_service.get_strategy_metrics(conn, student_id, goal_id)
     sr_metrics = analytics_service.get_self_regulation_metrics(conn, student_id, goal_id)
+    summary = analytics_service.get_goal_performance_summary(conn, student_id, goal_id)
 
     return MetricsResponse(
         goal_id=goal_id,
@@ -108,4 +110,5 @@ def get_goal_strategy_metrics(
             for strategy, data in strategy_metrics.items()
         ],
         sr_weekly=[SelfRegulationWeeklyMetric(**week_data) for week_data in sr_metrics],
+        performance_summary=PerformanceSummary(**summary),
     )

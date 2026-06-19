@@ -95,6 +95,13 @@ export type StrategyAdherenceMetric = {
   sessionsCount: number;
 };
 
+export type PerformanceSummary = {
+  totalDurationInHours: string;
+  avgSessionDuratioInHours: string;
+  avgRating: number;
+  sessionsCount: number;
+};
+
 export type SRWeeklyMetric = {
   week: number;
   weekStart: Date;
@@ -110,4 +117,5 @@ export type StrategyMetricsData = {
   goalId: string;
   strategyAdherence: StrategyAdherenceMetric[];
   srWeekly: SRWeeklyMetric[];
+  performanceSummary: PerformanceSummary;
 };

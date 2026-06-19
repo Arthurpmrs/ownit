@@ -1,4 +1,4 @@
-import { parseDate, parseDuration } from '@/shared/utils';
+import { formatDuration, parseDate, parseDuration } from '@/shared/utils';
 import type {
   EventDTO,
   GoalWithSessionsDTO,
@@ -9,9 +9,11 @@ import type {
   StudySessionShortDTO,
   StudySessionWithHistoryDTO,
   SRWeeklyMetricDTO,
+  PerformanceSummaryDTO,
 } from './dto';
 import type {
   GoalWithSessions,
+  PerformanceSummary,
   Pomodoro,
   SRWeeklyMetric,
   StrategyAdherenceMetric,
@@ -130,6 +132,17 @@ export const strategyAdherenceMetricMapper = {
   },
 };
 
+export const performanceSummaryMapper = {
+  fromDTO(dto: PerformanceSummaryDTO): PerformanceSummary {
+    return {
+      totalDurationInHours: formatDuration(dto.total_duration),
+      avgSessionDuratioInHours: formatDuration(dto.avg_session_duration),
+      avgRating: dto.avg_rating,
+      sessionsCount: dto.sessions_count,
+    };
+  },
+};
+
 export const srWeeklyMapper = {
   fromDTO(dto: SRWeeklyMetricDTO): SRWeeklyMetric {
     return {
@@ -153,6 +166,9 @@ export const metricsMapper = {
         strategyAdherenceMetricMapper.fromDTO(m),
       ),
       srWeekly: dto.sr_weekly.map((m) => srWeeklyMapper.fromDTO(m)),
+      performanceSummary: performanceSummaryMapper.fromDTO(
+        dto.performance_summary,
+      ),
     };
   },
 };

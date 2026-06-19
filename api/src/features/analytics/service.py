@@ -310,3 +310,100 @@ def get_self_regulation_metrics(  # noqa
         })
 
     return frequency_per_week
+
+
+def get_goal_performance_summary(
+    conn: Connection,
+    student_id: int,
+    goal_id: str,
+) -> dict:
+    """
+    Calcula métricas de desempenho geral do goal:
+    - Total de horas dedicadas (soma das durações reais)
+    - Tempo médio por sessão (duração real média)
+    - Rating médio
+    """
+
+    started_events = (
+        select(
+            events.c.study_session_id,
+            events.c.timestamp.label('started_at'),
+        )
+        .where(
+            events.c.student_id == student_id,
+            events.c.goal_id == goal_id,
+            events.c.type == EventType.STUDY_SESSION_STARTED,
+        )
+        .subquery()
+    )
+
+    finished_events = (
+        select(
+            events.c.study_session_id,
+            events.c.timestamp.label('finished_at'),
+        )
+        .where(
+            events.c.student_id == student_id,
+            events.c.goal_id == goal_id,
+            events.c.type == EventType.STUDY_SESSION_FINISHED,
+        )
+        .subquery()
+    )
+
+    # Juntar com study sessions para pegar rating
+    stmt = (
+        select(
+            started_events.c.started_at,
+            finished_events.c.finished_at,
+            study_sessions.c.rating,
+        )
+        .join(
+            started_events,
+            study_sessions.c.id == started_events.c.study_session_id,
+            isouter=True,
+        )
+        .join(
+            finished_events,
+            study_sessions.c.id == finished_events.c.study_session_id,
+            isouter=True,
+        )
+        .where(
+            study_sessions.c.student_id == student_id,
+            study_sessions.c.goal_id == goal_id,
+            study_sessions.c.status == Status.done,
+            started_events.c.started_at.isnot(None),
+            finished_events.c.finished_at.isnot(None),
+        )
+    )
+
+    rows = conn.execute(stmt).fetchall()
+
+    if not rows:
+        return {
+            'total_duration': 0.0,
+            'avg_session_duration': 0.0,
+            'avg_rating': 0.0,
+            'sessions_count': 0,
+        }
+
+    total_duration = timedelta(0)
+    ratings = []
+
+    for row in rows:
+        real_duration = row.finished_at - row.started_at
+        total_duration += real_duration
+
+        if row.rating is not None:
+            ratings.append(row.rating)
+
+    avg_session_duration = int(
+        total_duration.total_seconds() / len(rows) if rows else 0.0
+    )
+    avg_rating = sum(ratings) / len(ratings) if ratings else 0.0
+
+    return {
+        'total_duration': int(total_duration.total_seconds()),
+        'avg_session_duration': avg_session_duration,
+        'avg_rating': round(avg_rating, 2),
+        'sessions_count': len(rows),
+    }

@@ -73,8 +73,16 @@ export type SRWeeklyMetricDTO = {
   frequency: number;
 };
 
+export type PerformanceSummaryDTO = {
+  total_duration: number;
+  avg_session_duration: number;
+  avg_rating: number;
+  sessions_count: number;
+};
+
 export type MetricsDTO = {
   goal_id: string;
+  performance_summary: PerformanceSummaryDTO;
   strategy_adherence: StrategyAdherenceMetricDTO[];
   sr_weekly: SRWeeklyMetricDTO[];
 };
