@@ -1,4 +1,4 @@
-from sqlalchemy import Connection, insert, select
+from sqlalchemy import Connection, func, insert, literal, select
 
 from src.core.logger import get_logger
 from src.features.study_session.tables import study_sessions
@@ -190,5 +190,111 @@ def get_strategy_metrics(
             'adherence': round(avg_adherence, 2),
             'sessions_count': len(metrics),
         }
+
+    return result
+
+
+def get_self_regulation_metrics(
+    conn: Connection,
+    student_id: int,
+    goal_id: str,
+    granularity: str = 'weekly',  # 'daily', 'weekly', 'monthly'
+) -> list[dict]:
+    """
+    Calcula a frequência de autorregulação por período temporal.
+
+    Autorregulação = (CREATED + UPDATED + CANCELED) / STUDY_SESSION_FINISHED
+
+    Args:
+        granularity: 'daily', 'weekly', 'monthly'
+
+    Returns:
+        Lista com dados agregados por período
+    """
+
+    # Mapear granularidade para função SQL
+    date_trunc_map = {
+        'daily': 'day',
+        'weekly': 'week',
+        'monthly': 'month',
+    }
+    date_trunc_func = date_trunc_map.get(granularity, 'week')
+
+    period_expr_sr = func.date_trunc(date_trunc_func, events.c.timestamp)
+
+    # Subquery: Autorregulações (CREATED, UPDATED, CANCELED com goal_status='doing')
+    self_regulation_events = (
+        select(
+            period_expr_sr.label('period'),
+            func.count().label('sr_count'),
+        )
+        .where(
+            events.c.student_id == student_id,
+            events.c.goal_id == goal_id,
+            events.c.type.in_([
+                EventType.STUDY_SESSION_CREATED,
+                EventType.STUDY_SESSION_UPDATED,
+                EventType.STUDY_SESSION_CANCELED,
+            ]),
+            events.c.context['goal_status'].astext == 'doing',
+        )
+        .group_by(period_expr_sr)
+    ).subquery('sr_events')
+
+    # Subquery: Sessões Finalizadas (STUDY_SESSION_FINISHED)
+    period_expr_fin = func.date_trunc(date_trunc_func, events.c.timestamp)
+
+    finished_events = (
+        select(
+            period_expr_fin.label('period'),
+            func.count().label('fin_count'),
+        )
+        .where(
+            events.c.student_id == student_id,
+            events.c.goal_id == goal_id,
+            events.c.type == EventType.STUDY_SESSION_FINISHED,
+        )
+        .group_by(period_expr_fin)
+    ).subquery('finished_events')
+
+    all_periods = (
+        select(
+            self_regulation_events.c.period.label('period'),
+            self_regulation_events.c.sr_count.label('sr_count'),
+            literal(None).label('fin_count'),
+        ).union_all(
+            select(
+                finished_events.c.period.label('period'),
+                literal(None).label('sr_count'),
+                finished_events.c.fin_count.label('fin_count'),
+            )
+        )
+    ).subquery('all_periods')
+
+    # Join e cálculo da taxa
+    stmt = (
+        select(
+            all_periods.c.period,
+            func.max(all_periods.c.sr_count).label('self_regulation_count'),
+            func.max(all_periods.c.fin_count).label('finished_sessions_count'),
+        )
+        .group_by(all_periods.c.period)
+        .order_by(all_periods.c.period.asc())
+    )
+
+    rows = conn.execute(stmt).fetchall()
+
+    result = []
+    for row in rows:
+        fin_count = row.finished_sessions_count or 0
+        sr_count = row.self_regulation_count or 0
+        rate = sr_count / fin_count if fin_count > 0 else 0
+
+        result.append({
+            'period': row.period.isoformat() if row.period else None,
+            'self_regulation_count': sr_count,
+            'finished_sessions_count': fin_count,
+            'self_regulation_rate': min(1.0, round(rate, 2)),  # Max 1.0 (100%)
+        })
 
     return result

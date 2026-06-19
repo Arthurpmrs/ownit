@@ -19,6 +19,6 @@ class StrategyMetric(BaseModel):
     sessions_count: int
 
 
-class StrategyMetricsResponse(BaseModel):
+class MetricsResponse(BaseModel):
     goal_id: str
-    strategy_metrics: list[StrategyMetric]
+    strategy_adherence: list[StrategyMetric]

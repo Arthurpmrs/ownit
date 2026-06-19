@@ -7,7 +7,7 @@ from src.core.auth import get_current_student_id
 from src.core.db import get_connection
 from src.core.logger import get_logger
 from src.features.analytics import service as analytics_service
-from src.features.analytics.schemas import StrategyMetric, StrategyMetricsResponse
+from src.features.analytics.schemas import MetricsResponse, StrategyMetric
 from src.features.study_session import service as study_session_service
 from src.shared.schemas import Status
 
@@ -84,17 +84,27 @@ def delete_goal(
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='Goal not found')
 
 
-@router.get('/{goal_id}/strategy-metrics', response_model=StrategyMetricsResponse)
+@router.get('/{goal_id}/metrics', response_model=MetricsResponse)
 def get_goal_strategy_metrics(
     goal_id: str,
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
 ):
     strategy_metrics = analytics_service.get_strategy_metrics(conn, student_id, goal_id)
+    srl_metrics = analytics_service.get_self_regulation_metrics(conn, student_id, goal_id)
 
-    return StrategyMetricsResponse(
+    for metric in srl_metrics:
+        print(
+            '############################################################-------------------------'
+        )
+        print(metric)
+        print(
+            '############################################################-------------------------'
+        )
+
+    return MetricsResponse(
         goal_id=goal_id,
-        strategy_metrics=[
+        strategy_adherence=[
             StrategyMetric(
                 strategy=strategy,
                 adherence=data['adherence'],
