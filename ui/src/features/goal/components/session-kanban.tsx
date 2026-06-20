@@ -126,24 +126,28 @@ export default function SessionKanban({
               title="Ativa"
               sessions={activeSessions}
               icon={<IconPencil size={16} color="#000" />}
+              goalId={goalId}
             />
             <SessionColumn
               status="to_do"
               title="Pendentes"
               sessions={pendingSessions}
               icon={<IconHourglass size={16} color="#000" />}
+              goalId={goalId}
             />
             <SessionColumn
               status="done"
               title="Concluídas"
               sessions={completedSessions}
               icon={<IconCircleCheck size={16} color="#000" />}
+              goalId={goalId}
             />
             <SessionColumn
               status="canceled"
               title="Canceladas"
               sessions={canceledSessions}
               icon={<IconCircleX size={16} color="#000" />}
+              goalId={goalId}
             />
           </Stack>
         </Stack>
@@ -188,9 +192,10 @@ interface SessionColumnProps {
   title: string;
   sessions: StudySessionShort[];
   icon: React.ReactNode;
+  goalId: string;
 }
 
-function SessionColumn({ status, title, sessions, icon }: SessionColumnProps) {
+function SessionColumn({ status, title, sessions, icon, goalId }: SessionColumnProps) {
   const { ref, isDropTarget } = useDroppable({
     id: `column-${status}`,
     data: { status },
@@ -221,7 +226,7 @@ function SessionColumn({ status, title, sessions, icon }: SessionColumnProps) {
         {sessions.length > 0 ? (
           <Stack gap="xs">
             {sessions.map((session) => (
-              <SessionCard key={session.id} session={session} />
+              <SessionCard key={session.id} session={session} goalId={goalId} />
             ))}
           </Stack>
         ) : (
