@@ -148,7 +148,7 @@ export default function CreateSessionModal({
                   leftSection={<IconCalendar size={18} />}
                   label="Data Planejada"
                   placeholder="Insira a data que planeja executar essa sessão"
-                  valueFormat="DD MMM YYYY hh:mm"
+                  valueFormat="DD MMM YYYY HH:mm"
                   minDate={new Date()}
                   required
                   {...form.getInputProps('planned_date')}
