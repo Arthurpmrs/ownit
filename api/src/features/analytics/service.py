@@ -215,8 +215,11 @@ def get_self_regulation_metrics(  # noqa
 ) -> list[dict]:
     goal_status = conn.scalar(select(goals.c.status).where(goals.c.id == goal_id))
 
-    if goal_status is None or goal_status != 'doing':
+    if goal_status is None:
         raise RuntimeError('Goal is not started')
+
+    if goal_status != 'doing':
+        return []
 
     goal_started_timestamp = conn.scalar(
         select(events.c.timestamp).where(
