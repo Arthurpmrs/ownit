@@ -1,8 +1,21 @@
 import type { StudySessionShort } from '@/features/goal/models';
 import { useDraggable } from '@dnd-kit/react';
-import { ActionIcon, Card, Group, Menu, Text, Title, Tooltip } from '@mantine/core';
+import {
+  ActionIcon,
+  Card,
+  Group,
+  Menu,
+  Text,
+  Title,
+  Tooltip,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconCalendar, IconClock, IconDots, IconPencil } from '@tabler/icons-react';
+import {
+  IconCalendar,
+  IconClock,
+  IconDots,
+  IconPencil,
+} from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
 import EditSessionModal from './edit-session-modal';
 
@@ -13,7 +26,8 @@ interface SessionCardProps {
 
 export default function SessionCard({ session, goalId }: SessionCardProps) {
   const navigate = useNavigate();
-  const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false);
+  const [editOpened, { open: openEdit, close: closeEdit }] =
+    useDisclosure(false);
 
   const { ref, isDragging } = useDraggable({
     id: session.id,

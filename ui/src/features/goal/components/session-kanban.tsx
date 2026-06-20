@@ -195,7 +195,13 @@ interface SessionColumnProps {
   goalId: string;
 }
 
-function SessionColumn({ status, title, sessions, icon, goalId }: SessionColumnProps) {
+function SessionColumn({
+  status,
+  title,
+  sessions,
+  icon,
+  goalId,
+}: SessionColumnProps) {
   const { ref, isDropTarget } = useDroppable({
     id: `column-${status}`,
     data: { status },
