@@ -88,3 +88,34 @@ export type EvaluateSessionData = {
   strategies: string[];
   final_comment: string;
 };
+
+export type StrategyAdherenceMetric = {
+  strategy: string;
+  adherence: number;
+  sessionsCount: number;
+};
+
+export type PerformanceSummary = {
+  totalDurationInHours: string;
+  avgSessionDuratioInHours: string;
+  avgRating: number;
+  sessionsCount: number;
+};
+
+export type SRWeeklyMetric = {
+  week: number;
+  weekStart: Date;
+  weekEnd: Date;
+  srCount: number;
+  finishedCount: number;
+  avgRating: number;
+  avgDomainPerception: number;
+  frequency: number;
+};
+
+export type StrategyMetricsData = {
+  goalId: string;
+  strategyAdherence: StrategyAdherenceMetric[];
+  srWeekly: SRWeeklyMetric[];
+  performanceSummary: PerformanceSummary;
+};

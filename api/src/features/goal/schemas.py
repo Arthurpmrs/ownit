@@ -14,11 +14,12 @@ class GoalCreate(BaseModel):
 
 
 class GoalUpdate(BaseModel):
-    title: str | None
-    description: str | None
+    title: str | None = None
+    description: str | None = None
     goal_tags: list[str] | None = None
-    start_date: datetime
-    end_date: datetime
+    status: Status | None = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
 
 
 class GoalResponse(BaseModel):

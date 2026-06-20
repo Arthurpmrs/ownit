@@ -25,6 +25,7 @@ import {
   IconMoodWink,
   IconMoodWrrr,
 } from '@tabler/icons-react';
+import { studySessionStrategyMap } from '../mappers';
 
 interface EvaluateSessionFormValues {
   planning: number;
@@ -47,15 +48,11 @@ export default function EvaluateSessionModal({
   isOpen,
   setIsOpen,
 }: EvaluateSessionModalProps) {
-  const estrategiasOpcoes = [
-    { value: 'VIDEO', label: 'Vídeos' },
-    { value: 'READING', label: 'Leitura' },
-    { value: 'PRACTICE', label: 'Prática' },
-    { value: 'FLASHCARDS', label: 'Flashcards' },
-    { value: 'MIND_MAP', label: 'Mapa Mental' },
-    { value: 'FEYNMAN', label: 'Técnica de Feynman' },
-    { value: 'SELF_EXPLANATION', label: 'Autoexplicação' },
-  ];
+  const strategyOptions = Object.entries(studySessionStrategyMap).map(
+    ([key, value]) => {
+      return { value: key, label: value };
+    },
+  );
 
   const getIconStyle = (color?: string, shade: number = 7) => ({
     width: 32,
@@ -334,7 +331,7 @@ export default function EvaluateSessionModal({
             <MultiSelect
               label="Estratégia(s) usada(s)"
               description="Selecione as estratégias usadas nessa sessão de estudos."
-              data={estrategiasOpcoes}
+              data={strategyOptions}
               placeholder={
                 form.values.strategies.length > 0 ? '' : 'Selecione...'
               }

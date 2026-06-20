@@ -1,9 +1,14 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { showNotification } from '@mantine/notifications';
 import {
   createStudySession,
   evaluateStudySession,
   getGoalOptions,
+  getMetricsOptions,
   updateStudySessionStatus,
 } from './api';
 import type { Status } from '@/shared/models';
@@ -19,6 +24,9 @@ export function useCreateStudySession(goalId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: getGoalOptions(goalId).queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
       });
     },
   });
@@ -51,6 +59,9 @@ export function useUpdateStudySessionStatus(goalId: string) {
       queryClient.invalidateQueries({
         queryKey: getGoalOptions(goalId).queryKey,
       });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
+      });
     },
     onError: (error, { currentStatus, newStatus }) => {
       const raw = error instanceof Error ? error.message : '';
@@ -79,6 +90,9 @@ export function useEvaluateStudySession(goalId: string) {
       queryClient.invalidateQueries({
         queryKey: getGoalOptions(goalId).queryKey,
       });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
+      });
     },
     onError: () => {
       showNotification({
@@ -88,4 +102,8 @@ export function useEvaluateStudySession(goalId: string) {
       });
     },
   });
+}
+
+export function useStrategyMetrics(goalId: string) {
+  return useSuspenseQuery(getMetricsOptions(goalId));
 }
