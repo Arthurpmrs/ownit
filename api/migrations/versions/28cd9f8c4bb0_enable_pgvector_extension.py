@@ -1,7 +1,7 @@
 """enable pgvector extension
 
 Revision ID: 28cd9f8c4bb0
-Revises: c99e88d033f5
+Revises: fbaf4db47ddd
 Create Date: 2026-06-19 15:46:43.763078
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '28cd9f8c4bb0'
-down_revision: Union[str, Sequence[str], None] = 'c99e88d033f5'
+down_revision: Union[str, Sequence[str], None] = 'fbaf4db47ddd'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
