@@ -6,7 +6,9 @@ import type {
   StrategyMetricsData,
   StudySession,
   StudySessionWithHistory,
+  UpdateStudySessionData,
 } from './models';
+import { durationToIso } from '@/shared/utils';
 import type {
   GoalWithSessionsDTO,
   MetricsDTO,
@@ -102,6 +104,31 @@ export async function createStudySession(
     throw new Error(
       `Falha ao criar study session: ${response.status} ${response.statusText}`,
     );
+  }
+
+  const dto: StudySessionDTO = await response.json();
+  return studySessionMapper.fromDTO(dto);
+}
+
+export async function updateStudySession(
+  data: UpdateStudySessionData,
+): Promise<StudySession> {
+  const { sessionId, duration, ...rest } = data;
+  const url = `${import.meta.env.VITE_API_URL}/sessions/${sessionId}`;
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      ...rest,
+      ...(duration !== undefined && { duration: durationToIso(duration) }),
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const detail = body?.detail ?? `${response.status} ${response.statusText}`;
+    throw new Error(detail);
   }
 
   const dto: StudySessionDTO = await response.json();

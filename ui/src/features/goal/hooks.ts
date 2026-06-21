@@ -9,6 +9,7 @@ import {
   evaluateStudySession,
   getGoalOptions,
   getMetricsOptions,
+  updateStudySession,
   updateStudySessionStatus,
 } from './api';
 import type { Status } from '@/shared/models';
@@ -98,6 +99,29 @@ export function useEvaluateStudySession(goalId: string) {
       showNotification({
         title: 'Erro ao finalizar sessão.',
         message: 'Não foi possível finalizar a sessão.',
+        color: 'red',
+      });
+    },
+  });
+}
+
+export function useUpdateStudySession(goalId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateStudySession,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getGoalOptions(goalId).queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
+      });
+    },
+    onError: () => {
+      showNotification({
+        title: 'Erro ao editar sessão',
+        message: 'Não foi possível salvar as alterações.',
         color: 'red',
       });
     },

@@ -80,6 +80,14 @@ export type PomodoroStatus =
   | 'break_pause'
   | 'done';
 
+export type UpdateStudySessionData = {
+  sessionId: string;
+  title?: string;
+  description?: string;
+  planned_to_start_at?: Date | null;
+  duration?: string;
+};
+
 export type EvaluateSessionData = {
   sessionId: string;
   rating: number;
