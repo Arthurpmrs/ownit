@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,9 +11,15 @@ from src.features.goal.routes import router as goal_router
 from src.features.study_session import exceptions as study_session_exceptions
 from src.features.study_session.routes import router as study_session_router
 
-setup_logger()
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    setup_logger()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
+
 
 allowed_origins = ['http://localhost:3000']
 
