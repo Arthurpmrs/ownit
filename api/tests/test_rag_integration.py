@@ -128,8 +128,6 @@ def test_indexing_idempotent(mock_settings, document_store, mock_openai_embeddin
     assert len(docs) == 1  # Should still be 1, not duplicated
 
 def test_retrieval(mock_settings, document_store, mock_openai_embeddings):
-    # Separação de Testes Unitários vs. Integração:
-    # Insere documentos diretamente no banco para focar puramente no pipeline de Retrieval
     dim = mock_settings.EMBEDDING_DIMENSION
     apple_emb = [0.0] * dim
     apple_emb[0] = 0.9
@@ -150,7 +148,6 @@ def test_retrieval(mock_settings, document_store, mock_openai_embeddings):
     assert "Apples are red." in docs[0].content
 
 def test_retrieval_threshold(mock_settings, document_store, mock_openai_embeddings):
-    # Configura o banco de dados via injeção direta
     dim = mock_settings.EMBEDDING_DIMENSION
     apple_emb = [0.0] * dim
     apple_emb[0] = 0.9
