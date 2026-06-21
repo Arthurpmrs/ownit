@@ -41,3 +41,5 @@ unfixable = ["F401"]
 preview = true
 quote-style = "single"
 
+[tool.pyright]
+extraPaths = ["."]
