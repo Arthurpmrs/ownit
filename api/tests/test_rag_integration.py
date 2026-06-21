@@ -26,8 +26,10 @@ def mock_settings(mock_user_guide, monkeypatch):
     # Patch global settings access
     import scripts.index_user_guide
     import src.features.chat.retrieval
+    import src.core.db
     monkeypatch.setattr(scripts.index_user_guide, "get_settings", lambda: settings)
     monkeypatch.setattr(src.features.chat.retrieval, "get_settings", lambda: settings)
+    monkeypatch.setattr(src.core.db, "get_settings", lambda: settings)
     
     # Clear lru_cache for RAG pipeline
     get_rag_pipeline.cache_clear()
