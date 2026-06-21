@@ -11,7 +11,10 @@ from haystack_integrations.document_stores.pgvector import PgvectorDocumentStore
 
 from src.core.config import get_settings
 from src.core.db import get_pgvector_url
+from src.core.logger import get_logger
 from src.features.chat.prompts import CONTEXT_PROMPT_TEMPLATE
+
+logger = get_logger(__name__)
 
 
 @component
@@ -87,8 +90,21 @@ def get_rag_pipeline() -> Pipeline:
 
 def retrieve_context(query: str, pipeline: Pipeline) -> list[Document]:
     """Retrieve relevant chunks from pgvector using the RAG pipeline."""
+    logger.debug("Retrieving context for query: '%s'", query)
     result = pipeline.run({'embedder': {'text': query}})
-    return result['filter']['documents']
+    documents = result['filter']['documents']
+
+    logger.debug("Retrieved %d documents for context.", len(documents))
+    for i, doc in enumerate(documents):
+        source_file = doc.meta.get('source_file', 'unknown')
+        section = doc.meta.get('section', '')
+        score = doc.score if doc.score is not None else 0.0
+        logger.debug(
+            "Doc %d: score=%.4f, source=%s, section=%s",
+            i + 1, score, source_file, section
+        )
+
+    return documents
 
 
 def format_context(documents: list[Document]) -> str:

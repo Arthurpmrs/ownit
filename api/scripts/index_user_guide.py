@@ -119,6 +119,8 @@ def run_indexing_pipeline():
         api_base_url=settings.EMBEDDING_BASE_URL,
         model=settings.EMBEDDING_MODEL,
         dimensions=settings.EMBEDDING_DIMENSION,
+        meta_fields_to_embed=["title", "source_file"],
+        embedding_separator="\n\n",
     ))
     pipeline.add_component("writer", DocumentWriter(document_store=document_store, policy=DuplicatePolicy.OVERWRITE))
 
