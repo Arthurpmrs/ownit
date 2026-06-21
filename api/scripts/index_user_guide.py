@@ -1,11 +1,15 @@
-import os
 import re
 import sys
 import time
+import yaml
 from pathlib import Path
 
-from haystack import Document
+from haystack import Document, Pipeline, component
+from haystack.components.converters.txt import TextFileToDocument
 from haystack.components.embedders import OpenAIDocumentEmbedder
+from haystack.components.preprocessors import MarkdownHeaderSplitter
+from haystack.components.writers import DocumentWriter
+from haystack.document_stores.types import DuplicatePolicy
 from haystack.utils import Secret
 from haystack_integrations.document_stores.pgvector import PgvectorDocumentStore
 
@@ -13,118 +17,64 @@ from src.core.config import get_settings
 
 
 def parse_frontmatter(content: str) -> tuple[dict[str, str], str]:
-    """Parse YAML-like frontmatter enclosed in --- at the start of content."""
+    """Parse YAML frontmatter enclosed in --- at the start of content."""
     frontmatter = {}
     remaining_content = content
+
+    if not content.startswith('---'):
+        return frontmatter, remaining_content
 
     match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
     if match:
         frontmatter_block = match.group(1)
         remaining_content = content[match.end():]
-        for line in frontmatter_block.split('\n'):
-            if ':' in line:
-                key, val = line.split(':', 1)
-                frontmatter[key.strip()] = val.strip().strip('"').strip("'")
+        try:
+            parsed = yaml.safe_load(frontmatter_block)
+            if isinstance(parsed, dict):
+                # Ensure all values are strings to match the type hint
+                frontmatter = {str(k): str(v) for k, v in parsed.items()}
+            else:
+                print("Warning: Frontmatter is not a valid YAML dictionary, ignoring.", file=sys.stderr)
+        except yaml.YAMLError as e:
+            print(f"Error parsing frontmatter YAML: {e}", file=sys.stderr)
 
     return frontmatter, remaining_content
 
 
-def chunk_markdown(content: str, filename: str, title: str) -> list[dict]:
-    """Split markdown content by H1, H2, H3 headings."""
-    lines = content.split('\n')
+@component
+class FrontmatterExtractor:
+    """Extracts frontmatter from documents and adds it to their metadata."""
+    
+    def __init__(self, user_guide_path: str):
+        self.user_guide_path = Path(user_guide_path).resolve()
+        
+    @component.output_types(documents=list[Document])
+    def run(self, documents: list[Document]):
+        processed_docs = []
+        for doc in documents:
+            if doc.content is None:
+                processed_docs.append(doc)
+                continue
 
-    # Find headings (H1, H2, H3)
-    headings = []
-    for idx, line in enumerate(lines):
-        match = re.match(r'^(#{1,3})\s+(.+)$', line)
-        if match:
-            level = len(match.group(1))
-            text = match.group(2).strip()
-            headings.append({
-                'text': text,
-                'level': level,
-                'line_idx': idx
-            })
+            frontmatter, remaining_content = parse_frontmatter(doc.content)
+            meta = doc.meta.copy() if doc.meta else {}
+            meta.update(frontmatter)
+            
+            # Use 'title' from frontmatter or fallback to filename if possible
+            if 'title' not in meta and 'file_path' in meta:
+                meta['title'] = Path(meta['file_path']).stem
+                
+            # Add relative path 'source_file' if file_path is present
+            if 'file_path' in meta:
+                try:
+                    rel_path = Path(meta['file_path']).relative_to(self.user_guide_path)
+                    meta['source_file'] = str(rel_path)
+                except ValueError:
+                    meta['source_file'] = Path(meta['file_path']).name
 
-    chunks = []
-
-    # If no headings, treat entire file as one chunk
-    if not headings:
-        text_content = '\n'.join(lines).strip()
-        if text_content:
-            chunks.append({
-                'content': text_content,
-                'metadata': {
-                    'source_file': filename,
-                    'title': title,
-                    'section': ''
-                }
-            })
-        return chunks
-
-    # Capture any text before the first heading as Introduction
-    first_heading_idx = headings[0]['line_idx']
-    intro_text = '\n'.join(lines[:first_heading_idx]).strip()
-    if intro_text:
-        chunks.append({
-            'content': intro_text,
-            'metadata': {
-                'source_file': filename,
-                'title': title,
-                'section': 'Introdução'
-            }
-        })
-
-    # Process each heading and its content until a heading of equal or higher level
-    for i, h in enumerate(headings):
-        start_line = h['line_idx']
-        level = h['level']
-
-        # Find the next heading of equal or higher level (smaller or equal number)
-        end_line = len(lines)
-        for next_h in headings[i+1:]:
-            if next_h['level'] <= level:
-                end_line = next_h['line_idx']
-                break
-
-        chunk_text = '\n'.join(lines[start_line:end_line]).strip()
-        if chunk_text:
-            chunks.append({
-                'content': chunk_text,
-                'metadata': {
-                    'source_file': filename,
-                    'title': title,
-                    'section': h['text']
-                }
-            })
-
-    return chunks
-
-
-def split_large_text(text: str, max_chars: int = 1500) -> list[str]:
-    """Split text exceeding max_chars at paragraph boundaries."""
-    if len(text) <= max_chars:
-        return [text]
-
-    paragraphs = text.split('\n\n')
-    sub_chunks = []
-    current_chunk = []
-    current_len = 0
-
-    for p in paragraphs:
-        p_len = len(p)
-        if current_chunk and current_len + p_len + 2 > max_chars:
-            sub_chunks.append('\n\n'.join(current_chunk))
-            current_chunk = [p]
-            current_len = p_len
-        else:
-            current_chunk.append(p)
-            current_len += p_len + (2 if current_len > 0 else 0)
-
-    if current_chunk:
-        sub_chunks.append('\n\n'.join(current_chunk))
-
-    return sub_chunks
+            processed_docs.append(Document(content=remaining_content, meta=meta))
+            
+        return {"documents": processed_docs}
 
 
 def scan_user_guide(directory: str) -> list[Path]:
@@ -137,7 +87,7 @@ def scan_user_guide(directory: str) -> list[Path]:
 
 
 def run_indexing_pipeline():
-    """Scan, chunk, embed, and write documents to the database."""
+    """Scan files and run the Haystack indexing pipeline."""
     settings = get_settings()
 
     print(f"Scanning user guide path: {settings.USER_GUIDE_PATH}")
@@ -145,43 +95,9 @@ def run_indexing_pipeline():
     if not files:
         print("No markdown files found to index.")
         return 0, 0
+        
+    print(f"Found {len(files)} files.")
 
-    all_chunks = []
-    for file_path in files:
-        # Use path relative to user guide root
-        rel_path = file_path.relative_to(Path(settings.USER_GUIDE_PATH).resolve())
-        rel_path_str = str(rel_path)
-
-        try:
-            content = file_path.read_text(encoding='utf-8')
-            frontmatter, remaining_content = parse_frontmatter(content)
-            title = frontmatter.get('title', file_path.stem)
-
-            chunks = chunk_markdown(remaining_content, rel_path_str, title)
-
-            # Apply character limit chunking
-            final_chunks_for_file = []
-            for c in chunks:
-                sub_texts = split_large_text(c['content'], max_chars=1500)
-                for sub_text in sub_texts:
-                    final_chunks_for_file.append({
-                        'content': sub_text,
-                        'metadata': c['metadata'].copy()
-                    })
-            all_chunks.extend(final_chunks_for_file)
-        except Exception as e:
-            print(f"Error parsing file {file_path}: {e}")
-            raise
-
-    print(f"Found {len(files)} files, generated {len(all_chunks)} chunks.")
-
-    # Convert to Haystack Documents
-    documents = [
-        Document(content=c['content'], meta=c['metadata'])
-        for c in all_chunks
-    ]
-
-    # Initialize pgvector document store
     print("Connecting to pgvector document store...")
     db_url = settings.DATABASE_URL
     if db_url.startswith('postgresql+psycopg://'):
@@ -195,21 +111,28 @@ def run_indexing_pipeline():
         recreate_table=True,
     )
 
-    # Initialize OpenAI document embedder
-    embedder = OpenAIDocumentEmbedder(
+    pipeline = Pipeline()
+    pipeline.add_component("converter", TextFileToDocument())
+    pipeline.add_component("frontmatter", FrontmatterExtractor(user_guide_path=settings.USER_GUIDE_PATH))
+    pipeline.add_component("splitter", MarkdownHeaderSplitter(keep_headers=True, secondary_split="word", split_length=300, split_overlap=20))
+    pipeline.add_component("embedder", OpenAIDocumentEmbedder(
         api_key=Secret.from_token(settings.EMBEDDING_API_KEY),
         api_base_url=settings.EMBEDDING_BASE_URL,
         model=settings.EMBEDDING_MODEL,
         dimensions=settings.EMBEDDING_DIMENSION,
-    )
+    ))
+    pipeline.add_component("writer", DocumentWriter(document_store=document_store, policy=DuplicatePolicy.OVERWRITE))
 
-    print(f"Generating embeddings using model: {settings.EMBEDDING_MODEL}")
-    embedded_docs = embedder.run(documents=documents)['documents']
+    pipeline.connect("converter", "frontmatter")
+    pipeline.connect("frontmatter", "splitter")
+    pipeline.connect("splitter", "embedder")
+    pipeline.connect("embedder", "writer")
 
-    print("Saving documents to PgvectorDocumentStore...")
-    document_store.write_documents(embedded_docs)
-
-    return len(files), len(documents)
+    print(f"Running pipeline to index documents and generate embeddings using {settings.EMBEDDING_MODEL}...")
+    result = pipeline.run({"converter": {"sources": files}})
+    
+    num_chunks = result.get("writer", {}).get("documents_written", 0)
+    return len(files), num_chunks
 
 
 if __name__ == '__main__':
