@@ -113,3 +113,8 @@ def authenticated_client(client: TestClient, student: dict) -> TestClient:
     assert response.status_code == HTTPStatus.OK
 
     return client
+
+
+@pytest.fixture(scope='session')
+def test_settings() -> Settings:
+    return get_test_settings()

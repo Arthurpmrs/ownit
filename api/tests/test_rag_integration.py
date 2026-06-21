@@ -7,7 +7,6 @@ from haystack.utils import Secret
 from haystack import Document
 from haystack_integrations.document_stores.pgvector import PgvectorDocumentStore
 
-from tests.conftest import get_test_settings
 from scripts.index_user_guide import run_indexing_pipeline, get_pgvector_url
 from src.features.chat.retrieval import get_rag_pipeline, retrieve_context
 
@@ -20,8 +19,8 @@ def mock_user_guide(tmp_path):
     return user_guide
 
 @pytest.fixture
-def mock_settings(mock_user_guide, monkeypatch, conn):
-    settings = get_test_settings().model_copy(update={'USER_GUIDE_PATH': str(mock_user_guide)})
+def mock_settings(mock_user_guide, monkeypatch, conn, test_settings):
+    settings = test_settings.model_copy(update={'USER_GUIDE_PATH': str(mock_user_guide)})
     
     # Patch global settings access
     import scripts.index_user_guide
