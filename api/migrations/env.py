@@ -36,6 +36,7 @@ target_metadata = metadata
 
 
 def include_object(object, name, type_, reflected, compare_to):
+    # Ignore the user_guide_documents table, this is managed by the Haystack for RAG
     if type_ == 'table' and name == 'user_guide_documents':
         return False
     return True
