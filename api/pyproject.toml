@@ -13,6 +13,7 @@ dependencies = [
     "pgvector-haystack>=0.1.0",
     "psycopg[binary]>=3.3.3",
     "sqlalchemy>=2.0.48",
+    "tiktoken>=0.13.0",
 ]
 
 [dependency-groups]

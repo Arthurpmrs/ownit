@@ -1,6 +1,7 @@
 import asyncio
 import time
 
+from haystack import Pipeline
 from haystack.components.generators.chat import OpenAIChatGenerator
 from haystack.dataclasses import ChatMessage, StreamingChunk
 from haystack.utils import Secret
@@ -31,26 +32,30 @@ def create_chat_generator(
     )
 
 
-def _fetch_rag_context_for_query(history: list[dict[str, str]]) -> str:
+def _fetch_rag_context_for_query(
+    history: list[dict[str, str]], rag_pipeline: Pipeline
+) -> str:
     if not history or history[-1]['role'] != 'user':
         return ''
 
     user_query = history[-1]['content']
 
     try:
-        docs = retrieve_context(user_query)
+        docs = retrieve_context(user_query, pipeline=rag_pipeline)
         return format_context(docs)
     except Exception:
         logger.exception("Failed to retrieve context for RAG")
         return ''
 
+
 def build_haystack_messages(
     history: list[dict[str, str]],
+    rag_pipeline: Pipeline,
     context: str | None = None,
 ) -> list[ChatMessage]:
     """Convert DB history to Haystack ChatMessage objects."""
     if context is None:
-        context = _fetch_rag_context_for_query(history)
+        context = _fetch_rag_context_for_query(history, rag_pipeline)
 
     system_prompt = SYSTEM_PROMPT
     if context:

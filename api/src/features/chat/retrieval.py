@@ -1,7 +1,12 @@
-from haystack import Document
+from functools import lru_cache
+
+import tiktoken
+from haystack import Document, Pipeline, component
 from haystack.components.embedders import OpenAITextEmbedder
 from haystack.utils import Secret
-from haystack_integrations.components.retrievers.pgvector import PgvectorEmbeddingRetriever
+from haystack_integrations.components.retrievers.pgvector import (
+    PgvectorEmbeddingRetriever,
+)
 from haystack_integrations.document_stores.pgvector import PgvectorDocumentStore
 
 from src.core.config import get_settings
@@ -9,11 +14,39 @@ from src.core.db import get_pgvector_url
 from src.features.chat.prompts import CONTEXT_PROMPT_TEMPLATE
 
 
-def retrieve_context(query: str) -> list[Document]:
-    """Retrieve relevant chunks from pgvector based on query vector similarity."""
-    settings = get_settings()
+@component
+class ContextFilter:
+    def __init__(self, similarity_threshold: float, max_tokens: int):
+        self.similarity_threshold = similarity_threshold
+        self.max_tokens = max_tokens
+        self.encoding = tiktoken.get_encoding('cl100k_base')
 
-    # Initialize pgvector document store
+    @component.output_types(documents=list[Document])
+    def run(self, documents: list[Document]):
+        filtered_docs = [
+            doc for doc in documents
+            if doc.score is not None and doc.score >= self.similarity_threshold
+        ]
+
+        filtered_docs.sort(key=lambda d: d.score or 0.0, reverse=True)
+
+        selected_docs = []
+        accumulated_tokens = 0
+
+        for doc in filtered_docs:
+            content = doc.content or ''
+            tokens = len(self.encoding.encode(content))
+            if accumulated_tokens + tokens > self.max_tokens:
+                break
+            selected_docs.append(doc)
+            accumulated_tokens += tokens
+
+        return {'documents': selected_docs}
+
+
+@lru_cache()
+def get_rag_pipeline() -> Pipeline:
+    settings = get_settings()
     db_url = get_pgvector_url()
 
     document_store = PgvectorDocumentStore(
@@ -23,7 +56,6 @@ def retrieve_context(query: str) -> list[Document]:
         vector_function='cosine_similarity',
     )
 
-    # Initialize embedder for query text
     embedder = OpenAITextEmbedder(
         api_key=Secret.from_token(settings.EMBEDDING_API_KEY),
         api_base_url=settings.EMBEDDING_BASE_URL,
@@ -31,42 +63,32 @@ def retrieve_context(query: str) -> list[Document]:
         dimensions=settings.EMBEDDING_DIMENSION,
     )
 
-    # Embed the query
-    embedded_query = embedder.run(text=query)['embedding']
-
-    # Initialize retriever
     retriever = PgvectorEmbeddingRetriever(
         document_store=document_store,
         top_k=settings.RAG_TOP_K,
         vector_function='cosine_similarity',
     )
 
-    # Retrieve docs
-    results = retriever.run(query_embedding=embedded_query)['documents']
+    context_filter = ContextFilter(
+        similarity_threshold=settings.RAG_SIMILARITY_THRESHOLD,
+        max_tokens=settings.RAG_MAX_CONTEXT_TOKENS,
+    )
 
-    # Filter by similarity threshold
-    filtered_docs = [
-        doc for doc in results
-        if doc.score is not None and doc.score >= settings.RAG_SIMILARITY_THRESHOLD
-    ]
+    pipeline = Pipeline()
+    pipeline.add_component('embedder', embedder)
+    pipeline.add_component('retriever', retriever)
+    pipeline.add_component('filter', context_filter)
 
-    # Sort by score descending (highest similarity first)
-    filtered_docs.sort(key=lambda d: d.score or 0.0, reverse=True)
+    pipeline.connect('embedder.embedding', 'retriever.query_embedding')
+    pipeline.connect('retriever.documents', 'filter.documents')
 
-    # Accumulate chunks under RAG_MAX_CONTEXT_TOKENS limit (approx 4 chars per token)
-    selected_docs = []
-    accumulated_tokens = 0
-    max_tokens = settings.RAG_MAX_CONTEXT_TOKENS
+    return pipeline
 
-    for doc in filtered_docs:
-        content_len = len(doc.content or '')
-        estimated_tokens = content_len / 4.0
-        if accumulated_tokens + estimated_tokens > max_tokens:
-            break
-        selected_docs.append(doc)
-        accumulated_tokens += estimated_tokens
 
-    return selected_docs
+def retrieve_context(query: str, pipeline: Pipeline) -> list[Document]:
+    """Retrieve relevant chunks from pgvector using the RAG pipeline."""
+    result = pipeline.run({'embedder': {'text': query}})
+    return result['filter']['documents']
 
 
 def format_context(documents: list[Document]) -> str:
