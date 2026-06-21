@@ -31,20 +31,26 @@ def create_chat_generator(
     )
 
 
+def _fetch_rag_context_for_query(history: list[dict[str, str]]) -> str:
+    if not history or history[-1]['role'] != 'user':
+        return ''
+
+    user_query = history[-1]['content']
+
+    try:
+        docs = retrieve_context(user_query)
+        return format_context(docs)
+    except Exception:
+        logger.exception("Failed to retrieve context for RAG")
+        return ''
+
 def build_haystack_messages(
     history: list[dict[str, str]],
     context: str | None = None,
 ) -> list[ChatMessage]:
     """Convert DB history to Haystack ChatMessage objects."""
     if context is None:
-        context = ''
-        try:
-            if history and history[-1]['role'] == 'user':
-                user_query = history[-1]['content']
-                docs = retrieve_context(user_query)
-                context = format_context(docs)
-        except Exception:
-            logger.exception('Failed to retrieve context for RAG')
+        context = _fetch_rag_context_for_query(history)
 
     system_prompt = SYSTEM_PROMPT
     if context:
@@ -56,6 +62,7 @@ def build_haystack_messages(
             messages.append(ChatMessage.from_user(msg['content']))
         elif msg['role'] == 'assistant':
             messages.append(ChatMessage.from_assistant(msg['content']))
+
     return messages
 
 
