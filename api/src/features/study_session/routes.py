@@ -6,6 +6,9 @@ from sqlalchemy.engine import Connection
 from src.core.auth import get_current_student_id
 from src.core.db import get_connection
 from src.core.logger import get_logger
+from src.features.analytics import service as analytics_service
+from src.features.analytics.exceptions import EventNotFountError
+from src.shared.schemas import EventResponse
 
 from . import service
 from .exceptions import (
@@ -13,9 +16,9 @@ from .exceptions import (
     InvalidPomodoroTransitionError,
     InvalidTransitionError,
     PomodoroNotFoundError,
-    WrongStudySessionStateError,
 )
 from .schemas import (
+    CommentCreate,
     PomodoroResponse,
     PomodoroUpdate,
     StudySessionCreate,
@@ -23,6 +26,8 @@ from .schemas import (
     StudySessionNotesUpdate,
     StudySessionResponse,
     StudySessionStatusUpdate,
+    StudySessionUpdate,
+    StudySessionWithHistory,
 )
 
 logger = get_logger(__name__)
@@ -38,13 +43,28 @@ def create_study_session(
     return service.create_study_session(conn, student_id, payload)
 
 
-@router.get(path='/{study_session_id}', response_model=StudySessionResponse)
+@router.get(path='/{study_session_id}', response_model=StudySessionWithHistory)
 def get_study_session(
     study_session_id: str,
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
 ):
-    return service.get_study_session(conn, student_id, study_session_id)
+    return StudySessionWithHistory(
+        study_session=service.get_study_session(conn, student_id, study_session_id),
+        history=analytics_service.get_study_session_history(
+            conn, student_id, study_session_id
+        ),
+    )
+
+
+@router.put(path='/{study_session_id}', response_model=StudySessionResponse)
+def update_study_session(
+    study_session_id: str,
+    payload: StudySessionUpdate,
+    conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
+):
+    return service.update_study_session(conn, student_id, study_session_id, payload)
 
 
 @router.patch(path='/{study_session_id}/status', response_model=StudySessionResponse)
@@ -71,7 +91,7 @@ def evaluate_study_session(
 ):
     try:
         return service.evaluate_study_session(conn, student_id, study_session_id, payload)
-    except WrongStudySessionStateError as e:
+    except InvalidTransitionError as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
 
 
@@ -83,6 +103,25 @@ def update_study_session_notes(
     student_id: int = Depends(get_current_student_id),
 ):
     return service.update_study_session_notes(conn, student_id, study_session_id, payload)
+
+
+@router.post(
+    path='/{study_session_id}/comment',
+    response_model=EventResponse,
+    status_code=HTTPStatus.CREATED,
+)
+def add_study_session_comment(
+    study_session_id: str,
+    payload: CommentCreate,
+    conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
+):
+    try:
+        return service.add_study_session_comment(
+            conn, student_id, study_session_id, payload.comment
+        )
+    except EventNotFountError as e:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=str(e))
 
 
 @router.patch(path='/{study_session_id}/pomodoro', response_model=PomodoroResponse)

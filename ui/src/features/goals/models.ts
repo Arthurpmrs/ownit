@@ -11,6 +11,7 @@ export type Goal = {
   end_date: Date | null;
   created_at: Date;
   updated_at: Date;
+  progress?: number;
 };
 
 export type CreateGoalData = {

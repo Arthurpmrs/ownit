@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
 import {
   ActionIcon,
   Avatar,
@@ -11,12 +10,10 @@ import {
   Paper,
   ScrollArea,
   Text,
-  TextInput,
+  Textarea,
 } from '@mantine/core';
-import {
-  ArrowsClockwiseIcon,
-  PaperPlaneRightIcon,
-} from '@phosphor-icons/react';
+import { IconRefresh, IconSend } from '@tabler/icons-react';
+import { useEffect, useRef, useState } from 'react';
 import { useChat } from '../hooks';
 import ChatBubble from './ChatBubble';
 
@@ -103,7 +100,7 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
                 onClick={onNewSession}
                 title="Nova sessão de chat"
               >
-                <ArrowsClockwiseIcon size={20} />
+                <IconRefresh size={20} />
               </ActionIcon>
               <CloseButton
                 variant="transparent"
@@ -141,11 +138,13 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
           }}
         >
           <form onSubmit={handleSend}>
-            <TextInput
+            <Textarea
               placeholder="Pergunte algo ao James..."
               value={input}
               onChange={(e) => setInput(e.currentTarget.value)}
               disabled={isPending}
+              maxRows={2}
+              autosize
               rightSection={
                 <ActionIcon
                   type="submit"
@@ -153,7 +152,7 @@ export default function ChatWindow({ onClose, style }: ChatWindowProps) {
                   color="orange"
                   disabled={!input.trim() || isPending}
                 >
-                  <PaperPlaneRightIcon size={18} />
+                  <IconSend size={18} />
                 </ActionIcon>
               }
             />

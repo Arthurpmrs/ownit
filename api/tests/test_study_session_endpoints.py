@@ -31,9 +31,9 @@ def test_create_and_get_study_session(authenticated_client: TestClient, goal: di
     response = authenticated_client.get(f'/sessions/{session_id}')
     assert response.status_code == HTTPStatus.OK
     session_data = response.json()
-    assert session_data['id'] == session_id
-    assert session_data['goal_id'] == goal['id']
-    assert session_data['title'] == payload['title']
+    assert session_data['study_session']['id'] == session_id
+    assert session_data['study_session']['goal_id'] == goal['id']
+    assert session_data['study_session']['title'] == payload['title']
 
 
 def test_update_study_session_status(authenticated_client: TestClient, goal: dict):
@@ -76,7 +76,7 @@ def test_update_study_session_status(authenticated_client: TestClient, goal: dic
 def test_update_study_session_status_invalid_transition(
     authenticated_client: TestClient, goal: dict
 ):
-    # Given - cria uma sessão de estudo
+    # Given - cria uma sessão de estudo e a conclui
     payload = {
         'goal_id': goal['id'],
         'title': 'Sessão para Teste de Transição Inválida',
@@ -87,14 +87,40 @@ def test_update_study_session_status_invalid_transition(
     response = authenticated_client.post('/sessions/', json=payload)
     session_id = response.json()['id']
 
-    # When - tenta fazer uma transição inválida (todo -> done)
-    status_payload = {'new_status': 'done'}
+    authenticated_client.patch(
+        f'/sessions/{session_id}/status', json={'new_status': 'done'}
+    )
+
+    # When - tenta ativar uma sessão já concluída (done -> doing é inválido)
     response = authenticated_client.patch(
-        f'/sessions/{session_id}/status', json=status_payload
+        f'/sessions/{session_id}/status', json={'new_status': 'doing'}
     )
 
     # Then
     assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+def test_todo_to_done_transition(authenticated_client: TestClient, goal: dict):
+    # Given - cria uma sessão pendente
+    payload = {
+        'goal_id': goal['id'],
+        'title': 'Sessão Pendente para Concluída',
+        'description': 'Testando transição direta de to_do para done',
+        'planned_to_start_at': '2026-05-05T10:00:00',
+        'duration': 'PT1H',
+    }
+    response = authenticated_client.post('/sessions/', json=payload)
+    assert response.status_code == HTTPStatus.CREATED
+    session_id = response.json()['id']
+
+    # When - conclui diretamente sem passar por 'doing'
+    response = authenticated_client.patch(
+        f'/sessions/{session_id}/status', json={'new_status': 'done'}
+    )
+
+    # Then
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['status'] == 'done'
 
 
 def test_cannot_have_multiple_active_sessions(
@@ -165,7 +191,7 @@ def test_update_study_session_notes(authenticated_client: TestClient, goal: dict
     # Verifica se as notas foram persistidas
     response = authenticated_client.get(f'/sessions/{session_id}')
     assert response.status_code == HTTPStatus.OK
-    assert response.json()['notes'] == notes_payload['new_notes']
+    assert response.json()['study_session']['notes'] == notes_payload['new_notes']
 
 
 def test_evaluate_study_session(authenticated_client: TestClient, goal: dict):
@@ -179,16 +205,6 @@ def test_evaluate_study_session(authenticated_client: TestClient, goal: dict):
     }
     response = authenticated_client.post('/sessions/', json=payload)
     session_id = response.json()['id']
-
-    # Transiciona para 'done'
-    status_payload = {'new_status': 'doing'}
-    authenticated_client.patch(f'/sessions/{session_id}/status', json=status_payload)
-
-    status_payload = {'new_status': 'done'}
-    response = authenticated_client.patch(
-        f'/sessions/{session_id}/status', json=status_payload
-    )
-    assert response.status_code == HTTPStatus.OK
 
     # When - avalia a sessão
     evaluate_payload = {
@@ -212,34 +228,7 @@ def test_evaluate_study_session(authenticated_client: TestClient, goal: dict):
     )
     assert data['strategies'] == evaluate_payload['strategies']
     assert data['final_comment'] == evaluate_payload['final_comment']
-
-
-def test_evaluate_study_session_not_done(authenticated_client: TestClient, goal: dict):
-    # Given - cria uma sessão de estudo mas NÃO a marca como 'done'
-    payload = {
-        'goal_id': goal['id'],
-        'title': 'Sessão não finalizada',
-        'description': 'Testando avaliação de sessão não finalizada',
-        'planned_to_start_at': '2026-05-05T10:00:00',
-        'duration': 'PT1H',
-    }
-    response = authenticated_client.post('/sessions/', json=payload)
-    session_id = response.json()['id']
-
-    # When - tenta avaliar uma sessão que ainda está em 'todo'
-    evaluate_payload = {
-        'rating': 4.5,
-        'domain_perception_level': 4,
-        'learning_difficulty_level': 2,
-        'strategies': ['Active Recall'],
-        'final_comment': 'Não deveria ser possível avaliar',
-    }
-    response = authenticated_client.patch(
-        f'/sessions/{session_id}/evaluate', json=evaluate_payload
-    )
-
-    # Then - deve falhar pois a sessão não está em 'done'
-    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert data['status'] == 'done'
 
 
 def test_get_nonexistent_study_session(authenticated_client: TestClient):

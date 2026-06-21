@@ -1,3 +1,4 @@
+import { durationToIso } from '@/shared/utils';
 import {
   Alert,
   Button,
@@ -11,14 +12,13 @@ import {
 } from '@mantine/core';
 import { DateTimePicker, TimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { CalendarBlankIcon, ClockIcon, PlusIcon } from '@phosphor-icons/react';
+import { showNotification } from '@mantine/notifications';
+import { IconCalendar, IconClock, IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useCreateStudySession } from '../hooks';
-import { showNotification } from '@mantine/notifications';
 import type { CreateStudySessionData } from '../models';
-import { durationToIso } from '@/shared/utils';
 
-interface SessionFormValues {
+export interface SessionFormValues {
   title: string;
   description: string;
   planned_date: Date | null;
@@ -27,11 +27,16 @@ interface SessionFormValues {
   break_duration: string;
 }
 
-export default function CreateSessionModal() {
+interface CreateSessionModalProps {
+  goalId: string;
+}
+
+export default function CreateSessionModal({
+  goalId,
+}: CreateSessionModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [moreSession, setMoreSession] = useState(false);
   const openModal = () => setIsModalOpen(true);
-  const goalId = '6af2702a-84b2-4cd7-8913-c31cd83e8a1a';
 
   const form = useForm<SessionFormValues>({
     initialValues: {
@@ -95,8 +100,8 @@ export default function CreateSessionModal() {
       <Button
         variant="subtle"
         radius="sm"
-        size="sm"
-        leftSection={<PlusIcon weight="bold" size={14} />}
+        size="xs"
+        leftSection={<IconPlus stroke={2} size={14} />}
         onClick={openModal}
       >
         Adicionar
@@ -140,7 +145,7 @@ export default function CreateSessionModal() {
                 />
 
                 <DateTimePicker
-                  leftSection={<CalendarBlankIcon size={18} />}
+                  leftSection={<IconCalendar size={18} />}
                   label="Data Planejada"
                   placeholder="Insira a data que planeja executar essa sessão"
                   valueFormat="DD MMM YYYY hh:mm"
@@ -150,7 +155,7 @@ export default function CreateSessionModal() {
                 />
 
                 <TimePicker
-                  leftSection={<ClockIcon size={16} />}
+                  leftSection={<IconClock size={16} />}
                   label="Duração da Sessão"
                   required
                   {...form.getInputProps('session_duration')}
@@ -158,14 +163,14 @@ export default function CreateSessionModal() {
 
                 <Group>
                   <TimePicker
-                    leftSection={<ClockIcon size={16} />}
+                    leftSection={<IconClock size={16} />}
                     label="Duração do Modo Foco"
                     defaultValue="00:50"
                     flex={1}
                     {...form.getInputProps('focus_duration')}
                   />
                   <TimePicker
-                    leftSection={<ClockIcon size={16} />}
+                    leftSection={<IconClock size={16} />}
                     label="Duração do Modo Pause"
                     defaultValue="00:15"
                     flex={1}

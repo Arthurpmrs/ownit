@@ -14,16 +14,12 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import {
-  BookOpenIcon,
-  CaretRightIcon,
-  TargetIcon,
-} from '@phosphor-icons/react';
+
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useRouteContext } from '@tanstack/react-router';
-import { useState } from 'react';
 
-import CreateSessionModal from '@/features/goal/components/create-session-modal';
+import { IconBook, IconChevronRight, IconTarget } from '@tabler/icons-react';
+import { useState } from 'react';
 import { getStudentGoalsOptions } from '../api';
 import { statusMapper } from '../mappers';
 import type { Goal } from '../models';
@@ -51,7 +47,7 @@ export default function Goals() {
       <Header
         title="Meus Planos"
         description="Visualize e organize seus planos de estudo"
-        icon={<TargetIcon weight="bold" color="white" size={32} />}
+        icon={<IconTarget stroke={2} color="white" size={32} />}
       >
         <Group gap="sm">
           <FilterGoalsModal
@@ -67,9 +63,6 @@ export default function Goals() {
       </Header>
 
       <Container py="xl" mx="xl" fluid>
-        <Group justify="flex-end">
-          <CreateSessionModal />
-        </Group>
         <GoalsList goals={goals} isLoading={isLoading} error={error} />
       </Container>
     </>
@@ -87,7 +80,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
   const [hoveredGoalId, setHoveredGoalId] = useState<string | null>(null);
 
   function handleClick(id: string) {
-    void navigate({ to: '/goals/$goal_id', params: { goal_id: id } });
+    void navigate({ to: '/goals/$id', params: { id } });
   }
 
   if (goals === undefined && isLoading) {
@@ -110,9 +103,6 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
     <Grid gap="md" align="stretch">
       {goals && goals.length > 0 ? (
         goals.map((goal) => {
-          // TODO: Calcular o progresso quando tivermos as sessões
-          const mockProgressValue = 0;
-
           let leftDays = 0;
           if (goal.start_date && goal.end_date) {
             const utcA = Date.UTC(
@@ -158,7 +148,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
                   <Stack gap="md" justify="space-between" h="100%">
                     <Stack gap="sm">
                       <Group justify="space-between">
-                        <BookOpenIcon size={32} color="orange" weight="bold" />
+                        <IconBook size={32} color="orange" stroke={2} />
                         <Badge variant="light">
                           {statusMapper(goal.status)}
                         </Badge>
@@ -182,10 +172,15 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
                             Progresso
                           </Text>
                           <Text c="orange" size="lg" fw={600}>
-                            {mockProgressValue}%
+                            {goal?.progress
+                              ? (goal.progress * 100).toFixed(2)
+                              : '0.00'}
+                            %
                           </Text>
                         </Group>
-                        <Progress value={mockProgressValue} />
+                        <Progress
+                          value={goal?.progress ? goal.progress * 100 : 0}
+                        />
                       </Stack>
 
                       <Divider />
@@ -193,7 +188,7 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
                         <Text c="dimmed" size="sm" fw={600}>
                           {leftDays} dias
                         </Text>
-                        <CaretRightIcon />
+                        <IconChevronRight />
                       </Group>
                     </Stack>
                   </Stack>
@@ -203,8 +198,8 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
           );
         })
       ) : (
-        <Center py="lg">
-          <Text c="dimmed">Nenhum plano criado ainda</Text>
+        <Center py="lg" w="100%">
+          <Text c="dimmed">Nenhum plano criado</Text>
         </Center>
       )}
     </Grid>

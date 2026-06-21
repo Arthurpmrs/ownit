@@ -3,6 +3,8 @@ from enum import Enum
 
 from pydantic import BaseModel
 
+from src.features.analytics.tables import EventType
+
 
 class StudySessionShortResponse(BaseModel):
     id: str
@@ -12,6 +14,13 @@ class StudySessionShortResponse(BaseModel):
     planned_to_start_at: datetime
     planned_to_end_at: datetime
     duration: timedelta
+
+
+class EventResponse(BaseModel):
+    student_id: int
+    timestamp: datetime
+    context: dict
+    type: EventType
 
 
 class Status(str, Enum):

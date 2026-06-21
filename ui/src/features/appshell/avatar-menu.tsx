@@ -1,8 +1,8 @@
 import { Avatar, Menu } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { SignOutIcon } from '@phosphor-icons/react';
 import { useNavigate } from '@tanstack/react-router';
 import { useLogout, useMe } from '../auth/hooks';
+import { IconLogout } from '@tabler/icons-react';
 
 export default function AvatarMenu() {
   const { data: user } = useMe();
@@ -43,7 +43,7 @@ export default function AvatarMenu() {
         <Menu.Item
           onClick={() => handleLogout()}
           color="red"
-          leftSection={<SignOutIcon size={16} />}
+          leftSection={<IconLogout size={16} />}
         >
           Sair da Conta
         </Menu.Item>

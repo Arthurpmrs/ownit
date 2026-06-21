@@ -1,9 +1,9 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
 import { fetchMe } from '@/features/auth/api';
-import GoalDetails from '@/features/goals/components/goal-detail';
+import Plan from '@/features/goal/components/plan';
 
-export const Route = createFileRoute('/goals/$goal_id')({
+export const Route = createFileRoute('/goals/$id')({
   beforeLoad: async () => {
     try {
       const student = await fetchMe();
@@ -12,5 +12,5 @@ export const Route = createFileRoute('/goals/$goal_id')({
       throw redirect({ to: '/login' });
     }
   },
-  component: GoalDetails,
+  component: Plan,
 });

@@ -48,6 +48,18 @@ export type StudySession = {
   updatedAt: Date;
 };
 
+export type SessionEvent = {
+  studentId: number;
+  timestamp: Date;
+  context: Record<string, unknown>;
+  type: string;
+};
+
+export type StudySessionWithHistory = {
+  studySession: StudySession;
+  history: SessionEvent[];
+};
+
 export type Pomodoro = {
   id: number;
   studySessionId: string;
@@ -67,3 +79,43 @@ export type PomodoroStatus =
   | 'break_mode'
   | 'break_pause'
   | 'done';
+
+export type EvaluateSessionData = {
+  sessionId: string;
+  rating: number;
+  domain_perception_level: number;
+  learning_difficulty_level: number;
+  strategies: string[];
+  final_comment: string;
+};
+
+export type StrategyAdherenceMetric = {
+  strategy: string;
+  adherence: number;
+  sessionsCount: number;
+};
+
+export type PerformanceSummary = {
+  totalDurationInHours: string;
+  avgSessionDuratioInHours: string;
+  avgRating: number;
+  sessionsCount: number;
+};
+
+export type SRWeeklyMetric = {
+  week: number;
+  weekStart: Date;
+  weekEnd: Date;
+  srCount: number;
+  finishedCount: number;
+  avgRating: number;
+  avgDomainPerception: number;
+  frequency: number;
+};
+
+export type StrategyMetricsData = {
+  goalId: string;
+  strategyAdherence: StrategyAdherenceMetric[];
+  srWeekly: SRWeeklyMetric[];
+  performanceSummary: PerformanceSummary;
+};

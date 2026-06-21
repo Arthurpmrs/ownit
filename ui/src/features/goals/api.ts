@@ -83,3 +83,27 @@ export async function createGoal(data: CreateGoalData): Promise<Goal> {
   const dto: GoalDTO = await response.json();
   return goalMapper.fromDTO(dto);
 }
+
+export function getGoalByIdOptions(goalId: string) {
+  return queryOptions({
+    queryKey: ['goal', goalId],
+    queryFn: () => fetchGoalById(goalId),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export async function fetchGoalById(goalId: string): Promise<Goal> {
+  const url = `${import.meta.env.VITE_API_URL}/goals/${goalId}`;
+  const response = await fetch(url, {
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Falha ao buscar goal: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const data: { goal: GoalDTO; sessions: unknown[] } = await response.json();
+  return goalMapper.fromDTO(data.goal);
+}

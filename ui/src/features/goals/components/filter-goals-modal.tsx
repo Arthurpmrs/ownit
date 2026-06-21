@@ -1,3 +1,4 @@
+import type { Status } from '@/shared/models';
 import {
   ActionIcon,
   Box,
@@ -11,10 +12,9 @@ import {
   Text,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { FunnelIcon } from '@phosphor-icons/react';
+import { IconFilter } from '@tabler/icons-react';
 import { useState } from 'react';
 import { statusMapper } from '../mappers';
-import type { Status } from '../models';
 
 export interface FilterGoalsValues {
   status: Status | null;
@@ -60,7 +60,6 @@ export default function FilterGoalsModal({
         width={450}
         opened={opened}
         onChange={setOpened}
-        closeOnClickOutside={false}
         position="bottom-end"
         withArrow
         shadow="md"
@@ -70,7 +69,7 @@ export default function FilterGoalsModal({
             <Button
               variant="light"
               radius="sm"
-              leftSection={<FunnelIcon weight="bold" size={14} />}
+              leftSection={<IconFilter stroke={2} size={14} />}
               visibleFrom="sm"
               onClick={() => setOpened((o) => !o)}
             >
@@ -84,7 +83,7 @@ export default function FilterGoalsModal({
               aria-label="Filtro"
               onClick={() => setOpened((o) => !o)}
             >
-              <FunnelIcon size={18} />
+              <IconFilter size={18} />
             </ActionIcon>
           </Box>
         </Popover.Target>
