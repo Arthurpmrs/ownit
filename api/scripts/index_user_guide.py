@@ -14,6 +14,7 @@ from haystack.utils import Secret
 from haystack_integrations.document_stores.pgvector import PgvectorDocumentStore
 
 from src.core.config import get_settings
+from src.core.db import get_pgvector_url
 
 
 def parse_frontmatter(content: str) -> tuple[dict[str, str], str]:
@@ -99,9 +100,7 @@ def run_indexing_pipeline():
     print(f"Found {len(files)} files.")
 
     print("Connecting to pgvector document store...")
-    db_url = settings.DATABASE_URL
-    if db_url.startswith('postgresql+psycopg://'):
-        db_url = db_url.replace('postgresql+psycopg://', 'postgresql://')
+    db_url = get_pgvector_url()
 
     document_store = PgvectorDocumentStore(
         connection_string=Secret.from_token(db_url),
