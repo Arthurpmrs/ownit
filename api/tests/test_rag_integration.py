@@ -20,7 +20,7 @@ def mock_user_guide(tmp_path):
     return user_guide
 
 @pytest.fixture
-def mock_settings(mock_user_guide, monkeypatch):
+def mock_settings(mock_user_guide, monkeypatch, conn):
     settings = get_test_settings().model_copy(update={'USER_GUIDE_PATH': str(mock_user_guide)})
     
     # Patch global settings access
@@ -105,7 +105,7 @@ def mock_openai_embeddings(mock_settings):
         respx_mock.post(f"{mock_settings.EMBEDDING_BASE_URL}/embeddings").mock(side_effect=embeddings_route)
         yield respx_mock
 
-def test_indexing_pipeline(mock_settings, document_store, mock_openai_embeddings):
+def test_indexing_pipeline(mock_settings, document_store, mock_openai_embeddings, conn):
     num_files, num_chunks = run_indexing_pipeline()
     
     assert num_files == 2
@@ -114,7 +114,7 @@ def test_indexing_pipeline(mock_settings, document_store, mock_openai_embeddings
     docs = document_store.filter_documents()
     assert len(docs) == 2
 
-def test_indexing_idempotent(mock_settings, document_store, mock_openai_embeddings, mock_user_guide):
+def test_indexing_idempotent(mock_settings, document_store, mock_openai_embeddings, mock_user_guide, conn):
     # Remove one file to test idempotency more clearly
     (mock_user_guide / "doc2.md").unlink()
     
@@ -129,7 +129,7 @@ def test_indexing_idempotent(mock_settings, document_store, mock_openai_embeddin
     docs = document_store.filter_documents()
     assert len(docs) == 1  # Should still be 1, not duplicated
 
-def test_retrieval(mock_settings, document_store, mock_openai_embeddings):
+def test_retrieval(mock_settings, document_store, mock_openai_embeddings, conn):
     dim = mock_settings.EMBEDDING_DIMENSION
     apple_emb = [0.0] * dim
     apple_emb[0] = 0.9
@@ -149,7 +149,7 @@ def test_retrieval(mock_settings, document_store, mock_openai_embeddings):
     assert len(docs) > 0
     assert "Apples are red." in docs[0].content
 
-def test_retrieval_threshold(mock_settings, document_store, mock_openai_embeddings):
+def test_retrieval_threshold(mock_settings, document_store, mock_openai_embeddings, conn):
     dim = mock_settings.EMBEDDING_DIMENSION
     apple_emb = [0.0] * dim
     apple_emb[0] = 0.9
