@@ -36,11 +36,11 @@ export default function SessionCard({ session, goalId }: SessionCardProps) {
   });
 
   const formatDate = (date: Date) => {
-    const hour = String(date.getUTCHours()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
     const minute = String(date.getMinutes()).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const year = date.getUTCFullYear();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
     return `${day}/${month}/${year} às ${hour}:${minute}`;
   };
 
