@@ -207,3 +207,24 @@ export async function fetchMetrics(
   const dto: MetricsDTO = await response.json();
   return metricsMapper.fromDTO(dto);
 }
+
+export async function updateGoalStatus(
+  goalId: string,
+  status: Status,
+): Promise<void> {
+  const url = `${import.meta.env.VITE_API_URL}/goals/${goalId}`;
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ status }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const detail = body?.detail ?? `${response.status} ${response.statusText}`;
+    throw new Error(detail);
+  }
+}
