@@ -13,6 +13,7 @@ from sqlalchemy import (
     String,
     Table,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 
 from src.core.db import metadata, timestamp_columns
 from src.shared.schemas import Status
@@ -74,6 +75,7 @@ study_session_pomodoros = Table(
     Column('break_duration', Interval, nullable=False),
     Column('current_started_at', DateTime(timezone=True), nullable=False),
     Column('current_remaining_duration', Interval, nullable=False),
+    Column('history', JSONB, nullable=False, default=list),
     Column(
         'status',
         Enum(PomodoroStatus),

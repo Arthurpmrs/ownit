@@ -57,11 +57,12 @@ export type Pomodoro = {
   studySessionId: string;
   status: PomodoroStatus;
   currentStartedAt: Date;
-currentRemainingDuration: string;
+  currentRemainingDuration: string;
   focusDuration: string;
   breakDuration: string;
   createdAt: Date;
   updatedAt: Date;
+  history: Array<{ mode: 'focus' | 'break'; duration: number }>;
 };
 
 export type PomodoroStatus =

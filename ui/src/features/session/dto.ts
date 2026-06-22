@@ -42,4 +42,5 @@ export type PomodoroDTO = {
   break_duration: string;
   created_at: string;
   updated_at: string;
+  history: Array<{ mode: 'focus' | 'break'; duration: number }>;
 };

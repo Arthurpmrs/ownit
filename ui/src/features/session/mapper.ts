@@ -90,6 +90,7 @@ export const pomodoroMapper = {
       breakDuration: parseDuration(dto.break_duration),
       createdAt: parseDate(dto.created_at),
       updatedAt: parseDate(dto.updated_at),
+      history: dto.history || [],
     };
   },
 };

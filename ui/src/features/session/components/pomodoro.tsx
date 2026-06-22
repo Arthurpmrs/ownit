@@ -18,7 +18,7 @@ import {
   IconPlayerPlay,
   IconRefresh,
 } from '@tabler/icons-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import useUpdatePomodoroStatus from '../hook';
 import type { Pomodoro, PomodoroStatus } from '../models';
 
@@ -69,13 +69,9 @@ export function Pomodoro({
     toSeconds(pomodoro.currentRemainingDuration),
   );
   const totalSessionSeconds = toSeconds(sessionDuration);
-
   const startActive = pomodoro.status.includes('mode') ? true : false;
   const [isActive, setIsActive] = useState(startActive);
-
-  const [history, setHistory] = useState<TimeBlock[]>([]);
   const [currentBlockSeconds, setCurrentBlockSeconds] = useState(0);
-  const isChangingModeManually = useRef(false);
 
   const updatePomodoroStatusMutation = useUpdatePomodoroStatus(sessionId);
 
@@ -90,7 +86,10 @@ export function Pomodoro({
       }, 1000);
     } else if (timeLeft === 0 && isActive) {
       setIsActive(false);
-      archiveCurrentBlock(mode);
+      setCurrentBlockSeconds(0);
+      const new_status: PomodoroStatus =
+        pomodoro.status === 'focus_mode' ? 'focus_pause' : 'break_pause';
+      updatePomodoroStatusMutation.mutate({ sessionId, new_status });
     }
 
     return () => {
@@ -98,26 +97,20 @@ export function Pomodoro({
     };
   }, [isActive, timeLeft, mode]);
 
-  function archiveCurrentBlock(forcedMode?: 'focus' | 'break') {
-    if (currentBlockSeconds > 0) {
-      const modeToArchive = forcedMode || mode;
-      setHistory((prev) => [
-        ...prev,
-        { mode: modeToArchive, durationInSeconds: currentBlockSeconds },
-      ]);
-      setCurrentBlockSeconds(0);
-    }
-  }
-
   function handleModeChange(newMode: string) {
     if (newMode !== mode) {
-      setIsActive(false);
-      isChangingModeManually.current = true;
-      archiveCurrentBlock(mode);
-      setMode(newMode as 'focus' | 'break');
       const new_status: PomodoroStatus =
         newMode === 'focus' ? 'focus_pause' : 'break_pause';
       updatePomodoroStatusMutation.mutate({ sessionId, new_status });
+
+      setIsActive(false);
+      setMode(newMode as 'focus' | 'break');
+      setCurrentBlockSeconds(0);
+      setTimeLeft(
+        toSeconds(
+          newMode === 'focus' ? pomodoro.focusDuration : pomodoro.breakDuration,
+        ),
+      );
     }
   }
 
@@ -156,17 +149,28 @@ export function Pomodoro({
   function generateChartSections() {
     if (totalSessionSeconds <= 0) return [];
 
-    const allBlocks = [...history];
-    if (currentBlockSeconds > 0 || isActive) {
-      allBlocks.push({ mode: mode, durationInSeconds: currentBlockSeconds });
+    // 1. Cria a cópia do histórico oficial vindo do banco
+    const allBlocks = [...(pomodoro.history || [])];
+
+    // 2. Só injetamos o bloco "vivo" atual se o cronômetro estiver ATIVO rodando.
+    // Se o status atual for de pausa (ex: 'focus_pause'), significa que o backend
+    // já processou e incluiu esse tempo dentro do pomodoro.history.
+    const isStatusActive = pomodoro.status.includes('mode');
+
+    if (currentBlockSeconds > 0 && isStatusActive) {
+      allBlocks.push({
+        mode: mode,
+        duration: currentBlockSeconds,
+      });
     }
 
     return allBlocks.map((block) => {
-      const percentage = (block.durationInSeconds / totalSessionSeconds) * 100;
+      const percentage = (block.duration / totalSessionSeconds) * 100;
+
       return {
         value: percentage,
         color: block.mode === 'focus' ? 'orange.5' : 'orange.2',
-        tooltip: `${block.mode === 'focus' ? 'Foco' : 'Pausa'}: ${formatSeconds(block.durationInSeconds)}`,
+        tooltip: `${block.mode === 'focus' ? 'Foco' : 'Pausa'}: ${formatSeconds(block.duration)}`,
       };
     });
   }

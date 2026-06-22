@@ -466,6 +466,18 @@ def update_pomodoro_status(
     now = datetime.now(UTC)
     duration = _calculate_remaining_duration(now, pomodoro, new_status)
 
+    updated_history = list(pomodoro.history) if pomodoro.history else []
+
+    # Se o status anterior era um modo ativo, calculamos quanto tempo durou
+    if pomodoro.status in [PomodoroStatus.focus_mode, PomodoroStatus.break_mode]:
+        time_spent = int((now - pomodoro.current_started_at).total_seconds())
+
+        if time_spent > 0:
+            block_mode = (
+                'focus' if pomodoro.status == PomodoroStatus.focus_mode else 'break'
+            )
+            updated_history.append({'mode': block_mode, 'duration': time_spent})
+
     stmt = (
         update(study_session_pomodoros)
         .where(study_session_pomodoros.c.id == pomodoro.id)
@@ -473,6 +485,7 @@ def update_pomodoro_status(
             current_started_at=now,
             current_remaining_duration=duration,
             status=new_status,
+            history=updated_history,
         )
         .returning(study_session_pomodoros)
     )

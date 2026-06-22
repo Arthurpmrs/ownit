@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -63,6 +64,7 @@ class PomodoroResponse(BaseModel):
     break_duration: timedelta
     created_at: datetime
     updated_at: datetime
+    history: List[Dict[str, Any]] = []
 
 
 class PomodoroUpdate(BaseModel):
