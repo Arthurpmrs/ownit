@@ -11,7 +11,9 @@ import {
   getMetricsOptions,
   updateStudySession,
   updateStudySessionStatus,
+  updateGoalStatus,
 } from './api';
+import { getStudentGoalsOptions } from '@/features/goals/api';
 import type { Status } from '@/shared/models';
 
 /**
@@ -130,4 +132,25 @@ export function useUpdateStudySession(goalId: string) {
 
 export function useStrategyMetrics(goalId: string) {
   return useSuspenseQuery(getMetricsOptions(goalId));
+}
+
+export function useUpdateGoalStatus(goalId: string, studentId?: number) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (newStatus: Status) => updateGoalStatus(goalId, newStatus),
+    onSuccess: () => {
+      queryClient.invalidateQueries(getGoalOptions(goalId));
+      if (studentId !== undefined) {
+        queryClient.invalidateQueries(getStudentGoalsOptions(studentId));
+      }
+    },
+    onError: () => {
+      showNotification({
+        title: 'Erro ao atualizar status.',
+        message: 'Não foi possível atualizar o status da goal.',
+        color: 'red',
+      });
+    },
+  });
 }
