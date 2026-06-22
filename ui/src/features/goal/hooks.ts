@@ -1,6 +1,12 @@
-import type { Status } from '@/shared/models';
 import { showNotification } from '@mantine/notifications';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
+
+import type { Status } from '@/shared/models';
+import { getStudentGoalsOptions } from '../goals/api';
 import {
   createStudySession,
   evaluateStudySession,
@@ -89,3 +95,52 @@ export function useEvaluateStudySession(goalId: string) {
     },
   });
 }
+
+export function useUpdateStudySession(goalId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateStudySession,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getGoalOptions(goalId).queryKey,
+      });
+    },
+    onError: () => {
+      showNotification({
+        title: 'Erro ao editar sessão',
+        message: 'Não foi possível salvar as alterações.',
+        color: 'red',
+      });
+    },
+  });
+}
+
+export function useStrategyMetrics(goalId: string) {
+  return useSuspenseQuery(getMetricsOptions(goalId));
+}
+
+export function useUpdateGoalStatus(goalId: string, studentId?: number) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (newStatus: Status) => updateGoalStatus(goalId, newStatus),
+    onSuccess: () => {
+      queryClient.invalidateQueries(getGoalOptions(goalId));
+      if (studentId !== undefined) {
+        queryClient.invalidateQueries(getStudentGoalsOptions(studentId));
+      }
+    },
+    onError: () => {
+      showNotification({
+        title: 'Erro ao atualizar status.',
+        message: 'Não foi possível atualizar o status da goal.',
+        color: 'red',
+      });
+    },
+  });
+}
+function getMetricsOptions(goalId: string) {
+  throw new Error('Function not implemented.');
+}
+

@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from pydantic_core import to_jsonable_python
 from sqlalchemy import case, func, insert, select, update
 from sqlalchemy.engine import Connection
 
@@ -52,7 +53,7 @@ def create_goal(conn: Connection, student_id: int, payload: GoalCreate) -> GoalR
             student_id=student_id,
             title=payload.title,
             description=payload.description,
-            status='to_do',
+            status=Status.todo,
             goal_tags=payload.goal_tags,
             start_date=payload.start_date,
             end_date=payload.end_date,
@@ -176,7 +177,7 @@ def update_goal(
             type=EventType.GOAL_EDITED,
             student_id=student_id,
             goal_id=goal_id,
-            context={**current_goal_row._mapping},
+            context=to_jsonable_python({**current_goal_row._mapping}),
         ),
     )
 

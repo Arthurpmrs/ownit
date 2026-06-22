@@ -1,5 +1,5 @@
 import type { Goal } from '../goals/models';
-import type { export export StudySessionShort } from '../session/models';
+import type { StudySessionShort } from '../session/models';
 
 export type GoalWithSessions = {
   goal: Goal;

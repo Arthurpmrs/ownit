@@ -28,6 +28,7 @@ from .schemas import (
     StudySessionEvaluate,
     StudySessionNotesUpdate,
     StudySessionResponse,
+    StudySessionUpdate,
 )
 from .tables import PomodoroStatus, study_session_pomodoros, study_sessions
 
@@ -78,7 +79,8 @@ def create_study_session(
 
     logger.info(f'Creating StudySession for goal_id={goal_id} & student_id={student_id}')
 
-    if not goal_exists_by_id(conn, goal_id):
+    goal_status = conn.scalar(select(goals.c.status).where(goals.c.id == goal_id))
+    if goal_status is None:
         raise GoalNotFoundError(goal_id)
 
     study_session_id = str(uuid4())
@@ -111,6 +113,7 @@ def create_study_session(
             student_id=student_id,
             goal_id=study_session.goal_id,
             study_session_id=study_session.id,
+            context={'goal_status': goal_status},
         ),
     )
 
@@ -160,6 +163,58 @@ def get_goal_study_sessions(
     sessions = conn.execute(stmt).fetchall()
 
     return [StudySessionShortResponse(**session._mapping) for session in sessions]
+
+
+def _get_study_session_goal_status(
+    conn: Connection, student_id: int, study_session_id: str
+) -> Status:
+    goal_status = conn.scalar(
+        select(goals.c.status)
+        .join(study_sessions, goals.c.id == study_sessions.c.goal_id)
+        .where(*_get_study_session_predicate(study_session_id, student_id))
+    )
+
+    if goal_status is None:
+        raise StudySessionNotFoundError(study_session_id)
+
+    return goal_status
+
+
+def update_study_session(
+    conn: Connection,
+    student_id: int,
+    study_session_id: str,
+    payload: StudySessionUpdate,
+) -> StudySessionResponse:
+    goal_status = _get_study_session_goal_status(conn, student_id, study_session_id)
+
+    update_data = payload.model_dump(exclude_unset=True)
+
+    stmt = (
+        update(study_sessions)
+        .where(*_get_study_session_predicate(study_session_id, student_id))
+        .values(
+            **update_data,
+            updated_at=func.now(),
+        )
+    )
+
+    conn.execute(stmt)
+
+    study_session = get_study_session(conn, student_id, study_session_id)
+
+    create_event(
+        conn,
+        EventCreate(
+            type=EventType.STUDY_SESSION_UPDATED,
+            student_id=student_id,
+            goal_id=study_session.goal_id,
+            study_session_id=study_session.id,
+            context={'updated_fields': list(update_data), 'goal_status': goal_status},
+        ),
+    )
+
+    return study_session
 
 
 def _get_study_session_status(
@@ -249,14 +304,21 @@ def update_study_session_status(
 
     study_session = get_study_session(conn, student_id, study_session_id)
 
+    event = _get_event_type_based_on_status(current_status, new_status)
+    context = {'old_status': current_status, 'new_status': new_status}
+
+    if event == EventType.STUDY_SESSION_CANCELED:
+        goal_status = _get_study_session_goal_status(conn, student_id, study_session_id)
+        context.update({'goal_status': goal_status})
+
     create_event(
         conn,
         EventCreate(
-            type=_get_event_type_based_on_status(current_status, new_status),
+            type=event,
             student_id=student_id,
             goal_id=study_session.goal_id,
             study_session_id=study_session.id,
-            context={'old_status': current_status, 'new_status': new_status},
+            context=context,
         ),
     )
 

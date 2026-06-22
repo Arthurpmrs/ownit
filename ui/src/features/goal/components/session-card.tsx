@@ -1,15 +1,33 @@
 import type { StudySessionShort } from '@/features/session/models';
 import { useDraggable } from '@dnd-kit/react';
-import { Card, Group, Text, Title } from '@mantine/core';
-import { IconCalendar, IconClock } from '@tabler/icons-react';
+import {
+  ActionIcon,
+  Card,
+  Group,
+  Menu,
+  Text,
+  Title,
+  Tooltip,
+} from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import {
+  IconCalendar,
+  IconClock,
+  IconDots,
+  IconPencil,
+} from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
+import EditSessionModal from './edit-session-modal';
 
 interface SessionCardProps {
   session: StudySessionShort;
+  goalId: string;
 }
 
-export default function SessionCard({ session }: SessionCardProps) {
+export default function SessionCard({ session, goalId }: SessionCardProps) {
   const navigate = useNavigate();
+  const [editOpened, { open: openEdit, close: closeEdit }] =
+    useDisclosure(false);
 
   const { ref, isDragging } = useDraggable({
     id: session.id,
@@ -18,10 +36,12 @@ export default function SessionCard({ session }: SessionCardProps) {
   });
 
   const formatDate = (date: Date) => {
+    const hour = String(date.getUTCHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
     const day = String(date.getUTCDate()).padStart(2, '0');
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const year = date.getUTCFullYear();
-    return `${day}/${month}/${year}`;
+    return `${day}/${month}/${year} às ${hour}:${minute}`;
   };
 
   const handleClick = () => {
@@ -29,38 +49,75 @@ export default function SessionCard({ session }: SessionCardProps) {
   };
 
   return (
-    <Card
-      ref={ref}
-      padding="md"
-      radius="lg"
-      withBorder
-      style={{
-        opacity: isDragging ? 0.4 : 1,
-        cursor: session.status === 'done' ? 'default' : 'grab',
-      }}
-      onClick={handleClick}
-    >
-      <Title order={5} mb={4}>
-        {session.title}
-      </Title>
-      <Text size="sm" c="dimmed" mb="sm">
-        {session.description}
-      </Text>
-      <Group gap="lg">
-        <Group gap={4}>
-          <IconCalendar size={16} color="#868E96" />
-          <Text size="xs" c="dimmed">
-            {formatDate(session.plannedToStartAt)} -{' '}
-            {formatDate(session.plannedToEndAt)}
-          </Text>
+    <>
+      <Card
+        ref={ref}
+        padding="md"
+        radius="lg"
+        withBorder
+        style={{
+          opacity: isDragging ? 0.4 : 1,
+          cursor: session.status === 'done' ? 'default' : 'grab',
+        }}
+        onClick={handleClick}
+      >
+        <Group justify="space-between" align="flex-start" mb={4}>
+          <Title order={5} style={{ flex: 1 }}>
+            {session.title}
+          </Title>
+          <Menu position="bottom-end" withinPortal>
+            <Menu.Target>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size="sm"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <IconDots size={16} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown onClick={(e) => e.stopPropagation()}>
+              <Tooltip
+                label="Não é possível editar uma sessão concluída"
+                disabled={session.status !== 'done'}
+                position="right"
+              >
+                <Menu.Item
+                  leftSection={<IconPencil size={14} />}
+                  disabled={session.status === 'done'}
+                  onClick={openEdit}
+                >
+                  Editar
+                </Menu.Item>
+              </Tooltip>
+            </Menu.Dropdown>
+          </Menu>
         </Group>
-        <Group gap={4}>
-          <IconClock size={16} color="#868E96" />
-          <Text size="xs" c="dimmed">
-            {session.duration}
-          </Text>
+        <Text size="sm" c="dimmed" mb="sm">
+          {session.description}
+        </Text>
+        <Group gap="lg">
+          <Group gap={4}>
+            <IconCalendar size={16} color="#868E96" />
+            <Text size="xs" c="dimmed">
+              {formatDate(session.plannedToStartAt)}
+            </Text>
+          </Group>
+          <Group gap={4}>
+            <IconClock size={16} color="#868E96" />
+            <Text size="xs" c="dimmed">
+              {session.duration}
+            </Text>
+          </Group>
         </Group>
-      </Group>
-    </Card>
+      </Card>
+
+      <EditSessionModal
+        goalId={goalId}
+        session={session}
+        opened={editOpened}
+        onClose={closeEdit}
+      />
+    </>
   );
 }
