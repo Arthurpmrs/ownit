@@ -2,6 +2,7 @@ import Header from '@/features/appshell/header';
 import {
   ActionIcon,
   Alert,
+  Anchor,
   Button,
   Card,
   Center,
@@ -26,7 +27,7 @@ import {
   IconTarget,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from '@tanstack/react-router';
+import { useParams, Link as TRLink } from '@tanstack/react-router';
 import Color from '@tiptap/extension-color';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
@@ -139,7 +140,16 @@ export default function SessionExecution() {
             <Flex align="center" gap={6}>
               <IconTarget size={14} color="#868E96" stroke={2} />
               <Text component="span" size="xs" c="dimmed">
-                {studySession.goalTitle}
+                <Anchor
+                  component={TRLink}
+                  to="/goals/$id"
+                  params={{ id: studySession.goalId }}
+                  c='gray'
+                  underline='always'
+                  {...({} as any)}
+                >
+                  {studySession.goalTitle}
+                </Anchor>
               </Text>
             </Flex>
             <Flex align="center" gap={6}>
