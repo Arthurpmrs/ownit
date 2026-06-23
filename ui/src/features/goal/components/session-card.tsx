@@ -27,11 +27,18 @@ interface SessionCardProps {
   goalStatus: Status;
 }
 
-export default function SessionCard({ session, goalId, goalStatus }: SessionCardProps) {
+export default function SessionCard({
+  session,
+  goalId,
+  goalStatus,
+}: SessionCardProps) {
   const [editOpened, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
 
-  const isDragDisabled = session.status === 'done' || goalStatus === 'done' || goalStatus === 'to_do';
+  const isDragDisabled =
+    session.status === 'done' ||
+    goalStatus === 'done' ||
+    goalStatus === 'to_do';
 
   const { ref, isDragging } = useDraggable({
     id: session.id,
@@ -127,7 +134,7 @@ export default function SessionCard({ session, goalId, goalStatus }: SessionCard
             </Text>
           </Group>
         </Group>
-      </Card >
+      </Card>
 
       <EditSessionModal
         goalId={goalId}
