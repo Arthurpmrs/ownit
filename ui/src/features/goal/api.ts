@@ -1,27 +1,24 @@
+import type { Status } from '@/shared/models';
+import { durationToIso } from '@/shared/utils';
 import { queryOptions } from '@tanstack/react-query';
+import type { GoalWithSessionsDTO, MetricsDTO } from './dto';
+import { goalWithSessionsMapper, metricsMapper } from './mappers';
 import type {
   CreateStudySessionData,
   EvaluateSessionData,
   GoalWithSessions,
   StrategyMetricsData,
-  StudySession,
-  StudySessionWithHistory,
   UpdateStudySessionData,
 } from './models';
-import { durationToIso } from '@/shared/utils';
 import type {
-  GoalWithSessionsDTO,
-  MetricsDTO,
-  StudySessionDTO,
   StudySessionWithHistoryDTO,
-} from './dto';
+  StudySessionDTO,
+} from '../session/dto';
 import {
-  goalWithSessionsMapper,
-  metricsMapper,
-  studySessionMapper,
   studySessionWithHistoryMapper,
-} from './mappers';
-import type { Status } from '@/shared/models';
+  studySessionMapper,
+} from '../session/mapper';
+import type { StudySessionWithHistory, StudySession } from '../session/models';
 
 export function getStudySessionOptions(sessionId: string) {
   return queryOptions({

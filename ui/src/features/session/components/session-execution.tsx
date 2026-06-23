@@ -1,5 +1,4 @@
 import Header from '@/features/appshell/header';
-import { getStudySessionOptions } from '@/features/goal/api';
 import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
 import {
   ActionIcon,
@@ -37,6 +36,8 @@ import Underline from '@tiptap/extension-underline';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useEffect, useState } from 'react';
+import { getStudySessionOptions } from '../api';
+import { Pomodoro } from './pomodoro';
 
 const INITIAL_CHECKLIST = [
   { id: 1, label: 'Text here', checked: true },
@@ -284,12 +285,11 @@ export default function SessionExecution() {
         <Grid.Col span={{ base: 12, md: 4 }}>
           <Stack gap="lg">
             {/* Pomodoro */}
-            <Card radius="md" withBorder padding="xl">
-              <Stack align="center" gap="lg">
-                <Title order={5}>Pomodoro</Title>
-                <p>pomodoro</p>
-              </Stack>
-            </Card>
+            <Pomodoro
+              sessionId={studySession.id}
+              sessionDuration={studySession.duration}
+              pomodoro={studySession.pomodoro}
+            />
 
             {/* Checklist */}
             <Card radius="md" withBorder padding="lg">
