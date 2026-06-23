@@ -29,10 +29,12 @@ export interface SessionFormValues {
 
 interface CreateSessionModalProps {
   goalId: string;
+  goalStatus: string;
 }
 
 export default function CreateSessionModal({
   goalId,
+  goalStatus,
 }: CreateSessionModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [moreSession, setMoreSession] = useState(false);
@@ -103,6 +105,7 @@ export default function CreateSessionModal({
         size="xs"
         leftSection={<IconPlus stroke={2} size={14} />}
         onClick={openModal}
+        disabled={goalStatus === 'done'}
       >
         Adicionar
       </Button>

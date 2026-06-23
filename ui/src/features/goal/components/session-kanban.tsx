@@ -117,7 +117,7 @@ export default function SessionKanban({
         <Stack gap="lg">
           <Group justify="space-between" align="center">
             <Title order={3}>Sessões</Title>
-            <CreateSessionModal goalId={goalId} />
+            <CreateSessionModal goalId={goalId} goalStatus={goalStatus} />
           </Group>
 
           <Stack gap="md">
