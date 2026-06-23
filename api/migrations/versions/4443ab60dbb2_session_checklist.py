@@ -1,7 +1,7 @@
 """session checklist
 
 Revision ID: 4443ab60dbb2
-Revises: 4bc26baad091
+Revises: 28cd9f8c4bb0
 Create Date: 2026-06-23 02:59:48.207682
 
 """
@@ -13,7 +13,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = '4443ab60dbb2'
-down_revision: Union[str, Sequence[str], None] = '4bc26baad091'
+down_revision: Union[str, Sequence[str], None] = '28cd9f8c4bb0'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
