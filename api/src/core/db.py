@@ -12,6 +12,14 @@ def get_engine():
     return create_engine(get_settings().DATABASE_URL, echo=True, future=True)
 
 
+def get_pgvector_url() -> str:
+    """Return a postgresql:// URL specifically for Haystack's PgvectorDocumentStore."""
+    db_url = get_settings().DATABASE_URL
+    if db_url.startswith('postgresql+psycopg://'):
+        return db_url.replace('postgresql+psycopg://', 'postgresql://')
+    return db_url
+
+
 metadata = MetaData()
 
 
