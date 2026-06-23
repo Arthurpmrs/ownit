@@ -7,7 +7,7 @@ export const Route = createFileRoute('/')({
     throw redirect({
       to: '/goals',
       replace: true,
-    })
+    });
   },
   component: Home,
 });

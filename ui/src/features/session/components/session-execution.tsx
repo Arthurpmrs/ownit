@@ -144,8 +144,8 @@ export default function SessionExecution() {
                   component={TRLink}
                   to="/goals/$id"
                   params={{ id: studySession.goalId }}
-                  c='gray'
-                  underline='always'
+                  c="gray"
+                  underline="always"
                   {...({} as any)}
                 >
                   {studySession.goalTitle}
