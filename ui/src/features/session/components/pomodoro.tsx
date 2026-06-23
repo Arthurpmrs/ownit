@@ -69,17 +69,11 @@ export function Pomodoro({
     toSeconds(pomodoro.currentRemainingDuration),
   );
   const totalSessionSeconds = toSeconds(sessionDuration);
-  const startActive = pomodoro.status.includes('mode');
+  const startActive = pomodoro.status.includes('mode') && !isReadOnly;
   const [isActive, setIsActive] = useState(startActive);
   const [currentBlockSeconds, setCurrentBlockSeconds] = useState(0);
 
   const updatePomodoroStatusMutation = useUpdatePomodoroStatus(sessionId);
-
-  useEffect(() => {
-    if (isReadOnly && isActive) {
-      setIsActive(false);
-    }
-  }, [isReadOnly, isActive]);
 
   // Controla o intervalo do contador regressivo
   useEffect(() => {

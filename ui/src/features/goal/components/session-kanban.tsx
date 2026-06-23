@@ -30,7 +30,7 @@ import SessionCard from './session-card';
 interface SessionKanbanProps {
   sessions: StudySessionShort[];
   goalId: string;
-  goalStatus: string;
+  goalStatus: Status;
 }
 
 const STATUS_LABEL: Record<Status, string> = {
