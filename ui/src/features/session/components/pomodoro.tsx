@@ -196,7 +196,10 @@ export function Pomodoro({
         <Stack gap="xs">
           <Group justify="space-between">
             <Group gap="xs">
-              <IconHourglassEmpty size={16} color="orange" />
+              <IconHourglassEmpty
+                size={16}
+                color="var(--mantine-color-orange-6)"
+              />
               <Title order={5}>Pomodoro</Title>
             </Group>
           </Group>

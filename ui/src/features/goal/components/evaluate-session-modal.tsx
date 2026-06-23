@@ -2,7 +2,7 @@ import { useEvaluateStudySession } from '@/features/goal/hooks';
 import type {
   EvaluateSessionData,
   StudySessionShort,
-} from '@/features/goal/models';
+} from '@/features/session/models';
 import {
   Button,
   Center,
@@ -93,7 +93,7 @@ export default function EvaluateSessionModal({
         icon = <IconMoodEmpty style={getIconStyle('yellow')} />;
         break;
       case 4:
-        icon = <IconMoodWink style={getIconStyle('lime')} />;
+        icon = <IconMoodSmile style={getIconStyle('lime')} />;
         break;
       case 5:
         icon = <IconMoodWink style={getIconStyle('green')} />;

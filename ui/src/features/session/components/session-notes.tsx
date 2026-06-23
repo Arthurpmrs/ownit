@@ -8,6 +8,8 @@ import StarterKit from '@tiptap/starter-kit';
 import { useEffect } from 'react';
 import { useUpdateSessionNotes } from '../hook';
 
+const INITIAL_NOTES = `<p>Use este espaço para fazer as anotações durante a execução da sessão.</p>`;
+
 interface SessionNotesProps {
   sessionId: string;
   initialNotes: string;
@@ -15,6 +17,7 @@ interface SessionNotesProps {
 
 export function SessionNotes({ sessionId, initialNotes }: SessionNotesProps) {
   const { mutate, isPending } = useUpdateSessionNotes(sessionId);
+  initialNotes = initialNotes === '' ? INITIAL_NOTES : initialNotes;
 
   // Cria a função com debounce: só dispara 1500ms após o usuário parar de digitar
   const debouncedSave = useDebouncedCallback((htmlContent: string) => {
@@ -32,7 +35,7 @@ export function SessionNotes({ sessionId, initialNotes }: SessionNotesProps) {
 
   useEffect(() => {
     if (editor && initialNotes !== editor.getHTML()) {
-      editor.commands.setContent(initialNotes, false);
+      editor.commands.setContent(initialNotes);
     }
   }, [initialNotes, editor]);
 
@@ -41,13 +44,13 @@ export function SessionNotes({ sessionId, initialNotes }: SessionNotesProps) {
       <Stack gap="sm">
         <Group justify="space-between">
           <Group gap="xs">
-            <IconNote size={16} color="orange" />
-          <Title order={5}>Anotações da Sessão</Title>
+            <IconNote size={16} color="var(--mantine-color-orange-6)" />
+            <Title order={5}>Anotações da Sessão</Title>
           </Group>
           <Group gap="xs">
             {isPending ? (
               <>
-                <Loader size="xs" color="orange" />
+                <Loader size="xs" color="var(--mantine-color-orange-6)" />
                 <Text size="xs" c="dimmed">
                   Salvando alterações...
                 </Text>
