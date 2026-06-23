@@ -1,17 +1,31 @@
 import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
   ActionIcon,
   Card,
-  Checkbox,
+  Divider,
   Group,
   Stack,
   Text,
   TextInput,
   Title,
 } from '@mantine/core';
-import { IconChecklist, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconChecklist, IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useUpdateSessionChecklist } from '../hook';
 import type { ChecklistItem } from '../models';
+import { SortableChecklistItem } from './SortableChecklistItem';
 
 interface SessionChecklistProps {
   sessionId: string;
@@ -20,11 +34,34 @@ interface SessionChecklistProps {
 
 export function SessionChecklist({
   sessionId,
-  initialChecklist,
+  initialChecklist = [],
 }: SessionChecklistProps) {
-  console.log(initialChecklist);
   const { mutate } = useUpdateSessionChecklist(sessionId);
   const [newItemText, setNewItemText] = useState('');
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = initialChecklist.findIndex(
+        (item) => item.id === active.id,
+      );
+      const newIndex = initialChecklist.findIndex(
+        (item) => item.id === over.id,
+      );
+
+      const reorderedList = arrayMove(initialChecklist, oldIndex, newIndex);
+      mutate({ sessionId, checklist: reorderedList });
+    }
+  }
 
   function handleToggleCheck(id: string) {
     const updated = initialChecklist.map((item) =>
@@ -61,58 +98,38 @@ export function SessionChecklist({
           <Title order={5}>Checklist</Title>
         </Group>
 
-        <Stack gap="xs" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-          {initialChecklist.length === 0 ? (
-            <Text c="dimmed" size="sm" ta="center" my="sm">
-              Nenhuma tarefa adicionada para esta sessão.
-            </Text>
-          ) : (
-            initialChecklist.map((item) => (
-              <Group key={item.id} justify="space-between" wrap="nowrap">
-                <Checkbox
-                  checked={item.checked}
-                  onChange={() => handleToggleCheck(item.id)}
-                  color="orange"
-                  size="xs"
-                  styles={{
-                    input: { cursor: 'pointer' },
-                    label: {
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                    },
-                  }}
-                  label={
-                    <Text
-                      size="sm"
-                      style={{
-                        textDecoration: item.checked ? 'line-through' : 'none',
-                        color: item.checked
-                          ? 'var(--mantine-color-gray-5)'
-                          : 'inherit',
-                        transition: 'all 0.2s ease',
-                        lineHeight: 1,
-                      }}
-                    >
-                      {item.text}
-                    </Text>
-                  }
-                />
-                <ActionIcon
-                  variant="subtle"
-                  color="red"
-                  onClick={() => handleRemoveItem(item.id)}
-                  title="Remover tarefa"
-                >
-                  <IconTrash size={16} />
-                </ActionIcon>
-              </Group>
-            ))
-          )}
-        </Stack>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={initialChecklist}
+            strategy={verticalListSortingStrategy}
+          >
+            <Stack gap="xs" style={{ maxHeight: '350px', overflowY: 'auto' }}>
+              {initialChecklist.length === 0 ? (
+                <Text c="dimmed" size="sm" ta="center" my="sm">
+                  Nenhuma tarefa adicionada para esta sessão.
+                </Text>
+              ) : (
+                initialChecklist.map((item) => (
+                  <SortableChecklistItem
+                    key={item.id}
+                    item={item}
+                    onToggle={handleToggleCheck}
+                    onRemove={handleRemoveItem}
+                  />
+                ))
+              )}
+            </Stack>
+          </SortableContext>
+        </DndContext>
+
+        <Divider />
 
         <form onSubmit={handleAddItem}>
-          <Group gap="xs" align="flex-end">
+          <Group gap="xs" align="flex-end" justify='center'>
             <TextInput
               placeholder="Ex: Resolver lista de exercícios 3..."
               value={newItemText}
