@@ -20,18 +20,35 @@ from src.features.goal.service import create_goal
 from src.main import app
 
 
+_test_settings = None
+
+
 def get_test_settings() -> Settings:
-    return Settings(
-        DATABASE_URL='postgresql+psycopg://postgres:postgres@localhost:5432/postgres',
-        ENV='test',
-        LLM_API_KEY='test_api_key',
-    )
+    global _test_settings
+    if _test_settings is None:
+        _test_settings = Settings(
+            DATABASE_URL='postgresql+psycopg://postgres:postgres@localhost:5432/postgres',
+            ENV='test',
+            LLM_API_KEY='test_api_key',
+            EMBEDDING_API_KEY='test_api_key',
+            EMBEDDING_BASE_URL='https://api.openai.com/v1',
+            EMBEDDING_MODEL='text-embedding-3-small',
+            EMBEDDING_DIMENSION=1536,
+            RAG_TOP_K=5,
+            RAG_SIMILARITY_THRESHOLD=0.5,
+            RAG_MAX_CONTEXT_TOKENS=3000,
+            USER_GUIDE_PATH='../user-guide',
+        )
+    return _test_settings
 
 
 @pytest.fixture(scope='session')
 def engine() -> Generator:
-    with PostgresContainer('postgres:18-alpine', driver='psycopg') as postgres:
-        _engine = create_engine(postgres.get_connection_url(), future=True)
+    with PostgresContainer('pgvector/pgvector:pg18', driver='psycopg') as postgres:
+        connection_url = postgres.get_connection_url()
+        get_test_settings().DATABASE_URL = connection_url
+
+        _engine = create_engine(connection_url, future=True)
 
         try:
             with _engine.begin() as conn:
@@ -96,3 +113,8 @@ def authenticated_client(client: TestClient, student: dict) -> TestClient:
     assert response.status_code == HTTPStatus.OK
 
     return client
+
+
+@pytest.fixture(scope='session')
+def test_settings() -> Settings:
+    return get_test_settings()

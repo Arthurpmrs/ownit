@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.sse import EventSourceResponse, ServerSentEvent
+from haystack import Pipeline
 from sqlalchemy.engine import Connection
 
 from src.core.auth import get_current_student_id
@@ -14,6 +15,7 @@ from src.features.chat.pipeline import (
     build_haystack_messages,
     run_pipeline_and_persist,
 )
+from src.features.chat.retrieval import get_rag_pipeline
 from src.features.chat.schemas import (
     ChatMessageResponse,
     ChatSessionResponse,
@@ -76,6 +78,7 @@ async def send_message(
     payload: SendMessageRequest,
     conn: Connection = Depends(get_connection),
     student_id: int = Depends(get_current_student_id),
+    rag_pipeline: Pipeline = Depends(get_rag_pipeline),
 ):
     # Verify ownership
     if not service.verify_session_ownership(conn, session_id, student_id):
@@ -89,7 +92,7 @@ async def send_message(
 
     # Build conversation history for the LLM
     history = service.build_chat_history(conn, session_id)
-    messages = build_haystack_messages(history)
+    messages = build_haystack_messages(history, rag_pipeline)
 
     # Set up the streaming bridge
     loop = asyncio.get_running_loop()

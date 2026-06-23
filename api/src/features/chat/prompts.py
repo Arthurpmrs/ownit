@@ -10,3 +10,14 @@ SYSTEM_PROMPT = (
     '- Use formatação markdown para clareza (listas, negrito, etc).\n'
     '- Se não souber de algo, seja honesto e diga.'
 )
+
+CONTEXT_PROMPT_TEMPLATE = (
+    '## Contexto do Guia do Usuário\n\n'
+    'Abaixo estão trechos relevantes do guia do usuário do Ownit que podem ajudar '
+    'a responder à pergunta do usuário. Use essas informações para dar respostas '
+    'precisas e específicas sobre a plataforma.\n\n'
+    'Se a pergunta não for sobre o Ownit ou se o contexto abaixo não for relevante, '
+    'responda normalmente sem forçar o uso dessas informações.\n\n'
+    '---\n'
+    '{context_documents}'
+)
