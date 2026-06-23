@@ -72,7 +72,9 @@ export function SessionChecklist({
 
   function handleAddItem(e: React.FormEvent) {
     e.preventDefault();
-    if (!newItemText.trim()) {return;}
+    if (!newItemText.trim()) {
+      return;
+    }
 
     const newItem: ChecklistItem = {
       id: crypto.randomUUID(),
