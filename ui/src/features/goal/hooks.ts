@@ -15,6 +15,7 @@ import {
   updateStudySession,
   updateStudySessionStatus,
 } from './api';
+import { getStudySessionOptions } from '../session/api';
 
 /**
  * Hook para criar uma nova study session.
@@ -84,7 +85,7 @@ export function useUpdateStudySessionStatus(goalId: string) {
   });
 }
 
-export function useEvaluateStudySession(goalId: string) {
+export function useEvaluateStudySession(goalId: string, sessionId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -96,6 +97,12 @@ export function useEvaluateStudySession(goalId: string) {
       queryClient.invalidateQueries({
         queryKey: getMetricsOptions(goalId).queryKey,
       });
+
+      if (sessionId) {
+        queryClient.invalidateQueries({
+          queryKey: getStudySessionOptions(sessionId).queryKey,
+        });
+      }
     },
     onError: () => {
       showNotification({

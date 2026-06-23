@@ -1,8 +1,5 @@
 import { useEvaluateStudySession } from '@/features/goal/hooks';
-import type {
-  EvaluateSessionData,
-  StudySessionShort,
-} from '@/features/goal/models';
+import type { EvaluateSessionData } from '@/features/goal/models';
 import {
   Button,
   Center,
@@ -26,6 +23,7 @@ import {
   IconMoodWrrr,
 } from '@tabler/icons-react';
 import { studySessionStrategyMap } from '../mappers';
+import type { StudySessionShort } from '@/features/session/models';
 
 interface EvaluateSessionFormValues {
   planning: number;
@@ -205,7 +203,7 @@ export default function EvaluateSessionModal({
     },
   });
 
-  const evaluateMutation = useEvaluateStudySession(goalId);
+  const evaluateMutation = useEvaluateStudySession(goalId, session?.id);
 
   function handleSubmit(values: EvaluateSessionFormValues) {
     if (session === null) {

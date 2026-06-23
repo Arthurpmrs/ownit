@@ -1,8 +1,8 @@
 import Header from '@/features/appshell/header';
-import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
 import {
   ActionIcon,
   Alert,
+  Anchor,
   Button,
   Card,
   Center,
@@ -26,8 +26,8 @@ import {
   IconSquareCheck,
   IconTarget,
 } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useParams } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { useParams, Link as TRLink } from '@tanstack/react-router';
 import Color from '@tiptap/extension-color';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
@@ -38,6 +38,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { useEffect, useState } from 'react';
 import { getStudySessionOptions } from '../api';
 import { Pomodoro } from './pomodoro';
+import EvaluateSessionModal from '@/features/goal/components/evaluate-session-modal';
 
 const INITIAL_CHECKLIST = [
   { id: 1, label: 'Text here', checked: true },
@@ -64,35 +65,11 @@ export default function SessionExecution() {
     content: INITIAL_NOTES,
   });
 
+  const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
   const [comment, setComment] = useState('');
   const [checklist, setChecklist] = useState(INITIAL_CHECKLIST);
 
   const isFinished = data?.studySession.status === 'done';
-
-  const queryClient = useQueryClient();
-  const updateStatus = useUpdateStudySessionStatus(
-    data?.studySession.goalId ?? '',
-  );
-
-  const handleFinishSession = () => {
-    if (!data) {
-      return;
-    }
-    const { studySession } = data;
-    updateStatus.mutate(
-      {
-        sessionId: studySession.id,
-        currentStatus: studySession.status,
-        newStatus: 'done',
-      },
-      {
-        onSuccess: () =>
-          queryClient.invalidateQueries({
-            queryKey: getStudySessionOptions(id).queryKey,
-          }),
-      },
-    );
-  };
 
   useEffect(() => {
     if (editor) {
@@ -159,26 +136,40 @@ export default function SessionExecution() {
       <Header
         title={studySession.title}
         description={
-          <Group gap="lg" mt={4}>
-            <Flex align="center" gap={6}>
-              <IconTarget size={14} color="#868E96" stroke={2} />
-              <Text component="span" size="xs" c="dimmed">
-                {studySession.goalTitle}
-              </Text>
-            </Flex>
-            <Flex align="center" gap={6}>
-              <IconCalendar size={14} color="#868E96" stroke={2} />
-              <Text component="span" size="xs" c="dimmed">
-                {dateRange}
-              </Text>
-            </Flex>
-            <Flex align="center" gap={6}>
-              <IconClock size={14} color="#868E96" stroke={2} />
-              <Text component="span" size="xs" c="dimmed">
-                {studySession.duration}
-              </Text>
-            </Flex>
-          </Group>
+          <>
+            <Text component="span" inherit lineClamp={3}>
+              {studySession.description || 'Detalhes da sessão de estudo'}
+            </Text>
+            <Group gap="lg" mt={4}>
+              <Flex align="center" gap={6}>
+                <IconTarget size={14} color="#868E96" stroke={2} />
+                <Text component="span" size="xs" c="dimmed">
+                  <Anchor
+                    component={TRLink}
+                    to="/goals/$id"
+                    params={{ id: studySession.goalId }}
+                    c="gray"
+                    underline="always"
+                    {...({} as any)}
+                  >
+                    {studySession.goalTitle}
+                  </Anchor>
+                </Text>
+              </Flex>
+              <Flex align="center" gap={6}>
+                <IconCalendar size={14} color="#868E96" stroke={2} />
+                <Text component="span" size="xs" c="dimmed">
+                  {dateRange}
+                </Text>
+              </Flex>
+              <Flex align="center" gap={6}>
+                <IconClock size={14} color="#868E96" stroke={2} />
+                <Text component="span" size="xs" c="dimmed">
+                  {studySession.duration}
+                </Text>
+              </Flex>
+            </Group>
+          </>
         }
         icon={<IconSchool stroke={2} color="white" size={32} />}
       >
@@ -186,12 +177,17 @@ export default function SessionExecution() {
           variant="outline"
           color="orange"
           disabled={isFinished}
-          loading={updateStatus.isPending}
-          onClick={handleFinishSession}
+          onClick={() => setIsEvaluationModalOpen(true)}
         >
           Finalizar Sessão
         </Button>
       </Header>
+      <EvaluateSessionModal
+        isOpen={isEvaluationModalOpen}
+        setIsOpen={setIsEvaluationModalOpen}
+        goalId={studySession.goalId}
+        session={studySession}
+      />
 
       <Grid py="xl" px="xl" gap="xl">
         {/* Anotações + Histórico de eventos */}

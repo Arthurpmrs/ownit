@@ -152,11 +152,11 @@ function GoalsList({ goals, isLoading, error }: GoalListProps) {
                         </Badge>
                       </Group>
                       <Stack gap={0}>
-                        <Title order={4} size="lg">
+                        <Title order={4} size="lg" lineClamp={2}>
                           {goal.title}
                         </Title>
                         {goal.description && (
-                          <Text size="sm" c="dimmed">
+                          <Text size="sm" c="dimmed" lineClamp={3}>
                             {goal.description}
                           </Text>
                         )}
