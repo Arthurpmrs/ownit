@@ -2,6 +2,7 @@ import type { StudySessionShort } from '@/features/session/models';
 import { useDraggable } from '@dnd-kit/react';
 import {
   ActionIcon,
+  Anchor,
   Card,
   Group,
   Menu,
@@ -16,7 +17,7 @@ import {
   IconDots,
   IconPencil,
 } from '@tabler/icons-react';
-import { useNavigate } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import EditSessionModal from './edit-session-modal';
 
 interface SessionCardProps {
@@ -25,7 +26,6 @@ interface SessionCardProps {
 }
 
 export default function SessionCard({ session, goalId }: SessionCardProps) {
-  const navigate = useNavigate();
   const [editOpened, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
 
@@ -44,10 +44,6 @@ export default function SessionCard({ session, goalId }: SessionCardProps) {
     return `${day}/${month}/${year} às ${hour}:${minute}`;
   };
 
-  const handleClick = () => {
-    navigate({ to: '/sessions/$id', params: { id: session.id } });
-  };
-
   return (
     <>
       <Card
@@ -59,11 +55,18 @@ export default function SessionCard({ session, goalId }: SessionCardProps) {
           opacity: isDragging ? 0.4 : 1,
           cursor: session.status === 'done' ? 'default' : 'grab',
         }}
-        onClick={handleClick}
       >
         <Group justify="space-between" align="flex-start" mb={4}>
-          <Title order={5} style={{ flex: 1 }}>
-            {session.title}
+          <Title order={5} style={{ flex: 1, width: 'auto' }}>
+            <Anchor
+              component={Link}
+              to="/sessions/$id"
+              params={{ id: session.id }}
+              c="black"
+              {...({} as any)}
+            >
+              {session.title}
+            </Anchor>
           </Title>
           <Menu position="bottom-end" withinPortal>
             <Menu.Target>
