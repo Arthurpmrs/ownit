@@ -1,5 +1,6 @@
-import { Avatar, Box, Flex, Loader, Text } from '@mantine/core';
+import { Avatar, Box, Flex, Loader, Text, Table } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { ChatMessage } from '../models';
 
 interface ChatBubbleProps {
@@ -38,6 +39,7 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
           border: !isUser
             ? '1px solid var(--mantine-color-borderLight-0)'
             : 'none',
+          overflowX: 'auto', // Important to allow table scrolling if it overflows
         }}
       >
         {isUser ? (
@@ -49,7 +51,28 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
               lineHeight: 1.5,
             }}
           >
-            <ReactMarkdown>{message.content}</ReactMarkdown>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                table: ({ node, ...props }) => (
+                  <Table
+                    striped
+                    highlightOnHover
+                    withTableBorder
+                    withColumnBorders
+                    mb="sm"
+                    {...props}
+                  />
+                ),
+                thead: ({ node, ...props }) => <Table.Thead {...props} />,
+                tbody: ({ node, ...props }) => <Table.Tbody {...props} />,
+                tr: ({ node, ...props }) => <Table.Tr {...props} />,
+                th: ({ node, ...props }) => <Table.Th {...props} />,
+                td: ({ node, ...props }) => <Table.Td {...props} />,
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
             {message.isStreaming && (
               <Text component="span" c="dimmed" size="xs">
                 <Loader size="sm" color="orange" type="dots" />

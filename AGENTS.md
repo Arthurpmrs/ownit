@@ -180,6 +180,7 @@ docker compose up
 - **Import sorting**: Handled by Ruff's `I` rule
 - **Magic numbers**: Avoid hardcoding magic numbers. Extract constants into configuration settings (`api/src/core/config.py` `Settings` class) where possible.
 - **Server-Sent Events (SSE)**: When implementing SSE, do NOT return an `EventSourceResponse`. Instead, yield `fastapi.sse.ServerSentEvent` directly from an `async def` path operation function, relying on FastAPI's native support for generators.
+- **AI/RAG (Haystack)**: ALWAYS use Haystack `Pipeline`s to connect components declaratively instead of manual pipelining (i.e., do not manually call `.run()` on each component and pass outputs to the next). Initialize pipelines and document stores once at startup (e.g., using `@lru_cache` and Dependency Injection) to optimize performance. Use custom Haystack `@component` classes for business logic (e.g., filtering or token limits).
 
 ### Frontend (TypeScript/React)
 

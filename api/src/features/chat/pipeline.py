@@ -1,6 +1,7 @@
 import asyncio
 import time
 
+from haystack import Pipeline
 from haystack.components.generators.chat import OpenAIChatGenerator
 from haystack.dataclasses import ChatMessage, StreamingChunk
 from haystack.utils import Secret
@@ -10,6 +11,7 @@ from src.core.db import get_engine
 from src.core.logger import get_logger
 from src.features.chat import service
 from src.features.chat.prompts import SYSTEM_PROMPT
+from src.features.chat.retrieval import format_context, retrieve_context
 
 logger = get_logger(__name__)
 
@@ -30,16 +32,45 @@ def create_chat_generator(
     )
 
 
+def _fetch_rag_context_for_query(
+    history: list[dict[str, str]], rag_pipeline: Pipeline
+) -> str:
+    if not history or history[-1]['role'] != 'user':
+        return ''
+
+    user_query = history[-1]['content']
+
+    try:
+        docs = retrieve_context(user_query, pipeline=rag_pipeline)
+        return format_context(docs)
+    except Exception:
+        logger.exception('Failed to retrieve context for RAG')
+        return ''
+
+
 def build_haystack_messages(
     history: list[dict[str, str]],
+    rag_pipeline: Pipeline,
+    rag_context: str | None = None,
+    student_context: str | None = None,
 ) -> list[ChatMessage]:
     """Convert DB history to Haystack ChatMessage objects."""
-    messages = [ChatMessage.from_system(SYSTEM_PROMPT)]
+    if rag_context is None:
+        rag_context = _fetch_rag_context_for_query(history, rag_pipeline)
+
+    system_prompt = SYSTEM_PROMPT
+    if rag_context:
+        system_prompt = f'{system_prompt}\n\n{rag_context}'
+    if student_context:
+        system_prompt = f'{system_prompt}\n\n{student_context}'
+
+    messages = [ChatMessage.from_system(system_prompt)]
     for msg in history:
         if msg['role'] == 'user':
             messages.append(ChatMessage.from_user(msg['content']))
         elif msg['role'] == 'assistant':
             messages.append(ChatMessage.from_assistant(msg['content']))
+
     return messages
 
 
