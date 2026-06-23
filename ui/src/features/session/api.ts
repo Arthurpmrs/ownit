@@ -145,3 +145,23 @@ export async function updatePomodoroStatus({
   const dto: PomodoroDTO = await response.json();
   return pomodoroMapper.fromDTO(dto);
 }
+
+export async function updateSessionNotes({
+  sessionId,
+  new_notes,
+}: {
+  sessionId: string;
+  new_notes: string;
+}): Promise<void> {
+  const url = `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/notes`;
+  const response = await fetch(url, {
+    credentials: 'include',
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ new_notes }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Falha ao salvar anotações: ${response.statusText}`);
+  }
+}

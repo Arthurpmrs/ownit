@@ -17,7 +17,6 @@ import {
   Textarea,
   Title,
 } from '@mantine/core';
-import { RichTextEditor } from '@mantine/tiptap';
 import {
   IconCalendar,
   IconClock,
@@ -38,6 +37,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { useEffect, useState } from 'react';
 import { getStudySessionOptions } from '../api';
 import { Pomodoro } from './pomodoro';
+import { SessionNotes } from './session-notes';
 
 const INITIAL_CHECKLIST = [
   { id: 1, label: 'Text here', checked: true },
@@ -198,58 +198,12 @@ export default function SessionExecution() {
         <Grid.Col span={{ base: 12, md: 8 }}>
           <Stack gap="xl">
             {/* Anotações */}
-            <Stack gap="sm">
-              <Title order={4}>Anotações</Title>
-              <RichTextEditor editor={editor}>
-                {!isFinished && (
-                  <RichTextEditor.Toolbar>
-                    <RichTextEditor.ControlsGroup>
-                      <RichTextEditor.Bold />
-                      <RichTextEditor.Italic />
-                      <RichTextEditor.Strikethrough />
-                      <RichTextEditor.Underline />
-                      <RichTextEditor.Link />
-                    </RichTextEditor.ControlsGroup>
-                    <RichTextEditor.ControlsGroup>
-                      <RichTextEditor.H1 />
-                      <RichTextEditor.H2 />
-                      <RichTextEditor.H3 />
-                      <RichTextEditor.H4 />
-                    </RichTextEditor.ControlsGroup>
-                    <RichTextEditor.ControlsGroup>
-                      <RichTextEditor.BulletList />
-                      <RichTextEditor.OrderedList />
-                    </RichTextEditor.ControlsGroup>
-                    <RichTextEditor.ControlsGroup>
-                      <RichTextEditor.AlignLeft />
-                      <RichTextEditor.AlignCenter />
-                      <RichTextEditor.AlignRight />
-                    </RichTextEditor.ControlsGroup>
-                    <RichTextEditor.ControlsGroup>
-                      <RichTextEditor.ColorPicker
-                        colors={[
-                          '#000000',
-                          '#868E96',
-                          '#FA5252',
-                          '#E64980',
-                          '#BE4BDB',
-                          '#7950F2',
-                          '#4C6EF5',
-                          '#228BE6',
-                          '#15AABF',
-                          '#12B886',
-                          '#40C057',
-                          '#82C91E',
-                          '#FAB005',
-                          '#FD7E14',
-                        ]}
-                      />
-                    </RichTextEditor.ControlsGroup>
-                  </RichTextEditor.Toolbar>
-                )}
-                <RichTextEditor.Content />
-              </RichTextEditor>
-            </Stack>
+            <SessionNotes
+              sessionId={studySession.id}
+              initialNotes={
+                studySession.notes === '' ? INITIAL_NOTES : studySession.notes
+              }
+            />
 
             {/* histórico */}
             <Stack gap="sm">
