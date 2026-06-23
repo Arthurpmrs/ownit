@@ -57,12 +57,22 @@ export default function SessionCard({ session, goalId }: SessionCardProps) {
         }}
       >
         <Group justify="space-between" align="flex-start" mb={4}>
-          <Title order={5} style={{ flex: 1, width: 'auto' }}>
+          <Title order={5} style={{ flex: 1 }}>
             <Anchor
               component={Link}
               to="/sessions/$id"
               params={{ id: session.id }}
               c="black"
+              underline={session.status === 'doing' ? 'hover' : 'never'}
+              style={{
+                cursor:
+                  session.status === 'doing'
+                    ? 'pointer'
+                    : session.status === 'to_do'
+                      ? 'grab'
+                      : 'default',
+              }}
+              disabled={!(session.status === 'doing')}
               {...({} as any)}
             >
               {session.title}
