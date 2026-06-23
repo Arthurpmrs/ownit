@@ -230,12 +230,12 @@ def _execute_study_session(
 def _delete_old_demo_goal(conn: Connection):
     goal_id_old = 'DemoSRLGoalID'
     conn.execute(delete(events).where(events.c.goal_id == goal_id_old))
-    conn.execute(delete(study_sessions).where(study_sessions.c.goal_id == goal_id_old))
     conn.execute(
         delete(study_session_pomodoros)
         .where(study_session_pomodoros.c.study_session_id == study_sessions.c.id)
         .where(study_sessions.c.goal_id == goal_id_old)
     )
+    conn.execute(delete(study_sessions).where(study_sessions.c.goal_id == goal_id_old))
     conn.execute(delete(goals).where(goals.c.id == goal_id_old))
 
 
@@ -264,7 +264,6 @@ def _populate_demo_goal():
         stmt = select(exists().where(goals.c.id == goal_id))
         if bool(conn.scalar(stmt)):
             return
-        print('aaaaaaaaaaaaaaaaaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA#############')
 
         now = datetime.now(timezone.utc)
 
