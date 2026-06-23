@@ -7,7 +7,6 @@ export default function useUpdatePomodoroStatus(sessionId: string) {
   return useMutation({
     mutationFn: updatePomodoroStatus,
     onSuccess: () => {
-      // 2. Em vez do array manual, usamos a referência tipada gerada acima
       queryClient.invalidateQueries({
         queryKey: getStudySessionOptions(sessionId).queryKey,
       });

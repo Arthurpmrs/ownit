@@ -79,7 +79,6 @@ export function Pomodoro({
     if (isActive && timeLeft > 0) {
       interval = window.setInterval(() => {
         setTimeLeft((prevTime) => {
-          // Se o tempo vai zerar neste exato tique:
           if (prevTime <= 1) {
             setIsActive(false);
             setCurrentBlockSeconds(0);
@@ -94,7 +93,6 @@ export function Pomodoro({
             return 0;
           }
 
-          // Caso contrário, apenas decrementa
           setCurrentBlockSeconds((prevBlock) => prevBlock + 1);
           return prevTime - 1;
         });
