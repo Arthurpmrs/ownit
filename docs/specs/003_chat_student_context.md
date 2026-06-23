@@ -219,11 +219,10 @@ def build_student_context(
     """Main entry point. Fetches all data, formats, and truncates."""
 ```
 
-#### `StudentContext` Data Class
+#### `StudentContext` Data Model
 
 ```python
-@dataclass
-class StudentContext:
+class StudentContext(BaseModel):
     name: str
     member_since: datetime
     active_goals: list[GoalContextItem]
@@ -304,7 +303,7 @@ messages = build_haystack_messages(
 
 1. **`api/src/core/config.py`** — Add `STUDENT_CONTEXT_MAX_TOKENS: int = 1500` to the `Settings` class.
 2. **`api/src/features/chat/context.py`** — **[NEW]** Core module with:
-   - `StudentContext` and related dataclasses (`GoalContextItem`, `SessionContextItem`, `ActiveSessionContextItem`, `UpcomingSessionContextItem`, `GoalMetricsContextItem`, `EventContextItem`).
+   - `StudentContext` and related Pydantic models (`GoalContextItem`, `SessionContextItem`, `ActiveSessionContextItem`, `UpcomingSessionContextItem`, `GoalMetricsContextItem`, `EventContextItem`).
    - `fetch_student_context(conn, student_id) -> StudentContext` — orchestrates data fetching from existing services, with per-category error handling.
    - `format_student_context(context: StudentContext) -> str` — renders the markdown context block.
    - `truncate_context(formatted: str, max_tokens: int) -> str` — enforces the token budget by removing low-priority sections.

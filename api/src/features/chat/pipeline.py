@@ -44,22 +44,25 @@ def _fetch_rag_context_for_query(
         docs = retrieve_context(user_query, pipeline=rag_pipeline)
         return format_context(docs)
     except Exception:
-        logger.exception("Failed to retrieve context for RAG")
+        logger.exception('Failed to retrieve context for RAG')
         return ''
 
 
 def build_haystack_messages(
     history: list[dict[str, str]],
     rag_pipeline: Pipeline,
-    context: str | None = None,
+    rag_context: str | None = None,
+    student_context: str | None = None,
 ) -> list[ChatMessage]:
     """Convert DB history to Haystack ChatMessage objects."""
-    if context is None:
-        context = _fetch_rag_context_for_query(history, rag_pipeline)
+    if rag_context is None:
+        rag_context = _fetch_rag_context_for_query(history, rag_pipeline)
 
     system_prompt = SYSTEM_PROMPT
-    if context:
-        system_prompt = f'{system_prompt}\n\n{context}'
+    if rag_context:
+        system_prompt = f'{system_prompt}\n\n{rag_context}'
+    if student_context:
+        system_prompt = f'{system_prompt}\n\n{student_context}'
 
     messages = [ChatMessage.from_system(system_prompt)]
     for msg in history:

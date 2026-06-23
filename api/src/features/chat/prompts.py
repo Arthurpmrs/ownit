@@ -21,3 +21,14 @@ CONTEXT_PROMPT_TEMPLATE = (
     '---\n'
     '{context_documents}'
 )
+
+STUDENT_CONTEXT_PROMPT_TEMPLATE = (
+    '## Contexto do Estudante\n\n'
+    'Abaixo estão informações sobre o estudante com quem você está conversando. '
+    'Use esses dados para personalizar suas respostas e dar conselhos específicos '
+    'baseados na situação real do estudante.\n\n'
+    'IMPORTANTE: Integre essas informações naturalmente na conversa. '
+    'NÃO liste dados brutos ou repita números sem contexto. '
+    'Conecte as informações ao que o estudante está perguntando.\n\n'
+    '{student_context}'
+)

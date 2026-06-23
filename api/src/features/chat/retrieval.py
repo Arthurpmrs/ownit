@@ -27,7 +27,8 @@ class ContextFilter:
     @component.output_types(documents=list[Document])
     def run(self, documents: list[Document]):
         filtered_docs = [
-            doc for doc in documents
+            doc
+            for doc in documents
             if doc.score is not None and doc.score >= self.similarity_threshold
         ]
 
@@ -94,14 +95,17 @@ def retrieve_context(query: str, pipeline: Pipeline) -> list[Document]:
     result = pipeline.run({'embedder': {'text': query}})
     documents = result['filter']['documents']
 
-    logger.debug("Retrieved %d documents for context.", len(documents))
+    logger.debug('Retrieved %d documents for context.', len(documents))
     for i, doc in enumerate(documents):
         source_file = doc.meta.get('source_file', 'unknown')
         section = doc.meta.get('section', '')
         score = doc.score if doc.score is not None else 0.0
         logger.debug(
-            "Doc %d: score=%.4f, source=%s, section=%s",
-            i + 1, score, source_file, section
+            'Doc %d: score=%.4f, source=%s, section=%s',
+            i + 1,
+            score,
+            source_file,
+            section,
         )
 
     return documents
@@ -120,7 +124,7 @@ def format_context(documents: list[Document]) -> str:
         if section:
             source_str += f' > {section}'
         source_str += ']'
-        docs_str_list.append(f"{source_str}\n{doc.content or ''}\n---")
+        docs_str_list.append(f'{source_str}\n{doc.content or ""}\n---')
 
     context_documents = '\n'.join(docs_str_list)
     return CONTEXT_PROMPT_TEMPLATE.format(context_documents=context_documents)

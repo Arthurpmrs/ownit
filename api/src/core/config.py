@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     RAG_SIMILARITY_THRESHOLD: float = 0.5
     RAG_MAX_CONTEXT_TOKENS: int = 3000
     USER_GUIDE_PATH: str = '../user-guide'
+    STUDENT_CONTEXT_MAX_TOKENS: int = 1500
 
 
 @lru_cache()

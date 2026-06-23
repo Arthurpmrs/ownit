@@ -7,14 +7,17 @@ from haystack import Pipeline
 from sqlalchemy.engine import Connection
 
 from src.core.auth import get_current_student_id
+from src.core.config import get_settings
 from src.core.db import get_connection
 from src.core.logger import get_logger
 from src.features.chat import service
+from src.features.chat.context import build_student_context
 from src.features.chat.pipeline import (
     ChunkCollector,
     build_haystack_messages,
     run_pipeline_and_persist,
 )
+from src.features.chat.prompts import STUDENT_CONTEXT_PROMPT_TEMPLATE
 from src.features.chat.retrieval import get_rag_pipeline
 from src.features.chat.schemas import (
     ChatMessageResponse,
@@ -92,7 +95,20 @@ async def send_message(
 
     # Build conversation history for the LLM
     history = service.build_chat_history(conn, session_id)
-    messages = build_haystack_messages(history, rag_pipeline)
+
+    student_context_str = build_student_context(
+        conn, student_id, get_settings().STUDENT_CONTEXT_MAX_TOKENS
+    )
+
+    formatted_student_context = None
+    if student_context_str:
+        formatted_student_context = STUDENT_CONTEXT_PROMPT_TEMPLATE.format(
+            student_context=student_context_str
+        )
+
+    messages = build_haystack_messages(
+        history, rag_pipeline, student_context=formatted_student_context
+    )
 
     # Set up the streaming bridge
     loop = asyncio.get_running_loop()

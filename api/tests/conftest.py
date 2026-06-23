@@ -38,6 +38,7 @@ def get_test_settings() -> Settings:
             RAG_SIMILARITY_THRESHOLD=0.5,
             RAG_MAX_CONTEXT_TOKENS=3000,
             USER_GUIDE_PATH='../user-guide',
+            STUDENT_CONTEXT_MAX_TOKENS=1500,
         )
     return _test_settings
 
