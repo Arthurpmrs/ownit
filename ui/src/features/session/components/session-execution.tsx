@@ -106,7 +106,6 @@ export default function SessionExecution() {
     });
 
   const dateRange = `${formatDate(studySession.plannedToStartAt)} - ${formatDate(studySession.plannedToEndAt)}`;
-  console.log(studySession)
 
   return (
     <>
@@ -193,7 +192,10 @@ export default function SessionExecution() {
               pomodoro={studySession.pomodoro}
             />
 
-            <SessionChecklist sessionId={studySession.id} initialChecklist={studySession.checklist} />
+            <SessionChecklist
+              sessionId={studySession.id}
+              initialChecklist={studySession.checklist}
+            />
           </Stack>
         </Grid.Col>
       </Grid>

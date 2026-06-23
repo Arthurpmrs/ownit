@@ -8,8 +8,6 @@ import StarterKit from '@tiptap/starter-kit';
 import { useEffect } from 'react';
 import { useUpdateSessionNotes } from '../hook';
 
-const INITIAL_NOTES = `<p>Use este espaço para fazer as anotações durante a execução da sessão.</p>`;
-
 interface SessionNotesProps {
   sessionId: string;
   initialNotes: string;
@@ -17,9 +15,7 @@ interface SessionNotesProps {
 
 export function SessionNotes({ sessionId, initialNotes }: SessionNotesProps) {
   const { mutate, isPending } = useUpdateSessionNotes(sessionId);
-  initialNotes = initialNotes === '' ? INITIAL_NOTES : initialNotes;
 
-  // Cria a função com debounce: só dispara 1500ms após o usuário parar de digitar
   const debouncedSave = useDebouncedCallback((htmlContent: string) => {
     mutate({ sessionId, new_notes: htmlContent });
   }, 1000);

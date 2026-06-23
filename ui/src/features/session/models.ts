@@ -30,7 +30,7 @@ export type StudySession = {
   finalComment: string | null;
   createdAt: Date;
   updatedAt: Date;
-  checklist: Array<ChecklistItem>
+  checklist: Array<ChecklistItem>;
 };
 
 export type SessionEvent = {

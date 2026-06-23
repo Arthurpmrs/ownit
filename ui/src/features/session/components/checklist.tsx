@@ -72,7 +72,7 @@ export function SessionChecklist({
 
   function handleAddItem(e: React.FormEvent) {
     e.preventDefault();
-    if (!newItemText.trim()) return;
+    if (!newItemText.trim()) {return;}
 
     const newItem: ChecklistItem = {
       id: crypto.randomUUID(),
@@ -129,7 +129,7 @@ export function SessionChecklist({
         <Divider />
 
         <form onSubmit={handleAddItem}>
-          <Group gap="xs" align="flex-end" justify='center'>
+          <Group gap="xs" align="flex-end" justify="center">
             <TextInput
               placeholder="Ex: Resolver lista de exercícios 3..."
               value={newItemText}
