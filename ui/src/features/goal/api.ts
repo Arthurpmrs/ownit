@@ -10,8 +10,14 @@ import type {
   StrategyMetricsData,
   UpdateStudySessionData,
 } from './models';
-import type { StudySessionWithHistoryDTO, StudySessionDTO } from '../session/dto';
-import { studySessionWithHistoryMapper, studySessionMapper } from '../session/mapper';
+import type {
+  StudySessionWithHistoryDTO,
+  StudySessionDTO,
+} from '../session/dto';
+import {
+  studySessionWithHistoryMapper,
+  studySessionMapper,
+} from '../session/mapper';
 import type { StudySessionWithHistory, StudySession } from '../session/models';
 
 export function getStudySessionOptions(sessionId: string) {
