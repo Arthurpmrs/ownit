@@ -1,5 +1,8 @@
 import { useEvaluateStudySession } from '@/features/goal/hooks';
-import type { EvaluateSessionData } from '@/features/goal/models';
+import type {
+  EvaluateSessionData,
+  StudySessionShort,
+} from '@/features/session/models';
 import {
   Button,
   Center,
@@ -23,7 +26,6 @@ import {
   IconMoodWrrr,
 } from '@tabler/icons-react';
 import { studySessionStrategyMap } from '../mappers';
-import type { StudySessionShort } from '@/features/session/models';
 
 interface EvaluateSessionFormValues {
   planning: number;
@@ -91,7 +93,7 @@ export default function EvaluateSessionModal({
         icon = <IconMoodEmpty style={getIconStyle('yellow')} />;
         break;
       case 4:
-        icon = <IconMoodWink style={getIconStyle('lime')} />;
+        icon = <IconMoodSmile style={getIconStyle('lime')} />;
         break;
       case 5:
         icon = <IconMoodWink style={getIconStyle('green')} />;
