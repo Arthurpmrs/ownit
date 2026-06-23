@@ -1,5 +1,4 @@
 import Header from '@/features/appshell/header';
-import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
 import {
   ActionIcon,
   Alert,
@@ -26,7 +25,7 @@ import {
   IconSquareCheck,
   IconTarget,
 } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
 import Color from '@tiptap/extension-color';
 import Link from '@tiptap/extension-link';
@@ -38,6 +37,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { useEffect, useState } from 'react';
 import { getStudySessionOptions } from '../api';
 import { Pomodoro } from './pomodoro';
+import EvaluateSessionModal from '@/features/goal/components/evaluate-session-modal';
 
 const INITIAL_CHECKLIST = [
   { id: 1, label: 'Text here', checked: true },
@@ -64,35 +64,11 @@ export default function SessionExecution() {
     content: INITIAL_NOTES,
   });
 
+  const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
   const [comment, setComment] = useState('');
   const [checklist, setChecklist] = useState(INITIAL_CHECKLIST);
 
   const isFinished = data?.studySession.status === 'done';
-
-  const queryClient = useQueryClient();
-  const updateStatus = useUpdateStudySessionStatus(
-    data?.studySession.goalId ?? '',
-  );
-
-  const handleFinishSession = () => {
-    if (!data) {
-      return;
-    }
-    const { studySession } = data;
-    updateStatus.mutate(
-      {
-        sessionId: studySession.id,
-        currentStatus: studySession.status,
-        newStatus: 'done',
-      },
-      {
-        onSuccess: () =>
-          queryClient.invalidateQueries({
-            queryKey: getStudySessionOptions(id).queryKey,
-          }),
-      },
-    );
-  };
 
   useEffect(() => {
     if (editor) {
@@ -186,12 +162,17 @@ export default function SessionExecution() {
           variant="outline"
           color="orange"
           disabled={isFinished}
-          loading={updateStatus.isPending}
-          onClick={handleFinishSession}
+          onClick={() => setIsEvaluationModalOpen(true)}
         >
           Finalizar Sessão
         </Button>
       </Header>
+      <EvaluateSessionModal
+        isOpen={isEvaluationModalOpen}
+        setIsOpen={setIsEvaluationModalOpen}
+        goalId={studySession.goalId}
+        session={studySession}
+      />
 
       <Grid py="xl" px="xl" gap="xl">
         {/* Anotações + Histórico de eventos */}
