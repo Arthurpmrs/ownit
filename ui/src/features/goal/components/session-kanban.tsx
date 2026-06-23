@@ -44,7 +44,6 @@ export default function SessionKanban({
   sessions,
   goalId,
   goalStatus,
-  goalStatus,
 }: SessionKanbanProps) {
   const [pendingTransition, setPendingTransition] = useState<{
     sessionId: string;
