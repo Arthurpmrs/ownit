@@ -1,18 +1,20 @@
+import type { Status } from '@/shared/models';
 import { showNotification } from '@mantine/notifications';
 import {
   useMutation,
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query';
-
-import type { Status } from '@/shared/models';
 import { getStudentGoalsOptions } from '../goals/api';
 import {
   createStudySession,
   evaluateStudySession,
+  getGoalOptions,
+  getMetricsOptions,
+  updateGoalStatus,
+  updateStudySession,
   updateStudySessionStatus,
-} from '../session/api';
-import { getGoalOptions } from './api';
+} from './api';
 
 /**
  * Hook para criar uma nova study session.
@@ -25,6 +27,9 @@ export function useCreateStudySession(goalId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: getGoalOptions(goalId).queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
       });
     },
   });
@@ -57,6 +62,9 @@ export function useUpdateStudySessionStatus(goalId: string) {
       queryClient.invalidateQueries({
         queryKey: getGoalOptions(goalId).queryKey,
       });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
+      });
     },
     onError: (error, { currentStatus, newStatus }) => {
       const raw = error instanceof Error ? error.message : '';
@@ -85,6 +93,9 @@ export function useEvaluateStudySession(goalId: string) {
       queryClient.invalidateQueries({
         queryKey: getGoalOptions(goalId).queryKey,
       });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
+      });
     },
     onError: () => {
       showNotification({
@@ -104,6 +115,9 @@ export function useUpdateStudySession(goalId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: getGoalOptions(goalId).queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: getMetricsOptions(goalId).queryKey,
       });
     },
     onError: () => {
@@ -140,7 +154,3 @@ export function useUpdateGoalStatus(goalId: string, studentId?: number) {
     },
   });
 }
-function getMetricsOptions(goalId: string) {
-  throw new Error('Function not implemented.');
-}
-

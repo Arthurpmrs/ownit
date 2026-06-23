@@ -1,30 +1,20 @@
-import { formatDuration, parseDate, parseDuration } from '@/shared/utils';
+import { formatDuration, parseDate } from '@/shared/utils';
+import { goalMapper } from '../goals/mappers';
+import { studySessionShortMapper } from '../session/mapper';
 import type {
-  EventDTO,
   GoalWithSessionsDTO,
-  PomodoroDTO,
-  StrategyAdherenceMetricDTO,
   MetricsDTO,
-  StudySessionDTO,
-  StudySessionShortDTO,
-  StudySessionWithHistoryDTO,
-  SRWeeklyMetricDTO,
   PerformanceSummaryDTO,
+  SRWeeklyMetricDTO,
+  StrategyAdherenceMetricDTO,
 } from './dto';
 import type {
   GoalWithSessions,
   PerformanceSummary,
-  Pomodoro,
   SRWeeklyMetric,
   StrategyAdherenceMetric,
   StrategyMetricsData,
-  StudySession,
-  StudySessionShort,
 } from './models';
-import { goalMapper } from '../goals/mappers';
-import { studySessionShortMapper } from '../session/mapper';
-import type { GoalWithSessionsDTO } from './dto';
-import type { GoalWithSessions } from './models';
 
 export const goalWithSessionsMapper = {
   fromDTO(dto: GoalWithSessionsDTO): GoalWithSessions {

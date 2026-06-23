@@ -28,13 +28,10 @@ interface PomodoroProps {
   pomodoro: Pomodoro;
 }
 
-interface TimeBlock {
-  mode: 'focus' | 'break';
-  durationInSeconds: number;
-}
-
 function toSeconds(timeStr: string): number {
-  if (!timeStr) return 0;
+  if (!timeStr) {
+    return 0;
+  }
   const [hourStr, minutesStr, secStr] = timeStr.split(':');
   const hour = parseInt(hourStr, 10) || 0;
   const minutes = parseInt(minutesStr, 10) || 0;
@@ -69,7 +66,7 @@ export function Pomodoro({
     toSeconds(pomodoro.currentRemainingDuration),
   );
   const totalSessionSeconds = toSeconds(sessionDuration);
-  const startActive = pomodoro.status.includes('mode') ? true : false;
+  const startActive = pomodoro.status.includes('mode');
   const [isActive, setIsActive] = useState(startActive);
   const [currentBlockSeconds, setCurrentBlockSeconds] = useState(0);
 
@@ -81,21 +78,41 @@ export function Pomodoro({
 
     if (isActive && timeLeft > 0) {
       interval = window.setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-        setCurrentBlockSeconds((prev) => prev + 1);
+        setTimeLeft((prevTime) => {
+          // Se o tempo vai zerar neste exato tique:
+          if (prevTime <= 1) {
+            setIsActive(false);
+            setCurrentBlockSeconds(0);
+
+            const nextStatus: PomodoroStatus =
+              pomodoro.status === 'focus_mode' ? 'focus_pause' : 'break_pause';
+
+            updatePomodoroStatusMutation.mutate({
+              sessionId,
+              new_status: nextStatus,
+            });
+            return 0;
+          }
+
+          // Caso contrário, apenas decrementa
+          setCurrentBlockSeconds((prevBlock) => prevBlock + 1);
+          return prevTime - 1;
+        });
       }, 1000);
-    } else if (timeLeft === 0 && isActive) {
-      setIsActive(false);
-      setCurrentBlockSeconds(0);
-      const new_status: PomodoroStatus =
-        pomodoro.status === 'focus_mode' ? 'focus_pause' : 'break_pause';
-      updatePomodoroStatusMutation.mutate({ sessionId, new_status });
     }
 
     return () => {
-      if (interval) window.clearInterval(interval);
+      if (interval) {
+        window.clearInterval(interval);
+      }
     };
-  }, [isActive, timeLeft, mode]);
+  }, [
+    isActive,
+    timeLeft,
+    pomodoro.status,
+    sessionId,
+    updatePomodoroStatusMutation,
+  ]);
 
   function handleModeChange(newMode: string) {
     if (newMode !== mode) {
@@ -147,19 +164,17 @@ export function Pomodoro({
   }
 
   function generateChartSections() {
-    if (totalSessionSeconds <= 0) return [];
+    if (totalSessionSeconds <= 0) {
+      return [];
+    }
 
-    // 1. Cria a cópia do histórico oficial vindo do banco
     const allBlocks = [...(pomodoro.history || [])];
 
-    // 2. Só injetamos o bloco "vivo" atual se o cronômetro estiver ATIVO rodando.
-    // Se o status atual for de pausa (ex: 'focus_pause'), significa que o backend
-    // já processou e incluiu esse tempo dentro do pomodoro.history.
     const isStatusActive = pomodoro.status.includes('mode');
 
     if (currentBlockSeconds > 0 && isStatusActive) {
       allBlocks.push({
-        mode: mode,
+        mode,
         duration: currentBlockSeconds,
       });
     }
@@ -180,19 +195,12 @@ export function Pomodoro({
   return (
     <Card withBorder padding="lg" radius="md">
       <Card.Section inheritPadding py="md">
-        <Stack gap={'xs'}>
+        <Stack gap="xs">
           <Group justify="space-between">
-            <Group gap={'xs'}>
+            <Group gap="xs">
               <IconHourglassEmpty size={16} color="orange" />
-              <Title order={5}>
-                Pomodoro - {pomodoro.status} -{' '}
-                {pomodoro.currentRemainingDuration}
-              </Title>
+              <Title order={5}>Pomodoro</Title>
             </Group>
-            {/* <ActionIcon variant="subtle" color="gray">
-              <IconPencil size={16} stroke={1.7} />
-              // TODO: fazer o modal de config do pomodoro
-            </ActionIcon> */}
           </Group>
           {isActive && (
             <Tooltip

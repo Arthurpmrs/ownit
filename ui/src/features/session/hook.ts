@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updatePomodoroStatus } from './api';
+import { getStudySessionOptions, updatePomodoroStatus } from './api';
 
 export default function useUpdatePomodoroStatus(sessionId: string) {
   const queryClient = useQueryClient();
@@ -7,8 +7,9 @@ export default function useUpdatePomodoroStatus(sessionId: string) {
   return useMutation({
     mutationFn: updatePomodoroStatus,
     onSuccess: () => {
+      // 2. Em vez do array manual, usamos a referência tipada gerada acima
       queryClient.invalidateQueries({
-        queryKey: ['session', sessionId],
+        queryKey: getStudySessionOptions(sessionId).queryKey,
       });
     },
   });

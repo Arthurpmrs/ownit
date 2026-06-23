@@ -4,12 +4,14 @@ export function parseDate(value: string): Date {
 
 // ISO-8601 duration
 export function parseDuration(value: string): string {
-  if (!value) return '00:00:00';
+  if (!value) {
+    return '00:00:00';
+  }
 
   const isoMatch = value.match(
     /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?))?S?/,
   );
-  
+
   if (isoMatch) {
     const [, hours = '0', minutes = '0', seconds = '0'] = isoMatch;
 

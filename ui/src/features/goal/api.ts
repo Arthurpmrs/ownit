@@ -1,27 +1,18 @@
+import type { Status } from '@/shared/models';
+import { durationToIso } from '@/shared/utils';
 import { queryOptions } from '@tanstack/react-query';
+import type { GoalWithSessionsDTO, MetricsDTO } from './dto';
+import { goalWithSessionsMapper, metricsMapper } from './mappers';
 import type {
   CreateStudySessionData,
   EvaluateSessionData,
   GoalWithSessions,
   StrategyMetricsData,
-  StudySession,
-  StudySessionWithHistory,
   UpdateStudySessionData,
 } from './models';
-import { durationToIso } from '@/shared/utils';
-import type {
-  GoalWithSessionsDTO,
-  MetricsDTO,
-  StudySessionDTO,
-  StudySessionWithHistoryDTO,
-} from './dto';
-import {
-  goalWithSessionsMapper,
-  metricsMapper,
-  studySessionMapper,
-  studySessionWithHistoryMapper,
-} from './mappers';
-import type { Status } from '@/shared/models';
+import type { StudySessionWithHistoryDTO, StudySessionDTO } from '../session/dto';
+import { studySessionWithHistoryMapper, studySessionMapper } from '../session/mapper';
+import type { StudySessionWithHistory, StudySession } from '../session/models';
 
 export function getStudySessionOptions(sessionId: string) {
   return queryOptions({
@@ -46,9 +37,6 @@ export async function fetchStudySession(
   const dto: StudySessionWithHistoryDTO = await response.json();
   return studySessionWithHistoryMapper.fromDTO(dto);
 }
-import type { GoalWithSessionsDTO } from './dto';
-import { goalWithSessionsMapper } from './mappers';
-import type { GoalWithSessions } from './models';
 
 export function getGoalOptions(goalId: string) {
   return queryOptions({
