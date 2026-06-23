@@ -1,4 +1,5 @@
 import type { StudySessionShort } from '@/features/session/models';
+import type { Status } from '@/shared/models';
 import { useDraggable } from '@dnd-kit/react';
 import {
   ActionIcon,
@@ -19,7 +20,6 @@ import {
 } from '@tabler/icons-react';
 import { Link } from '@tanstack/react-router';
 import EditSessionModal from './edit-session-modal';
-import type { Status } from '@/shared/models';
 
 interface SessionCardProps {
   session: StudySessionShort;
@@ -32,6 +32,7 @@ export default function SessionCard({
   goalId,
   goalStatus,
 }: SessionCardProps) {
+  const isReadOnly = session.status === 'to_do' || session.status === 'canceled';
   const [editOpened, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
 
@@ -74,16 +75,16 @@ export default function SessionCard({
               to="/sessions/$id"
               params={{ id: session.id }}
               c="black"
-              underline={session.status === 'doing' ? 'hover' : 'never'}
+              underline={!isReadOnly ? 'hover' : 'never'}
               style={{
                 cursor:
-                  session.status === 'doing'
+                  !isReadOnly
                     ? 'pointer'
                     : isDragDisabled
                       ? 'default'
                       : 'grab',
               }}
-              disabled={!(session.status === 'doing')}
+              disabled={!(!isReadOnly)}
               {...({} as any)}
             >
               {session.title}
