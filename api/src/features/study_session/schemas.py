@@ -32,7 +32,7 @@ class StudySessionResponse(StudySessionShortResponse):
     final_comment: str | None = None
     created_at: datetime
     updated_at: datetime
-    checklist: List[ChecklistItemSchema] = []
+    checklist: List[ChecklistItemSchema] = Field(default_factory=list)
 
 
 class StudySessionWithHistory(BaseModel):

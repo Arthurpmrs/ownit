@@ -587,16 +587,21 @@ def update_pomodoro_status(
 
 
 def update_session_checklist(
-    conn: Connection, study_session_id: str, payload: UpdateChecklistRequest
+    conn: Connection,
+    student_id: int,
+    study_session_id: str,
+    payload: UpdateChecklistRequest,
 ) -> List[Dict[str, Any]]:
     """
     Atualiza o checklist de uma sessão de estudos específica.
     """
-    session_exists = conn.execute(
-        select(study_sessions.c.id).where(study_sessions.c.id == study_session_id)
-    ).fetchone()
+    session_exists = conn.scalar(
+        select(study_sessions.c.id).where(
+            *_get_study_session_predicate(study_session_id, student_id)
+        )
+    )
 
-    if not session_exists:
+    if session_exists is None:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Sessão de estudo não encontrada'
         )
@@ -605,8 +610,8 @@ def update_session_checklist(
 
     stmt = (
         update(study_sessions)
-        .where(study_sessions.c.id == study_session_id)
-        .values(checklist=checklist_data)
+        .where(*_get_study_session_predicate(study_session_id, student_id))
+        .values(checklist=checklist_data, updated_at=func.now())
     )
     conn.execute(stmt)
 

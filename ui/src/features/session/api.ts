@@ -184,6 +184,6 @@ export async function updateSessionChecklist({
     throw new Error(`Falha ao salvar o checklist: ${response.statusText}`);
   }
 
-  const data = await response.json();
-  return data.checklist;
+  const data: ChecklistItem[] = await response.json();
+  return data;
 }

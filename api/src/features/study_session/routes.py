@@ -151,7 +151,11 @@ def update_checklist(
     study_session_id: str,
     payload: UpdateChecklistRequest,
     conn: Connection = Depends(get_connection),
+    student_id: int = Depends(get_current_student_id),
 ):
     return service.update_session_checklist(
-        conn=conn, study_session_id=study_session_id, payload=payload
+        conn=conn,
+        student_id=student_id,
+        study_session_id=study_session_id,
+        payload=payload,
     )

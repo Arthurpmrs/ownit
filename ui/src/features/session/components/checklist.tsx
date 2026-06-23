@@ -58,6 +58,10 @@ export function SessionChecklist({
         (item) => item.id === over.id,
       );
 
+      if (oldIndex === -1 || newIndex === -1) {
+        return;
+      }
+
       const reorderedList = arrayMove(initialChecklist, oldIndex, newIndex);
       mutate({ sessionId, checklist: reorderedList });
     }
@@ -139,7 +143,14 @@ export function SessionChecklist({
               style={{ flex: 1 }}
               radius="md"
             />
-            <ActionIcon type="submit" color="orange" size="lg" variant="subtle">
+            <ActionIcon
+              type="submit"
+              color="orange"
+              size="lg"
+              variant="subtle"
+              aria-label="Adicionar tarefa"
+              title="Adicionar tarefa"
+            >
               <IconPlus size={16} />
             </ActionIcon>
           </Group>

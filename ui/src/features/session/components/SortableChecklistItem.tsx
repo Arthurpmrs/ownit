@@ -74,6 +74,7 @@ export function SortableChecklistItem({
         color="red"
         onClick={() => onRemove(item.id)}
         title="Remover tarefa"
+        aria-label="Remover tarefa"
       >
         <IconTrash size={16} />
       </ActionIcon>
