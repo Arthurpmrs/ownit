@@ -1,14 +1,18 @@
 from datetime import datetime, timedelta, timezone
 from typing import TypedDict
 
-from sqlalchemy import Connection, exists, func, insert, select, update
+from sqlalchemy import Connection, delete, exists, func, insert, select, update
 
 from src.core.db import get_engine
 from src.features.analytics.tables import EventType, events
 from src.features.auth.service import create_student
 from src.features.auth.tables import students
 from src.features.goal.tables import goals
-from src.features.study_session.tables import study_sessions
+from src.features.study_session.tables import (
+    PomodoroStatus,
+    study_session_pomodoros,
+    study_sessions,
+)
 from src.shared.schemas import Status
 
 DemoSession = TypedDict(
@@ -24,6 +28,22 @@ DemoSession = TypedDict(
         'to_be_created_at': datetime,
     },
 )
+
+
+def _create_pomodoro(
+    conn: Connection,
+    study_session_id: str,
+):
+    stmt = insert(study_session_pomodoros).values(
+        study_session_id=study_session_id,
+        status=PomodoroStatus.not_started,
+        current_started_at=func.now(),
+        current_remaining_duration=timedelta(minutes=50),
+        focus_duration=timedelta(minutes=50),
+        break_duration=timedelta(minutes=15),
+    )
+
+    conn.execute(stmt)
 
 
 def _create_study_sessions(
@@ -57,6 +77,8 @@ def _create_study_sessions(
                 final_comment='',
             )
         )
+
+        _create_pomodoro(conn, session_data['session_id'])
 
         conn.execute(
             insert(events).values(
@@ -120,6 +142,8 @@ def _create_study_session(
             final_comment='',
         )
     )
+
+    _create_pomodoro(conn, data['session_id'])
 
     conn.execute(
         insert(events).values(
@@ -203,6 +227,18 @@ def _execute_study_session(
     )
 
 
+def _delete_old_demo_goal(conn: Connection):
+    goal_id_old = 'DemoSRLGoalID'
+    conn.execute(delete(events).where(events.c.goal_id == goal_id_old))
+    conn.execute(delete(study_sessions).where(study_sessions.c.goal_id == goal_id_old))
+    conn.execute(
+        delete(study_session_pomodoros)
+        .where(study_session_pomodoros.c.study_session_id == study_sessions.c.id)
+        .where(study_sessions.c.goal_id == goal_id_old)
+    )
+    conn.execute(delete(goals).where(goals.c.id == goal_id_old))
+
+
 def _populate_demo_goal():
     """
     Popula um goal de demonstração com fluxo realista de SRL:
@@ -220,12 +256,15 @@ def _populate_demo_goal():
 
         student_id = student.id
 
-        # Cria o goal de demo para SRL
-        goal_id = 'DemoSRLGoalID'
+        # TODO: Remover gambiarra
+        _delete_old_demo_goal(conn)
+
+        goal_id = 'DemoSRLGoalID2'
 
         stmt = select(exists().where(goals.c.id == goal_id))
         if bool(conn.scalar(stmt)):
             return
+        print('aaaaaaaaaaaaaaaaaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA#############')
 
         now = datetime.now(timezone.utc)
 
