@@ -530,8 +530,7 @@ def update_pomodoro_status(
 
     updated_history = list(pomodoro.history) if pomodoro.history else []
 
-    # Se o status anterior era um modo ativo, calculamos quanto tempo durou
-    if pomodoro.status in [PomodoroStatus.focus_mode, PomodoroStatus.break_mode]:
+    if pomodoro.status in {PomodoroStatus.focus_mode, PomodoroStatus.break_mode}:
         time_spent = int((now - pomodoro.current_started_at).total_seconds())
 
         if time_spent > 0:
