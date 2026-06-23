@@ -1,4 +1,5 @@
 import Header from '@/features/appshell/header';
+import EvaluateSessionModal from '@/features/goal/components/evaluate-session-modal';
 import {
   Alert,
   Anchor,
@@ -19,19 +20,11 @@ import {
   IconTarget,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams, Link as TRLink } from '@tanstack/react-router';
-import Color from '@tiptap/extension-color';
-import Link from '@tiptap/extension-link';
-import TextAlign from '@tiptap/extension-text-align';
-import { TextStyle } from '@tiptap/extension-text-style';
-import Underline from '@tiptap/extension-underline';
-import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { useEffect, useState } from 'react';
+import { Link as TRLink, useParams } from '@tanstack/react-router';
+import { useState } from 'react';
 import { getStudySessionOptions } from '../api';
 import { SessionChecklist } from './checklist';
 import { Pomodoro } from './pomodoro';
-import EvaluateSessionModal from '@/features/goal/components/evaluate-session-modal';
 import { SessionNotes } from './session-notes';
 
 export default function SessionExecution() {
@@ -39,41 +32,8 @@ export default function SessionExecution() {
   const { data, isLoading, error } = useQuery(getStudySessionOptions(id));
 
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
-  const [comment, setComment] = useState('');
 
   const isFinished = data?.studySession.status === 'done';
-
-  const queryClient = useQueryClient();
-  const updateStatus = useUpdateStudySessionStatus(
-    data?.studySession.goalId ?? '',
-  );
-
-  const handleFinishSession = () => {
-    if (!data) {
-      return;
-    }
-    const { studySession } = data;
-    updateStatus.mutate(
-      {
-        sessionId: studySession.id,
-        currentStatus: studySession.status,
-        newStatus: 'done',
-      },
-      {
-        onSuccess: () =>
-          queryClient.invalidateQueries({
-            queryKey: getStudySessionOptions(id).queryKey,
-          }),
-      },
-    );
-  };
-
-  const handleAddComment = () => {
-    if (!comment.trim()) {
-      return;
-    }
-    setComment('');
-  };
 
   if (isLoading) {
     return (
@@ -178,33 +138,8 @@ export default function SessionExecution() {
             <SessionNotes
               sessionId={studySession.id}
               initialNotes={studySession.notes}
+              sessionStatus={studySession.status}
             />
-
-            {/* <Stack gap="sm">
-              <Title order={4}>Histórico de eventos</Title>
-              <p>historico de eventos</p>
-            </Stack>
-
-            <Stack gap="sm">
-              <Textarea
-                value={comment}
-                onChange={(e) => setComment(e.currentTarget.value)}
-                placeholder="Escreva comentários para ajuda nos seus próximos planejamentos"
-                minRows={3}
-                autosize
-                disabled={isFinished}
-                styles={{ input: { backgroundColor: 'white' } }}
-              />
-              <Flex justify="flex-end">
-                <Button
-                  color="orange"
-                  onClick={handleAddComment}
-                  disabled={isFinished}
-                >
-                  Adicionar comentário
-                </Button>
-              </Flex>
-            </Stack> */}
           </Stack>
         </Grid.Col>
 
@@ -215,6 +150,7 @@ export default function SessionExecution() {
               sessionId={studySession.id}
               sessionDuration={studySession.duration}
               pomodoro={studySession.pomodoro}
+              sessionStatus={studySession.status}
             />
 
             <SessionChecklist

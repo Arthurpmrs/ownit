@@ -26,7 +26,6 @@ import {
   IconMoodWrrr,
 } from '@tabler/icons-react';
 import { studySessionStrategyMap } from '../mappers';
-import type { StudySessionShort } from '@/features/session/models';
 
 interface EvaluateSessionFormValues {
   planning: number;
