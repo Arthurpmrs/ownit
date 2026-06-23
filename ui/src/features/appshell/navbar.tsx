@@ -1,10 +1,8 @@
-import { Button, Center, Group, Image } from '@mantine/core';
-import { Link, useMatchRoute } from '@tanstack/react-router';
+import { Center, Group, Image } from '@mantine/core';
+import { Link } from '@tanstack/react-router';
 import AvatarMenu from './avatar-menu';
 
 export default function Navbar() {
-  const matchRoute = useMatchRoute();
-
   return (
     <Group
       justify="space-between"
@@ -16,25 +14,10 @@ export default function Navbar() {
       style={{ borderBottom: '1px solid var(--mantine-color-borderLight-0)' }}
     >
       <Center>
-        <Image src="/assets/ownit-logo.svg" alt="Ownit Logo" w={133} h={46} />
+        <Link to="/goals">
+          <Image src="/assets/ownit-logo.svg" alt="Ownit Logo" w={133} h={46} />
+        </Link>
       </Center>
-      <Group gap="sm" flex={1} justify="center">
-        <Button
-          component={Link}
-          to="/goals"
-          variant={matchRoute({ to: '/goals' }) ? 'filled' : 'subtle'}
-        >
-          Planos
-        </Button>
-
-        <Button
-          component={Link}
-          to="/statistics"
-          variant={matchRoute({ to: '/statistics' }) ? 'filled' : 'subtle'}
-        >
-          Estatísticas
-        </Button>
-      </Group>
       <Center>
         <AvatarMenu />
       </Center>

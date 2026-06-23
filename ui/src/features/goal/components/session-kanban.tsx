@@ -44,6 +44,7 @@ export default function SessionKanban({
   sessions,
   goalId,
   goalStatus,
+  goalStatus,
 }: SessionKanbanProps) {
   const [pendingTransition, setPendingTransition] = useState<{
     sessionId: string;
@@ -129,6 +130,7 @@ export default function SessionKanban({
               sessions={activeSessions}
               icon={<IconPencil size={16} color="#000" />}
               goalId={goalId}
+              goalStatus={goalStatus}
             />
             <SessionColumn
               status="to_do"
@@ -136,6 +138,7 @@ export default function SessionKanban({
               sessions={pendingSessions}
               icon={<IconHourglass size={16} color="#000" />}
               goalId={goalId}
+              goalStatus={goalStatus}
             />
             <SessionColumn
               status="done"
@@ -143,6 +146,7 @@ export default function SessionKanban({
               sessions={completedSessions}
               icon={<IconCircleCheck size={16} color="#000" />}
               goalId={goalId}
+              goalStatus={goalStatus}
             />
             <SessionColumn
               status="canceled"
@@ -150,6 +154,7 @@ export default function SessionKanban({
               sessions={canceledSessions}
               icon={<IconCircleX size={16} color="#000" />}
               goalId={goalId}
+              goalStatus={goalStatus}
             />
           </Stack>
         </Stack>
@@ -195,6 +200,7 @@ interface SessionColumnProps {
   sessions: StudySessionShort[];
   icon: React.ReactNode;
   goalId: string;
+  goalStatus: Status;
 }
 
 function SessionColumn({
@@ -203,6 +209,7 @@ function SessionColumn({
   sessions,
   icon,
   goalId,
+  goalStatus,
 }: SessionColumnProps) {
   const { ref, isDropTarget } = useDroppable({
     id: `column-${status}`,
@@ -234,7 +241,12 @@ function SessionColumn({
         {sessions.length > 0 ? (
           <Stack gap="xs">
             {sessions.map((session) => (
-              <SessionCard key={session.id} session={session} goalId={goalId} />
+              <SessionCard
+                key={session.id}
+                session={session}
+                goalId={goalId}
+                goalStatus={goalStatus}
+              />
             ))}
           </Stack>
         ) : (

@@ -1,11 +1,12 @@
 from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
+from operator import or_
 from typing import Any, Dict, List
 from uuid import uuid4
 
 from fastapi import HTTPException
 from pydantic_core import to_jsonable_python
-from sqlalchemy import exists, func, insert, select, update
+from sqlalchemy import and_, exists, func, insert, select, update
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import IntegrityError
 
@@ -253,6 +254,42 @@ def _get_event_type_based_on_status(old: Status, new: Status) -> EventType:
     return event_type
 
 
+def _update_goal_if_last_study_session(
+    conn: Connection,
+    student_id: int,
+    study_session_id: str,
+):
+    goal_id = conn.scalar(
+        select(study_sessions.c.goal_id).where(
+            *_get_study_session_predicate(study_session_id, student_id)
+        )
+    )
+
+    if not goal_id:
+        raise RuntimeError()
+
+    stmt = (
+        select(func.count())
+        .select_from(study_sessions)
+        .where(
+            and_(
+                study_sessions.c.goal_id == goal_id,
+                or_(
+                    study_sessions.c.status == 'to_do', study_sessions.c.status == 'doing'
+                ),
+            )
+        )
+    )
+
+    remaining_study_sessions = conn.scalar(stmt)
+    if remaining_study_sessions == 0:
+        conn.execute(
+            update(goals)
+            .where(goals.c.id == goal_id)
+            .values(status=Status.done.value, updated_at=func.now())
+        )
+
+
 def update_study_session_status(
     conn: Connection,
     student_id: int,
@@ -327,6 +364,9 @@ def update_study_session_status(
         ),
     )
 
+    if new_status in {Status.canceled, Status.done}:
+        _update_goal_if_last_study_session(conn, student_id, study_session_id)
+
     return study_session
 
 
@@ -377,6 +417,8 @@ def evaluate_study_session(
             },
         ),
     )
+
+    _update_goal_if_last_study_session(conn, student_id, study_session_id)
 
     return study_session
 

@@ -50,10 +50,20 @@ export default function CreateSessionModal({
       break_duration: '00:15',
     },
     validate: {
-      title: (value) =>
-        value.trim().length < 3
-          ? 'Título deve ter pelo menos 3 caracteres'
-          : null,
+      title: (value: string) => {
+        if (value.trim().length < 3) {
+          return 'Título deve ter pelo menos 3 caracteres';
+        }
+
+        if (value.trim().length > 42) {
+          return 'Título deve ter menos de 42 caracteres';
+        }
+      },
+      description: (value: string) => {
+        if (value.trim().length > 256) {
+          return 'Descrição deve ter menos de 256 caracteres';
+        }
+      },
       planned_date: (value) => (!value ? 'Selecione a data planejada' : null),
       session_duration: (value) =>
         !value ? 'Informe a duração da sessão' : null,
@@ -206,11 +216,7 @@ export default function CreateSessionModal({
                     >
                       Limpar
                     </Button>
-                    <Button
-                      type="submit"
-                      radius="sm"
-                      disabled={!form.isValid()}
-                    >
+                    <Button type="submit" radius="sm">
                       Criar Sessão
                     </Button>
                   </Group>

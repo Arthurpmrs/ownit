@@ -20,9 +20,10 @@ export default function Header({
       justify="space-between"
       px="xl"
       py="md"
+      wrap="nowrap"
       style={{ borderBottom: '1px solid var(--mantine-color-borderLight-0)' }}
     >
-      <Group>
+      <Group wrap="nowrap">
         <Center
           bg="orange.6"
           style={{ borderRadius: 'var(--mantine-radius-lg)' }}
@@ -31,7 +32,9 @@ export default function Header({
           {icon}
         </Center>
         <Stack gap="2px" justify="center" align="flex-start">
-          <Title size="h3">{title}</Title>
+          <Title size="h3" lineClamp={2}>
+            {title}
+          </Title>
           <Text c="dimmed" size="xs" component="span">
             {description}
           </Text>
