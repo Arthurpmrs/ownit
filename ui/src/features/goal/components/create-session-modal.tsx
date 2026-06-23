@@ -58,10 +58,6 @@ export default function CreateSessionModal({
         }
       },
       description: (value: string) => {
-        if (value.trim().length < 3) {
-          return 'Descrição deve ter pelo menos 3 caracteres';
-        }
-
         if (value.trim().length > 256) {
           return 'Descrição deve ter menos de 256 caracteres';
         }
