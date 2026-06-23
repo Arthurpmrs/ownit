@@ -26,6 +26,7 @@ interface PomodoroProps {
   sessionId: string;
   sessionDuration: string;
   pomodoro: Pomodoro;
+  sessionStatus: string;
 }
 
 function toSeconds(timeStr: string): number {
@@ -55,7 +56,9 @@ export function Pomodoro({
   sessionId,
   sessionDuration,
   pomodoro,
+  sessionStatus,
 }: PomodoroProps) {
+  const isReadOnly = sessionStatus !== 'doing';
   const startMode =
     pomodoro.status === 'not_started' || pomodoro.status.includes('focus')
       ? 'focus'
@@ -66,7 +69,7 @@ export function Pomodoro({
     toSeconds(pomodoro.currentRemainingDuration),
   );
   const totalSessionSeconds = toSeconds(sessionDuration);
-  const startActive = pomodoro.status.includes('mode');
+  const startActive = pomodoro.status.includes('mode') && !isReadOnly;
   const [isActive, setIsActive] = useState(startActive);
   const [currentBlockSeconds, setCurrentBlockSeconds] = useState(0);
 
@@ -196,7 +199,10 @@ export function Pomodoro({
         <Stack gap="xs">
           <Group justify="space-between">
             <Group gap="xs">
-              <IconHourglassEmpty size={16} color="orange" />
+              <IconHourglassEmpty
+                size={16}
+                color="var(--mantine-color-orange-6)"
+              />
               <Title order={5}>Pomodoro</Title>
             </Group>
           </Group>
@@ -210,7 +216,7 @@ export function Pomodoro({
             id="PomoTabs"
             value={mode}
             onChange={handleModeChange}
-            disabled={isActive}
+            disabled={isActive || isReadOnly}
             radius="xl"
             size="md"
             color="orange"
@@ -297,6 +303,7 @@ export function Pomodoro({
               color="orange"
               variant={isActive ? 'light' : 'filled'}
               onClick={handlePlayPause}
+              disabled={isReadOnly}
             >
               {isActive ? (
                 <IconPlayerPause size={24} />
@@ -311,6 +318,7 @@ export function Pomodoro({
               color="gray"
               variant="subtle"
               onClick={handleReset}
+              disabled={isReadOnly}
             >
               <IconRefresh size={20} />
             </ActionIcon>

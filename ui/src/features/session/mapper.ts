@@ -42,6 +42,7 @@ export const studySessionMapper = {
       goalTitle: dto.goal_title,
 
       notes: dto.notes,
+      checklist: dto.checklist,
 
       pomodoro: pomodoroMapper.fromDTO(dto.pomodoro),
 

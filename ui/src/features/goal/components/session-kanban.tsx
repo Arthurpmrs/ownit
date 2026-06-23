@@ -1,5 +1,6 @@
 import CreateSessionModal from '@/features/goal/components/create-session-modal';
 import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
+import type { StudySessionShort } from '@/features/session/models';
 import type { Status } from '@/shared/models';
 import {
   DragDropProvider,
@@ -23,9 +24,8 @@ import {
   IconPencil,
 } from '@tabler/icons-react';
 import { useCallback, useState } from 'react';
-import SessionCard from './session-card';
 import EvaluateSessionModal from './evaluate-session-modal';
-import type { StudySessionShort } from '@/features/session/models';
+import SessionCard from './session-card';
 
 interface SessionKanbanProps {
   sessions: StudySessionShort[];
@@ -119,7 +119,7 @@ export default function SessionKanban({
         <Stack gap="lg">
           <Group justify="space-between" align="center">
             <Title order={3}>Sessões</Title>
-            <CreateSessionModal goalId={goalId} />
+            <CreateSessionModal goalId={goalId} goalStatus={goalStatus} />
           </Group>
 
           <Stack gap="md">
