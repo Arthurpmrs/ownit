@@ -19,20 +19,24 @@ import {
 } from '@tabler/icons-react';
 import { Link } from '@tanstack/react-router';
 import EditSessionModal from './edit-session-modal';
+import type { Status } from '@/shared/models';
 
 interface SessionCardProps {
   session: StudySessionShort;
   goalId: string;
+  goalStatus: Status;
 }
 
-export default function SessionCard({ session, goalId }: SessionCardProps) {
+export default function SessionCard({ session, goalId, goalStatus }: SessionCardProps) {
   const [editOpened, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
+
+  const isDragDisabled = session.status === 'done' || goalStatus === 'done' || goalStatus === 'to_do';
 
   const { ref, isDragging } = useDraggable({
     id: session.id,
     data: { sessionId: session.id, currentStatus: session.status },
-    disabled: session.status === 'done',
+    disabled: isDragDisabled,
   });
 
   const formatDate = (date: Date) => {
@@ -53,7 +57,7 @@ export default function SessionCard({ session, goalId }: SessionCardProps) {
         withBorder
         style={{
           opacity: isDragging ? 0.4 : 1,
-          cursor: session.status === 'done' ? 'default' : 'grab',
+          cursor: isDragDisabled ? 'default' : 'grab',
         }}
       >
         <Group justify="space-between" align="flex-start" mb={4}>
@@ -68,9 +72,9 @@ export default function SessionCard({ session, goalId }: SessionCardProps) {
                 cursor:
                   session.status === 'doing'
                     ? 'pointer'
-                    : session.status === 'to_do'
-                      ? 'grab'
-                      : 'default',
+                    : isDragDisabled
+                      ? 'default'
+                      : 'grab',
               }}
               disabled={!(session.status === 'doing')}
               {...({} as any)}
@@ -123,7 +127,7 @@ export default function SessionCard({ session, goalId }: SessionCardProps) {
             </Text>
           </Group>
         </Group>
-      </Card>
+      </Card >
 
       <EditSessionModal
         goalId={goalId}

@@ -165,7 +165,7 @@ export default function Plan() {
 
       <Grid py="xl" px="xl" gap="xl">
         <Grid.Col span={{ base: 12, md: 4 }}>
-          <SessionKanban sessions={sessions} goalId={id} />
+          <SessionKanban sessions={sessions} goalId={id} goalStatus={goal.status} />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 8 }}>
           <SessionPerformance goalId={id} />
