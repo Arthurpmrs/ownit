@@ -103,7 +103,7 @@ export default function Plan() {
         title={goal.title}
         description={
           <>
-            <Text component="span" inherit>
+            <Text component="span" inherit lineClamp={3}>
               {goal.description || 'Detalhes da sessão de estudo'}
             </Text>
             <Group gap="lg" mt={8}>

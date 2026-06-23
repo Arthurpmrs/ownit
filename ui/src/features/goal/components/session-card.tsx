@@ -117,7 +117,7 @@ export default function SessionCard({
             </Menu.Dropdown>
           </Menu>
         </Group>
-        <Text size="sm" c="dimmed" mb="sm">
+        <Text size="sm" c="dimmed" mb="sm" lineClamp={3}>
           {session.description}
         </Text>
         <Group gap="lg">

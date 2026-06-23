@@ -136,35 +136,40 @@ export default function SessionExecution() {
       <Header
         title={studySession.title}
         description={
-          <Group gap="lg" mt={4}>
-            <Flex align="center" gap={6}>
-              <IconTarget size={14} color="#868E96" stroke={2} />
-              <Text component="span" size="xs" c="dimmed">
-                <Anchor
-                  component={TRLink}
-                  to="/goals/$id"
-                  params={{ id: studySession.goalId }}
-                  c="gray"
-                  underline="always"
-                  {...({} as any)}
-                >
-                  {studySession.goalTitle}
-                </Anchor>
-              </Text>
-            </Flex>
-            <Flex align="center" gap={6}>
-              <IconCalendar size={14} color="#868E96" stroke={2} />
-              <Text component="span" size="xs" c="dimmed">
-                {dateRange}
-              </Text>
-            </Flex>
-            <Flex align="center" gap={6}>
-              <IconClock size={14} color="#868E96" stroke={2} />
-              <Text component="span" size="xs" c="dimmed">
-                {studySession.duration}
-              </Text>
-            </Flex>
-          </Group>
+          <>
+            <Text component="span" inherit lineClamp={3}>
+              {studySession.description || 'Detalhes da sessão de estudo'}
+            </Text>
+            <Group gap="lg" mt={4}>
+              <Flex align="center" gap={6}>
+                <IconTarget size={14} color="#868E96" stroke={2} />
+                <Text component="span" size="xs" c="dimmed">
+                  <Anchor
+                    component={TRLink}
+                    to="/goals/$id"
+                    params={{ id: studySession.goalId }}
+                    c="gray"
+                    underline="always"
+                    {...({} as any)}
+                  >
+                    {studySession.goalTitle}
+                  </Anchor>
+                </Text>
+              </Flex>
+              <Flex align="center" gap={6}>
+                <IconCalendar size={14} color="#868E96" stroke={2} />
+                <Text component="span" size="xs" c="dimmed">
+                  {dateRange}
+                </Text>
+              </Flex>
+              <Flex align="center" gap={6}>
+                <IconClock size={14} color="#868E96" stroke={2} />
+                <Text component="span" size="xs" c="dimmed">
+                  {studySession.duration}
+                </Text>
+              </Flex>
+            </Group>
+          </>
         }
         icon={<IconSchool stroke={2} color="white" size={32} />}
       >

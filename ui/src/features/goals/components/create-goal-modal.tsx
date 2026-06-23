@@ -47,12 +47,24 @@ export default function CreateGoalModal({
       date_range: [null, null],
     },
     validate: {
-      title: (value: string) =>
-        value.length < 3 ? 'Título deve ter pelo menos 3 caracteres' : null,
+      title: (value: string) => {
+        if (value.length < 3) {
+          return 'Título deve ter pelo menos 3 caracteres';
+        }
+
+        if (value.length > 90) {
+          return 'Título deve ter menos de 90 caracteres';
+        }
+      },
       date_range: (value) =>
         !value[0] || !value[1]
           ? 'Selecione um intervalo de datas válido'
           : null,
+      description: (value: string) => {
+        if (value.length > 256) {
+          return 'Descrição deve ter menos de 256 caracteres';
+        }
+      },
     },
   });
 
@@ -188,7 +200,6 @@ export default function CreateGoalModal({
                     type="submit"
                     radius="sm"
                     loading={createGoalMutation.isPending}
-                    disabled={!form.isValid()}
                   >
                     Criar Plano
                   </Button>

@@ -12,7 +12,7 @@ import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
 import { IconCalendar, IconClock } from '@tabler/icons-react';
 import { useUpdateStudySession } from '../hooks';
-import type { StudySessionShort } from '../models';
+import type { StudySessionShort } from '@/features/session/models';
 
 interface EditSessionFormValues {
   title: string;
@@ -42,10 +42,24 @@ export default function EditSessionModal({
       session_duration: session.duration,
     },
     validate: {
-      title: (value) =>
-        value.trim().length < 3
-          ? 'Título deve ter pelo menos 3 caracteres'
-          : null,
+      title: (value: string) => {
+        if (value.trim().length < 3) {
+          return 'Título deve ter pelo menos 3 caracteres';
+        }
+
+        if (value.trim().length > 42) {
+          return 'Título deve ter menos de 42 caracteres';
+        }
+      },
+      description: (value: string) => {
+        if (value.trim().length < 3) {
+          return 'Descrição deve ter pelo menos 3 caracteres';
+        }
+
+        if (value.trim().length > 256) {
+          return 'Descrição deve ter menos de 256 caracteres';
+        }
+      },
       planned_date: (value) => (!value ? 'Selecione a data planejada' : null),
       session_duration: (value) =>
         !value ? 'Informe a duração da sessão' : null,
@@ -134,7 +148,6 @@ export default function EditSessionModal({
                   type="submit"
                   radius="sm"
                   loading={updateMutation.isPending}
-                  disabled={!form.isValid()}
                 >
                   Salvar
                 </Button>
