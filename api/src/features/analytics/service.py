@@ -218,7 +218,7 @@ def get_self_regulation_metrics(  # noqa
     if goal_status is None:
         raise RuntimeError('Goal is not started')
 
-    if goal_status != 'doing':
+    if goal_status == 'to_do':
         return []
 
     goal_started_timestamp = conn.scalar(
