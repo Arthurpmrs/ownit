@@ -11,9 +11,15 @@ import { useUpdateSessionNotes } from '../hook';
 interface SessionNotesProps {
   sessionId: string;
   initialNotes: string;
+  sessionStatus: string;
 }
 
-export function SessionNotes({ sessionId, initialNotes }: SessionNotesProps) {
+export function SessionNotes({
+  sessionId,
+  initialNotes,
+  sessionStatus,
+}: SessionNotesProps) {
+  const isReadOnly = sessionStatus !== 'doing';
   const { mutate, isPending } = useUpdateSessionNotes(sessionId);
 
   const debouncedSave = useDebouncedCallback((htmlContent: string) => {
@@ -23,6 +29,7 @@ export function SessionNotes({ sessionId, initialNotes }: SessionNotesProps) {
   const editor = useEditor({
     extensions: [StarterKit.configure({ link: false }), Link, Underline],
     content: initialNotes,
+    editable: !isReadOnly,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       debouncedSave(html);
@@ -36,8 +43,8 @@ export function SessionNotes({ sessionId, initialNotes }: SessionNotesProps) {
   }, [initialNotes, editor]);
 
   return (
-    <Card withBorder radius="md" padding="md">
-      <Stack gap="sm">
+    <Card withBorder radius="md" padding="md" h="100%" flex={1}>
+      <Stack gap="sm" h="100%">
         <Group justify="space-between">
           <Group gap="xs">
             <IconNote size={16} color="var(--mantine-color-orange-6)" />
@@ -62,51 +69,53 @@ export function SessionNotes({ sessionId, initialNotes }: SessionNotesProps) {
           </Group>
         </Group>
 
-        <RichTextEditor editor={editor}>
-          <RichTextEditor.Toolbar>
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.Bold />
-              <RichTextEditor.Italic />
-              <RichTextEditor.Strikethrough />
-              <RichTextEditor.Underline />
-              <RichTextEditor.Link />
-            </RichTextEditor.ControlsGroup>
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.H1 />
-              <RichTextEditor.H2 />
-              <RichTextEditor.H3 />
-              <RichTextEditor.H4 />
-            </RichTextEditor.ControlsGroup>
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.BulletList />
-              <RichTextEditor.OrderedList />
-            </RichTextEditor.ControlsGroup>
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.AlignLeft />
-              <RichTextEditor.AlignCenter />
-              <RichTextEditor.AlignRight />
-            </RichTextEditor.ControlsGroup>
-            <RichTextEditor.ControlsGroup>
-              <RichTextEditor.ColorPicker
-                colors={[
-                  '#000000',
-                  '#868E96',
-                  '#FA5252',
-                  '#E64980',
-                  '#BE4BDB',
-                  '#7950F2',
-                  '#4C6EF5',
-                  '#228BE6',
-                  '#15AABF',
-                  '#12B886',
-                  '#40C057',
-                  '#82C91E',
-                  '#FAB005',
-                  '#FD7E14',
-                ]}
-              />
-            </RichTextEditor.ControlsGroup>
-          </RichTextEditor.Toolbar>
+        <RichTextEditor editor={editor} h="100%">
+          {!isReadOnly && (
+            <RichTextEditor.Toolbar>
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Bold />
+                <RichTextEditor.Italic />
+                <RichTextEditor.Strikethrough />
+                <RichTextEditor.Underline />
+                <RichTextEditor.Link />
+              </RichTextEditor.ControlsGroup>
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.H1 />
+                <RichTextEditor.H2 />
+                <RichTextEditor.H3 />
+                <RichTextEditor.H4 />
+              </RichTextEditor.ControlsGroup>
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.BulletList />
+                <RichTextEditor.OrderedList />
+              </RichTextEditor.ControlsGroup>
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.AlignLeft />
+                <RichTextEditor.AlignCenter />
+                <RichTextEditor.AlignRight />
+              </RichTextEditor.ControlsGroup>
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.ColorPicker
+                  colors={[
+                    '#000000',
+                    '#868E96',
+                    '#FA5252',
+                    '#E64980',
+                    '#BE4BDB',
+                    '#7950F2',
+                    '#4C6EF5',
+                    '#228BE6',
+                    '#15AABF',
+                    '#12B886',
+                    '#40C057',
+                    '#82C91E',
+                    '#FAB005',
+                    '#FD7E14',
+                  ]}
+                />
+              </RichTextEditor.ControlsGroup>
+            </RichTextEditor.Toolbar>
+          )}
           <RichTextEditor.Content />
         </RichTextEditor>
       </Stack>

@@ -26,6 +26,7 @@ interface PomodoroProps {
   sessionId: string;
   sessionDuration: string;
   pomodoro: Pomodoro;
+  sessionStatus: string;
 }
 
 function toSeconds(timeStr: string): number {
@@ -55,7 +56,9 @@ export function Pomodoro({
   sessionId,
   sessionDuration,
   pomodoro,
+  sessionStatus,
 }: PomodoroProps) {
+  const isReadOnly = sessionStatus !== 'doing';
   const startMode =
     pomodoro.status === 'not_started' || pomodoro.status.includes('focus')
       ? 'focus'
@@ -71,6 +74,12 @@ export function Pomodoro({
   const [currentBlockSeconds, setCurrentBlockSeconds] = useState(0);
 
   const updatePomodoroStatusMutation = useUpdatePomodoroStatus(sessionId);
+
+  useEffect(() => {
+    if (isReadOnly && isActive) {
+      setIsActive(false);
+    }
+  }, [isReadOnly, isActive]);
 
   // Controla o intervalo do contador regressivo
   useEffect(() => {
@@ -213,7 +222,7 @@ export function Pomodoro({
             id="PomoTabs"
             value={mode}
             onChange={handleModeChange}
-            disabled={isActive}
+            disabled={isActive || isReadOnly}
             radius="xl"
             size="md"
             color="orange"
@@ -300,6 +309,7 @@ export function Pomodoro({
               color="orange"
               variant={isActive ? 'light' : 'filled'}
               onClick={handlePlayPause}
+              disabled={isReadOnly}
             >
               {isActive ? (
                 <IconPlayerPause size={24} />
@@ -314,6 +324,7 @@ export function Pomodoro({
               color="gray"
               variant="subtle"
               onClick={handleReset}
+              disabled={isReadOnly}
             >
               <IconRefresh size={20} />
             </ActionIcon>

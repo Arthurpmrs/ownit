@@ -8,12 +8,14 @@ interface SortableItemProps {
   item: ChecklistItem;
   onToggle: (id: string) => void;
   onRemove: (id: string) => void;
+  isReadOnly: boolean;
 }
 
 export function SortableChecklistItem({
   item,
   onToggle,
   onRemove,
+  isReadOnly,
 }: SortableItemProps) {
   const {
     attributes,
@@ -45,6 +47,7 @@ export function SortableChecklistItem({
         </div>
 
         <Checkbox
+          disabled={isReadOnly}
           checked={item.checked}
           onChange={() => onToggle(item.id)}
           color="orange"
@@ -75,6 +78,7 @@ export function SortableChecklistItem({
         onClick={() => onRemove(item.id)}
         title="Remover tarefa"
         aria-label="Remover tarefa"
+        disabled={isReadOnly}
       >
         <IconTrash size={16} />
       </ActionIcon>

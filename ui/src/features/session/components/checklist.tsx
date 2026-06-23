@@ -21,7 +21,7 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import { IconChecklist, IconPlus } from '@tabler/icons-react';
+import { IconCheckbox, IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useUpdateSessionChecklist } from '../hook';
 import type { ChecklistItem } from '../models';
@@ -30,12 +30,15 @@ import { SortableChecklistItem } from './SortableChecklistItem';
 interface SessionChecklistProps {
   sessionId: string;
   initialChecklist: ChecklistItem[];
+  sessionStatus: string;
 }
 
 export function SessionChecklist({
   sessionId,
   initialChecklist = [],
+  sessionStatus,
 }: SessionChecklistProps) {
+  const isReadOnly = sessionStatus !== 'doing';
   const { mutate } = useUpdateSessionChecklist(sessionId);
   const [newItemText, setNewItemText] = useState('');
 
@@ -100,17 +103,18 @@ export function SessionChecklist({
     <Card withBorder radius="md" padding="lg">
       <Stack gap="md">
         <Group gap="xs">
-          <IconChecklist size={16} color="var(--mantine-color-orange-6)" />
+          <IconCheckbox size={16} color="var(--mantine-color-orange-6)" />
           <Title order={5}>Checklist</Title>
         </Group>
 
         <DndContext
-          sensors={sensors}
+          sensors={isReadOnly ? [] : sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
           <SortableContext
             items={initialChecklist}
+            disabled={isReadOnly}
             strategy={verticalListSortingStrategy}
           >
             <Stack gap="xs" style={{ maxHeight: '350px', overflowY: 'auto' }}>
@@ -125,6 +129,7 @@ export function SessionChecklist({
                     item={item}
                     onToggle={handleToggleCheck}
                     onRemove={handleRemoveItem}
+                    isReadOnly
                   />
                 ))
               )}
@@ -134,27 +139,33 @@ export function SessionChecklist({
 
         <Divider />
 
-        <form onSubmit={handleAddItem}>
-          <Group gap="xs" align="flex-end" justify="center">
-            <TextInput
-              placeholder="Ex: Resolver lista de exercícios 3..."
-              value={newItemText}
-              onChange={(e) => setNewItemText(e.currentTarget.value)}
-              style={{ flex: 1 }}
-              radius="md"
-            />
-            <ActionIcon
-              type="submit"
-              color="orange"
-              size="lg"
-              variant="subtle"
-              aria-label="Adicionar tarefa"
-              title="Adicionar tarefa"
-            >
-              <IconPlus size={16} />
-            </ActionIcon>
-          </Group>
-        </form>
+        {!isReadOnly ? (
+          <form onSubmit={handleAddItem}>
+            <Group gap="xs" align="flex-end" justify="center">
+              <TextInput
+                placeholder="Ex: Resolver lista de exercícios 3..."
+                value={newItemText}
+                onChange={(e) => setNewItemText(e.currentTarget.value)}
+                style={{ flex: 1 }}
+                radius="md"
+              />
+              <ActionIcon
+                type="submit"
+                color="orange"
+                size="lg"
+                variant="subtle"
+                aria-label="Adicionar tarefa"
+                title="Adicionar tarefa"
+              >
+                <IconPlus size={16} />
+              </ActionIcon>
+            </Group>
+          </form>
+        ) : (
+          <Text size="xs" c="dimmed" ta="center">
+            O checklist não pode ser alterado fora do modo de execução.
+          </Text>
+        )}
       </Stack>
     </Card>
   );

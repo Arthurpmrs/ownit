@@ -11,8 +11,6 @@ import {
   Loader,
   Stack,
   Text,
-  Textarea,
-  Title,
 } from '@mantine/core';
 import {
   IconCalendar,
@@ -148,18 +146,17 @@ export default function SessionExecution() {
 
       <Grid py="xl" px="xl" gap="xl">
         <Grid.Col span={{ base: 12, md: 8 }}>
-          <Stack gap="xl">
+          <Stack gap="xl" h="100%">
             <SessionNotes
               sessionId={studySession.id}
               initialNotes={studySession.notes}
             />
 
-            <Stack gap="sm">
+            {/* <Stack gap="sm">
               <Title order={4}>Histórico de eventos</Title>
               <p>historico de eventos</p>
             </Stack>
 
-            {/* Comentários */}
             <Stack gap="sm">
               <Textarea
                 value={comment}
@@ -179,7 +176,7 @@ export default function SessionExecution() {
                   Adicionar comentário
                 </Button>
               </Flex>
-            </Stack>
+            </Stack> */}
           </Stack>
         </Grid.Col>
 
@@ -195,6 +192,7 @@ export default function SessionExecution() {
             <SessionChecklist
               sessionId={studySession.id}
               initialChecklist={studySession.checklist}
+              sessionStatus={studySession.status}
             />
           </Stack>
         </Grid.Col>

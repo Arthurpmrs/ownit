@@ -1,6 +1,6 @@
 import CreateSessionModal from '@/features/goal/components/create-session-modal';
 import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
-import type { StudySessionShort } from '@/features/goal/models';
+import type { StudySessionShort } from '@/features/session/models';
 import type { Status } from '@/shared/models';
 import {
   DragDropProvider,
@@ -24,12 +24,13 @@ import {
   IconPencil,
 } from '@tabler/icons-react';
 import { useCallback, useState } from 'react';
-import SessionCard from './session-card';
 import EvaluateSessionModal from './evaluate-session-modal';
+import SessionCard from './session-card';
 
 interface SessionKanbanProps {
   sessions: StudySessionShort[];
   goalId: string;
+  goalStatus: string;
 }
 
 const STATUS_LABEL: Record<Status, string> = {
@@ -42,6 +43,7 @@ const STATUS_LABEL: Record<Status, string> = {
 export default function SessionKanban({
   sessions,
   goalId,
+  goalStatus,
 }: SessionKanbanProps) {
   const [pendingTransition, setPendingTransition] = useState<{
     sessionId: string;
