@@ -2,6 +2,7 @@ import type { StudySessionShort } from '@/features/session/models';
 import { useDraggable } from '@dnd-kit/react';
 import {
   ActionIcon,
+  Anchor,
   Card,
   Group,
   Menu,
@@ -16,36 +17,42 @@ import {
   IconDots,
   IconPencil,
 } from '@tabler/icons-react';
-import { useNavigate } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import EditSessionModal from './edit-session-modal';
+import type { Status } from '@/shared/models';
 
 interface SessionCardProps {
   session: StudySessionShort;
   goalId: string;
+  goalStatus: Status;
 }
 
-export default function SessionCard({ session, goalId }: SessionCardProps) {
-  const navigate = useNavigate();
+export default function SessionCard({
+  session,
+  goalId,
+  goalStatus,
+}: SessionCardProps) {
   const [editOpened, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
+
+  const isDragDisabled =
+    session.status === 'done' ||
+    goalStatus === 'done' ||
+    goalStatus === 'to_do';
 
   const { ref, isDragging } = useDraggable({
     id: session.id,
     data: { sessionId: session.id, currentStatus: session.status },
-    disabled: session.status === 'done',
+    disabled: isDragDisabled,
   });
 
   const formatDate = (date: Date) => {
-    const hour = String(date.getUTCHours()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
     const minute = String(date.getMinutes()).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const year = date.getUTCFullYear();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
     return `${day}/${month}/${year} às ${hour}:${minute}`;
-  };
-
-  const handleClick = () => {
-    navigate({ to: '/sessions/$id', params: { id: session.id } });
   };
 
   return (
@@ -57,13 +64,30 @@ export default function SessionCard({ session, goalId }: SessionCardProps) {
         withBorder
         style={{
           opacity: isDragging ? 0.4 : 1,
-          cursor: session.status === 'done' ? 'default' : 'grab',
+          cursor: isDragDisabled ? 'default' : 'grab',
         }}
-        onClick={handleClick}
       >
         <Group justify="space-between" align="flex-start" mb={4}>
           <Title order={5} style={{ flex: 1 }}>
-            {session.title}
+            <Anchor
+              component={Link}
+              to="/sessions/$id"
+              params={{ id: session.id }}
+              c="black"
+              underline={session.status === 'doing' ? 'hover' : 'never'}
+              style={{
+                cursor:
+                  session.status === 'doing'
+                    ? 'pointer'
+                    : isDragDisabled
+                      ? 'default'
+                      : 'grab',
+              }}
+              disabled={!(session.status === 'doing')}
+              {...({} as any)}
+            >
+              {session.title}
+            </Anchor>
           </Title>
           <Menu position="bottom-end" withinPortal>
             <Menu.Target>
@@ -93,7 +117,7 @@ export default function SessionCard({ session, goalId }: SessionCardProps) {
             </Menu.Dropdown>
           </Menu>
         </Group>
-        <Text size="sm" c="dimmed" mb="sm">
+        <Text size="sm" c="dimmed" mb="sm" lineClamp={3}>
           {session.description}
         </Text>
         <Group gap="lg">

@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   Container,
-  Divider,
   Image,
   Paper,
   PasswordInput,
@@ -13,7 +12,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 
 import { useLogin } from '@/features/auth/hooks';
 
@@ -47,7 +46,7 @@ export default function Login() {
         autoClose: 3000,
       });
 
-      await navigate({ to: '/' });
+      await navigate({ to: '/goals' });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Erro ao fazer login';
@@ -62,12 +61,13 @@ export default function Login() {
 
   return (
     <Container
-      size="md"
+      size="sm"
       py="xl"
+      mt="xl"
       style={{
         minHeight: '100vh',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
       }}
     >
@@ -76,7 +76,7 @@ export default function Login() {
         p={60}
         withBorder
         style={{
-          minHeight: '70vh',
+          minHeight: '60vh',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -121,7 +121,7 @@ export default function Login() {
               />
 
               <Box ta="right">
-                <Link to="/forgot-password" style={{ textDecoration: 'none' }}>
+                {/* <Link to="/forgot-password" style={{ textDecoration: 'none' }}>
                   <span
                     style={{
                       color: '#FC8A08',
@@ -131,7 +131,7 @@ export default function Login() {
                   >
                     Esqueceu a senha?
                   </span>
-                </Link>
+                </Link> */}
               </Box>
 
               <Button
@@ -145,7 +145,7 @@ export default function Login() {
             </Stack>
           </form>
 
-          <Divider
+          {/* <Divider
             my="md"
             label={
               <Text size="sm" c="dimmed" px="xs" fw={400}>
@@ -165,7 +165,7 @@ export default function Login() {
                 </span>
               </Link>
             </p>
-          </Box>
+          </Box> */}
         </Stack>
       </Paper>
     </Container>
