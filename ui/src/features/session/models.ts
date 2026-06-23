@@ -30,6 +30,7 @@ export type StudySession = {
   finalComment: string | null;
   createdAt: Date;
   updatedAt: Date;
+  checklist: Array<ChecklistItem>
 };
 
 export type SessionEvent = {
@@ -72,3 +73,14 @@ export type PomodoroStatus =
   | 'break_mode'
   | 'break_pause'
   | 'done';
+
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  checked: boolean;
+}
+
+export interface UpdateChecklistPayload {
+  sessionId: string;
+  checklist: ChecklistItem[];
+}

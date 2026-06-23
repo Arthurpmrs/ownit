@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.engine import Connection
@@ -18,6 +19,7 @@ from .exceptions import (
     PomodoroNotFoundError,
 )
 from .schemas import (
+    ChecklistItemSchema,
     CommentCreate,
     PomodoroResponse,
     PomodoroUpdate,
@@ -28,6 +30,7 @@ from .schemas import (
     StudySessionStatusUpdate,
     StudySessionUpdate,
     StudySessionWithHistory,
+    UpdateChecklistRequest,
 )
 
 logger = get_logger(__name__)
@@ -139,3 +142,16 @@ def update_pomodoro_status(
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=str(e))
     except InvalidPomodoroTransitionError as e:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=str(e))
+
+
+@router.patch(
+    path='/{study_session_id}/checklist', response_model=List[ChecklistItemSchema]
+)
+def update_checklist(
+    study_session_id: str,
+    payload: UpdateChecklistRequest,
+    conn: Connection = Depends(get_connection),
+):
+    return service.update_session_checklist(
+        conn=conn, study_session_id=study_session_id, payload=payload
+    )

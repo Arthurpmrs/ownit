@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getStudySessionOptions,
   updatePomodoroStatus,
+  updateSessionChecklist,
   updateSessionNotes,
 } from './api';
 
@@ -23,6 +24,19 @@ export function useUpdateSessionNotes(sessionId: string) {
 
   return useMutation({
     mutationFn: updateSessionNotes,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getStudySessionOptions(sessionId).queryKey,
+      });
+    },
+  });
+}
+
+export function useUpdateSessionChecklist(sessionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateSessionChecklist,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: getStudySessionOptions(sessionId).queryKey,

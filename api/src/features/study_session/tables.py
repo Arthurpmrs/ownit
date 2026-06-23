@@ -50,6 +50,7 @@ study_sessions = Table(
     Column('learning_difficulty_level', Integer),
     Column('strategies', ARRAY(String), default=list),
     Column('final_comment', String, nullable=False, default=''),
+    Column('checklist', JSONB, nullable=False, default=list),
     *timestamp_columns(),
 )
 

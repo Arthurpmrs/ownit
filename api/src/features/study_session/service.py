@@ -1,6 +1,9 @@
 from datetime import UTC, datetime, timedelta
+from http import HTTPStatus
+from typing import Any, Dict, List
 from uuid import uuid4
 
+from fastapi import HTTPException
 from pydantic_core import to_jsonable_python
 from sqlalchemy import exists, func, insert, select, update
 from sqlalchemy.engine import Connection
@@ -29,6 +32,7 @@ from .schemas import (
     StudySessionNotesUpdate,
     StudySessionResponse,
     StudySessionUpdate,
+    UpdateChecklistRequest,
 )
 from .tables import PomodoroStatus, study_session_pomodoros, study_sessions
 
@@ -93,6 +97,7 @@ def create_study_session(
         description=payload.description,
         planned_to_start_at=payload.planned_to_start_at,
         duration=payload.duration,
+        checklist=[],
     )
 
     conn.execute(stmt)
@@ -579,3 +584,30 @@ def update_pomodoro_status(
         logger.warning('Erro ao criar evento')
 
     return response
+
+
+def update_session_checklist(
+    conn: Connection, study_session_id: str, payload: UpdateChecklistRequest
+) -> List[Dict[str, Any]]:
+    """
+    Atualiza o checklist de uma sessão de estudos específica.
+    """
+    session_exists = conn.execute(
+        select(study_sessions.c.id).where(study_sessions.c.id == study_session_id)
+    ).fetchone()
+
+    if not session_exists:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Sessão de estudo não encontrada'
+        )
+
+    checklist_data = [item.model_dump() for item in payload.checklist]
+
+    stmt = (
+        update(study_sessions)
+        .where(study_sessions.c.id == study_session_id)
+        .values(checklist=checklist_data)
+    )
+    conn.execute(stmt)
+
+    return checklist_data

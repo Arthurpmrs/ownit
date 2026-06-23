@@ -12,10 +12,12 @@ import {
   studySessionWithHistoryMapper,
 } from './mapper';
 import type {
+  ChecklistItem,
   EvaluateSessionData,
   Pomodoro,
   StudySession,
   StudySessionWithHistory,
+  UpdateChecklistPayload,
 } from './models';
 
 export function getStudySessionOptions(sessionId: string) {
@@ -164,4 +166,24 @@ export async function updateSessionNotes({
   if (!response.ok) {
     throw new Error(`Falha ao salvar anotações: ${response.statusText}`);
   }
+}
+
+export async function updateSessionChecklist({
+  sessionId,
+  checklist,
+}: UpdateChecklistPayload): Promise<ChecklistItem[]> {
+  const url = `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/checklist`;
+  const response = await fetch(url, {
+    credentials: 'include',
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ checklist }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Falha ao salvar o checklist: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.checklist;
 }

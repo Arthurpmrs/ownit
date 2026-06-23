@@ -1,6 +1,6 @@
 import type { Status } from '@/shared/models';
 import type { EventDTO } from '../goal/dto';
-import type { PomodoroStatus } from './models';
+import type { ChecklistItem, PomodoroStatus } from './models';
 
 export type StudySessionShortDTO = {
   id: string;
@@ -25,6 +25,7 @@ export type StudySessionDTO = StudySessionShortDTO & {
   final_comment: string | null;
   created_at: string;
   updated_at: string;
+  checklist: Array<ChecklistItem>;
 };
 
 export type StudySessionWithHistoryDTO = {

@@ -16,6 +16,7 @@ class StudySessionCreate(BaseModel):
     duration: timedelta
     focus_duration: timedelta | None = None
     break_duration: timedelta | None = None
+    checklist: List[ChecklistItemSchema] = Field(default_factory=list)
 
 
 class StudySessionResponse(StudySessionShortResponse):
@@ -31,6 +32,7 @@ class StudySessionResponse(StudySessionShortResponse):
     final_comment: str | None = None
     created_at: datetime
     updated_at: datetime
+    checklist: List[ChecklistItemSchema] = []
 
 
 class StudySessionWithHistory(BaseModel):
@@ -82,3 +84,13 @@ class PomodoroUpdate(BaseModel):
 
 class CommentCreate(BaseModel):
     comment: str
+
+
+class ChecklistItemSchema(BaseModel):
+    id: str
+    text: str
+    checked: bool
+
+
+class UpdateChecklistRequest(BaseModel):
+    checklist: List[ChecklistItemSchema]

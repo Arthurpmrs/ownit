@@ -1,12 +1,9 @@
 import Header from '@/features/appshell/header';
 import { useUpdateStudySessionStatus } from '@/features/goal/hooks';
 import {
-  ActionIcon,
   Alert,
   Button,
-  Card,
   Center,
-  Checkbox,
   Container,
   Flex,
   Grid,
@@ -20,52 +17,22 @@ import {
 import {
   IconCalendar,
   IconClock,
-  IconPencil,
   IconSchool,
-  IconSquareCheck,
   IconTarget,
 } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
-import Color from '@tiptap/extension-color';
-import Link from '@tiptap/extension-link';
-import TextAlign from '@tiptap/extension-text-align';
-import { TextStyle } from '@tiptap/extension-text-style';
-import Underline from '@tiptap/extension-underline';
-import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { getStudySessionOptions } from '../api';
+import { SessionChecklist } from './checklist';
 import { Pomodoro } from './pomodoro';
 import { SessionNotes } from './session-notes';
-
-const INITIAL_CHECKLIST = [
-  { id: 1, label: 'Text here', checked: true },
-  { id: 2, label: 'Text here', checked: false },
-  { id: 3, label: 'Text here', checked: false },
-  { id: 4, label: 'Text here', checked: false },
-];
-
-const INITIAL_NOTES = `<p>Use este espaço para fazer as anotações durante a execução da sessão.</p>`;
 
 export default function SessionExecution() {
   const { id } = useParams({ from: '/sessions/$id' });
   const { data, isLoading, error } = useQuery(getStudySessionOptions(id));
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline,
-      Link.configure({ openOnClick: false }),
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      TextStyle,
-      Color,
-    ],
-    content: INITIAL_NOTES,
-  });
-
   const [comment, setComment] = useState('');
-  const [checklist, setChecklist] = useState(INITIAL_CHECKLIST);
 
   const isFinished = data?.studySession.status === 'done';
 
@@ -91,20 +58,6 @@ export default function SessionExecution() {
             queryKey: getStudySessionOptions(id).queryKey,
           }),
       },
-    );
-  };
-
-  useEffect(() => {
-    if (editor) {
-      editor.setEditable(!isFinished);
-    }
-  }, [editor, isFinished]);
-
-  const toggleChecklistItem = (itemId: number) => {
-    setChecklist((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, checked: !item.checked } : item,
-      ),
     );
   };
 
@@ -153,6 +106,7 @@ export default function SessionExecution() {
     });
 
   const dateRange = `${formatDate(studySession.plannedToStartAt)} - ${formatDate(studySession.plannedToEndAt)}`;
+  console.log(studySession)
 
   return (
     <>
@@ -194,18 +148,13 @@ export default function SessionExecution() {
       </Header>
 
       <Grid py="xl" px="xl" gap="xl">
-        {/* Anotações + Histórico de eventos */}
         <Grid.Col span={{ base: 12, md: 8 }}>
           <Stack gap="xl">
-            {/* Anotações */}
             <SessionNotes
               sessionId={studySession.id}
-              initialNotes={
-                studySession.notes === '' ? INITIAL_NOTES : studySession.notes
-              }
+              initialNotes={studySession.notes}
             />
 
-            {/* histórico */}
             <Stack gap="sm">
               <Title order={4}>Histórico de eventos</Title>
               <p>historico de eventos</p>
@@ -238,50 +187,13 @@ export default function SessionExecution() {
         {/* Pomodoro + Checklist */}
         <Grid.Col span={{ base: 12, md: 4 }}>
           <Stack gap="lg">
-            {/* Pomodoro */}
             <Pomodoro
               sessionId={studySession.id}
               sessionDuration={studySession.duration}
               pomodoro={studySession.pomodoro}
             />
 
-            {/* Checklist */}
-            <Card radius="md" withBorder padding="lg">
-              <Group justify="space-between" mb="md">
-                <Group gap="xs">
-                  <IconSquareCheck
-                    size={20}
-                    color="var(--mantine-color-orange-6)"
-                  />
-                  <Title order={5}>Checklist</Title>
-                </Group>
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  size="sm"
-                  disabled={isFinished}
-                >
-                  <IconPencil size={16} />
-                </ActionIcon>
-              </Group>
-
-              <Stack gap="sm">
-                {checklist.map((item) => (
-                  <Checkbox
-                    key={item.id}
-                    checked={item.checked}
-                    onChange={() => toggleChecklistItem(item.id)}
-                    label={item.label}
-                    disabled={isFinished}
-                    color="orange"
-                    styles={{
-                      input: { cursor: 'pointer' },
-                      label: { cursor: 'pointer' },
-                    }}
-                  />
-                ))}
-              </Stack>
-            </Card>
+            <SessionChecklist sessionId={studySession.id} initialChecklist={studySession.checklist} />
           </Stack>
         </Grid.Col>
       </Grid>
