@@ -32,7 +32,8 @@ export default function SessionCard({
   goalId,
   goalStatus,
 }: SessionCardProps) {
-  const isReadOnly = session.status === 'to_do' || session.status === 'canceled';
+  const isReadOnly =
+    session.status === 'to_do' || session.status === 'canceled';
   const [editOpened, { open: openEdit, close: closeEdit }] =
     useDisclosure(false);
 
@@ -77,14 +78,13 @@ export default function SessionCard({
               c="black"
               underline={!isReadOnly ? 'hover' : 'never'}
               style={{
-                cursor:
-                  !isReadOnly
-                    ? 'pointer'
-                    : isDragDisabled
-                      ? 'default'
-                      : 'grab',
+                cursor: !isReadOnly
+                  ? 'pointer'
+                  : isDragDisabled
+                    ? 'default'
+                    : 'grab',
               }}
-              disabled={!(!isReadOnly)}
+              disabled={!!isReadOnly}
               {...({} as any)}
             >
               {session.title}
