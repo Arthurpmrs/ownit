@@ -62,7 +62,7 @@ def create_pomodoro(
         study_session_id=study_session_id,
         status=PomodoroStatus.not_started,
         current_started_at=func.now(),
-        current_remaining_duration=timedelta(0),
+        current_remaining_duration=focus_duration,
         focus_duration=focus_duration,
         break_duration=break_duration,
     )
@@ -440,9 +440,15 @@ def _calculate_remaining_duration(
     match pomodoro.status, new_status:
         case PomodoroStatus.not_started, PomodoroStatus.focus_mode:
             duration = pomodoro.focus_duration
-        case PomodoroStatus.focus_mode, PomodoroStatus.break_mode:
+        case (PomodoroStatus.focus_mode, PomodoroStatus.break_mode) | (
+            PomodoroStatus.focus_pause,
+            PomodoroStatus.break_pause,
+        ):
             duration = pomodoro.break_duration
-        case PomodoroStatus.break_mode, PomodoroStatus.focus_mode:
+        case (PomodoroStatus.break_mode, PomodoroStatus.focus_mode) | (
+            PomodoroStatus.break_pause,
+            PomodoroStatus.focus_pause,
+        ):
             duration = pomodoro.focus_duration
         case (PomodoroStatus.focus_mode, PomodoroStatus.focus_pause) | (
             PomodoroStatus.break_mode,
@@ -522,6 +528,17 @@ def update_pomodoro_status(
     now = datetime.now(UTC)
     duration = _calculate_remaining_duration(now, pomodoro, new_status)
 
+    updated_history = list(pomodoro.history) if pomodoro.history else []
+
+    if pomodoro.status in {PomodoroStatus.focus_mode, PomodoroStatus.break_mode}:
+        time_spent = int((now - pomodoro.current_started_at).total_seconds())
+
+        if time_spent > 0:
+            block_mode = (
+                'focus' if pomodoro.status == PomodoroStatus.focus_mode else 'break'
+            )
+            updated_history.append({'mode': block_mode, 'duration': time_spent})
+
     stmt = (
         update(study_session_pomodoros)
         .where(study_session_pomodoros.c.id == pomodoro.id)
@@ -529,6 +546,7 @@ def update_pomodoro_status(
             current_started_at=now,
             current_remaining_duration=duration,
             status=new_status,
+            history=updated_history,
         )
         .returning(study_session_pomodoros)
     )
@@ -547,14 +565,17 @@ def update_pomodoro_status(
         'new_status': new_status,
     }
 
-    create_event(
-        conn,
-        EventCreate(
-            type=_get_pomodoro_event(pomodoro.status, new_status),
-            student_id=student_id,
-            study_session_id=study_session_id,
-            context=to_jsonable_python(context),
-        ),
-    )
+    try:
+        create_event(
+            conn,
+            EventCreate(
+                type=_get_pomodoro_event(pomodoro.status, new_status),
+                student_id=student_id,
+                study_session_id=study_session_id,
+                context=to_jsonable_python(context),
+            ),
+        )
+    except RuntimeError:
+        logger.warning('Erro ao criar evento')
 
     return response

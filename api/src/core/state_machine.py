@@ -29,6 +29,7 @@ class PomodoroStateMachine:
         },
         PomodoroStatus.focus_pause: {
             PomodoroStatus.focus_mode,
+            PomodoroStatus.break_pause,
             PomodoroStatus.done,
             PomodoroStatus.not_started,
         },
@@ -40,6 +41,7 @@ class PomodoroStateMachine:
         },
         PomodoroStatus.break_pause: {
             PomodoroStatus.break_mode,
+            PomodoroStatus.focus_pause,
             PomodoroStatus.done,
             PomodoroStatus.not_started,
         },

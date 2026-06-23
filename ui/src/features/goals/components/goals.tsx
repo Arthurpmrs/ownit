@@ -14,10 +14,8 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useRouteContext } from '@tanstack/react-router';
-
 import { IconBook, IconChevronRight, IconTarget } from '@tabler/icons-react';
 import { useState } from 'react';
 import { getStudentGoalsOptions } from '../api';

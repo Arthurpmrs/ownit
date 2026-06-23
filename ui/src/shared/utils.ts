@@ -2,17 +2,29 @@ export function parseDate(value: string): Date {
   return new Date(value);
 }
 
+// ISO-8601 duration
 export function parseDuration(value: string): string {
-  // ISO-8601 duration
-  const isoMatch = value.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-
-  if (isoMatch) {
-    const [, hours = '0', minutes = '0'] = isoMatch;
-
-    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+  if (!value) {
+    return '00:00:00';
   }
 
-  return '00:00';
+  const isoMatch = value.match(
+    /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?))?S?/,
+  );
+
+  if (isoMatch) {
+    const [, hours = '0', minutes = '0', seconds = '0'] = isoMatch;
+
+    const h = parseInt(hours, 10);
+    const m = parseInt(minutes, 10);
+    const s = parseInt(seconds, 10);
+
+    const pad = (num: number) => String(num).padStart(2, '0');
+
+    return `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }
+
+  return '00:00:00';
 }
 
 export function durationToIso(value: string): string {
